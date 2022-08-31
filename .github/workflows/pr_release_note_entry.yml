@@ -1,0 +1,18 @@
+name: 'Check PR Release Note Entry'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - development
+    tags-ignore:
+      - '*.*'  # ignore releases
+
+jobs:
+  release-note-entry:
+    name: 'Checking release note entry for PR ${{ github.event.number }}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          ls -l ${{ github.workspace }}/newsfragments/${{ github.event.number }}.*.rst

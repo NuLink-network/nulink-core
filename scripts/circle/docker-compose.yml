@@ -1,0 +1,157 @@
+version: '3'
+
+# USAGE
+# docker-compose run nulink-circle-dev python finnegans-wake-demo.py 172.29.1.3:11500
+
+services:
+  nulink-circle-dev:
+    ports:
+      - 11500
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    image: circle:nulink
+    container_name: nulink-circle-dev
+    working_dir: /code/examples/
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.0
+    environment:
+      - FINNEGANS_WAKE_PATH=finnegans_wake_demo/finnegans-wake-excerpt.txt
+  circleursula1:
+    ports:
+      - 11500
+    image: circle:nulink
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.1 --rest-port 11500 --lonely --disable-availability-check --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.1
+    container_name: circleursula1
+  circleursula2:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.2 --rest-port 11500 --disable-availability-check --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.2
+    container_name: circleursula2
+  circleursula3:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.3 --rest-port 11500 --disable-availability-check --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.3
+    container_name: circleursula3
+  circleursula4:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.4 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.4
+    container_name: circleursula4
+  circleursula5:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.5 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.5
+    container_name: circleursula5
+  circleursula6:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.6 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.6
+    container_name: circleursula6
+  circleursula7:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.7 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.7
+    container_name: circleursula7
+  circleursula8:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.8 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.8
+    container_name: circleursula8
+  circleursula9:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.9 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.9
+    container_name: circleursula9
+  circleursula10:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.10 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.10
+    container_name: circleursula10
+  circleursula11:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula1
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.11 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.11
+    container_name: circleursula11
+  circleursula12:
+    ports:
+      - 11500
+    image: circle:nulink
+    depends_on:
+      - circleursula11
+    command: nulink ursula run --dev --federated-only --rest-host 172.29.1.12 --rest-port 11500 --teacher 172.29.1.1:11500 --no-ip-checkup
+    networks:
+      nulink_circle_net:
+        ipv4_address: 172.29.1.12
+    container_name: circleursula12
+
+networks:
+  nulink_circle_net:
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.29.1.0/16

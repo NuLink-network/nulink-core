@@ -1,0 +1,16 @@
+include pyproject.toml
+include LICENSE
+include README.md
+include requirements.txt
+include dev-requirements.txt
+include docs-requirements.txt
+
+recursive-exclude * __pycache__
+global-exclude *.py[cod]
+
+recursive-include nulink/blockchain/eth/contract_registry *.json *.md
+prune nulink/blockchain/eth/contract_registry/historical
+recursive-include nulink/network/templates *.html *.mako
+recursive-include nulink/utilities/templates *.html *.mako
+recursive-include deploy/ansible/worker *.yml
+recursive-include nulink/acumen *.json

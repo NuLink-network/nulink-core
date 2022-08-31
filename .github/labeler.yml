@@ -1,0 +1,18 @@
+ETH Contracts:
+  - nulink/blockchain/eth/sol/source/**/*
+
+CLI:
+  - nulink/cli/**/*
+
+circleci:
+  - .circleci/**/*
+
+Demos:
+  - examples/**/*
+
+Dependencies:
+  - Pipfile
+  - Pipfile.lock
+  - setup.py
+  - dev-requirements.txt
+  - requirements.txt
