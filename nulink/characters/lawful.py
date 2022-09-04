@@ -1124,7 +1124,7 @@ class Ursula(Teacher, Character, Operator):
                          min_stake: int,
                          network_middleware: RestMiddleware = None,
                          registry: BaseContractRegistry = None,
-                         retry_attempts: int = 2,
+                         retry_attempts: int = 3,
                          retry_interval: int = 2
                          ) -> 'Ursula':
 

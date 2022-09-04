@@ -130,7 +130,7 @@ class NulinkMiddlewareClient:
         response = self.get(node_or_sprout=EXEMPT_FROM_VERIFICATION,
                             host=host, port=port,
                             path="public_information",
-                            timeout=2)
+                            timeout=20)
         return response.content
 
     def __getattr__(self, method_name):

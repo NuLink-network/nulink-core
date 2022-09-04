@@ -44,6 +44,17 @@ class PorterInterface(ControlInterface):
         response_data = {"ursulas": ursulas_info}
         return response_data
 
+    @attach_schema(porter_schema.StakerGetUrsulasTotal)
+    def get_ursulas_total(self, return_list: bool = False) -> dict:
+        ret = self.implementer.get_ursulas_total(return_list)
+
+        if return_list:
+            response_data = {"total": ret[0], 'list': ret[1]}
+        else:
+            response_data = {"total": ret}
+
+        return response_data
+
     @attach_schema(porter_schema.AliceRevoke)
     def revoke(self) -> dict:
         # Steps (analogous to nucypher.character.control.interfaces):
@@ -65,6 +76,6 @@ class PorterInterface(ControlInterface):
                                                              alice_verifying_key=alice_verifying_key,
                                                              bob_encrypting_key=bob_encrypting_key,
                                                              bob_verifying_key=bob_verifying_key)
-        results = retrieval_results   # list of RetrievalResult objects
+        results = retrieval_results  # list of RetrievalResult objects
         response_data = {'retrieval_results': results}
         return response_data

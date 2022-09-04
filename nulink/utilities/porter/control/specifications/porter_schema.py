@@ -15,7 +15,6 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import click
 from marshmallow import fields as marshmallow_fields
 from marshmallow import validates_schema
@@ -88,7 +87,7 @@ class AliceGetUrsulas(BaseSchema):
 
     # output
     ursulas = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSchema), dump_only=True)
-    
+
     @validates_schema
     def check_valid_quantity_and_include_ursulas(self, data, **kwargs):
         # TODO does this make sense - perhaps having extra ursulas could be a good thing if some are down or can't
@@ -161,3 +160,21 @@ class BobRetrieveCFrags(BaseSchema):
 
     # output
     retrieval_results = marshmallow_fields.List(marshmallow_fields.Nested(fields.RetrievalResultSchema), dump_only=True)
+
+
+#
+# Staker Endpoints
+#
+class StakerGetUrsulasTotal(BaseSchema):
+    return_list = base_fields.fields.Boolean(
+        required=False,
+        load_only=True,
+        default=False,
+        click=click.option(
+            '--list',
+            '-l',
+            help="whether to return the node list",
+            type=click.BOOL, required=True))
+    # output
+    total = marshmallow_fields.Integer()
+    list = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSimpleSchema), dump_only=True)

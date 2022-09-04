@@ -32,7 +32,7 @@ class RetryRequestMiddleware:
     def __init__(self,
                  make_request: Callable[[RPCEndpoint, Any], RPCResponse],
                  w3: Web3,
-                 retries: int = 3,
+                 retries: int = 7,
                  exponential_backoff: bool = True):
         self.w3 = w3
         self.make_request = make_request

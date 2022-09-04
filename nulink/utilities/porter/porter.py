@@ -15,7 +15,6 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from pathlib import Path
 from typing import List, NamedTuple, Optional, Sequence
 
@@ -47,7 +46,6 @@ from nulink.utilities.porter.control.interfaces import PorterInterface
 
 
 class Porter(Learner):
-
     BANNER = r"""
 
  ______
@@ -158,6 +156,13 @@ the Pipe for PRE Application network operations
         ursulas_info = successes.values()
         return list(ursulas_info)
 
+    def get_ursulas_total(self, return_list=False):
+
+        if return_list:
+            return len(self.known_nodes), [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.uri} for node in self.known_nodes]
+        else:
+            return len(self.known_nodes)
+
     def retrieve_cfrags(self,
                         treasure_map: TreasureMap,
                         retrieval_kits: Sequence[RetrievalKit],
@@ -167,7 +172,7 @@ the Pipe for PRE Application network operations
                         ) -> List[RetrievalResult]:
         client = RetrievalClient(self)
         return client.retrieve_cfrags(treasure_map, retrieval_kits,
-            alice_verifying_key, bob_encrypting_key, bob_verifying_key)
+                                      alice_verifying_key, bob_encrypting_key, bob_verifying_key)
 
     def _make_reservoir(self,
                         quantity: int,
@@ -243,6 +248,12 @@ the Pipe for PRE Application network operations
         def get_ursulas() -> Response:
             """Porter control endpoint for sampling Ursulas on behalf of Alice."""
             response = controller(method_name='get_ursulas', control_request=request)
+            return response
+
+        @porter_flask_control.route('/get_ursulas_total', methods=['GET'])
+        def get_ursulas_total() -> Response:
+            """Porter control endpoint for get Ursulas total count."""
+            response = controller(method_name='get_ursulas_total', control_request=request)
             return response
 
         @porter_flask_control.route("/revoke", methods=['POST'])

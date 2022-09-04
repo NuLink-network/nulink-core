@@ -163,3 +163,28 @@ def run(general_config,
                             tls_key_filepath=tls_key_filepath,
                             tls_certificate_filepath=tls_certificate_filepath,
                             dry_run=dry_run)
+
+
+# add by andi for debug
+if __name__ == '__main__':
+    # # If the local connection is not connected to the extranet's chain, you need to set the proxy PyCHARM in your code to set the function
+    # # https://blog.csdn.net/whatday/article/details/112169945
+    # import os
+    #
+    # os.environ["http_proxy"] = "http://127.0.0.1:7890"
+    # os.environ["https_proxy"] = "http://127.0.0.1:7890"
+
+    run([
+        '--http-port', '9155',
+        '--teacher', '8.219.188.70:9151',  # '192.168.3.20:9151',  # '127.0.0.1:9151',
+        '--network', 'heco_testnet',
+        '--eth-provider', 'https://http-testnet.hecochain.com',
+        '--allow-origins',
+        '--debug'])
+
+    """
+        demo:
+        
+        nulink porter run --http-port 80 --teacher 127.0.0.1:9151 --network mumbai --eth-provider https://polygon-mumbai.g.alchemy.com/v2/JylWDpuNyfSUjWH2exn4VTTmoSTcBo8Z
+
+    """

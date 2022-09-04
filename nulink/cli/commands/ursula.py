@@ -15,11 +15,9 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from pathlib import Path
 
 import click
-from click.testing import CliRunner
 
 from nulink.blockchain.eth.signers.software import ClefSigner
 from nulink.blockchain.eth.networks import NetworksInventory
@@ -75,9 +73,7 @@ from nulink.config.constants import (
 from nulink.crypto.keystore import Keystore
 
 
-
 class UrsulaConfigOptions:
-
     __option_name__ = 'config_options'
 
     def __init__(self,
@@ -278,7 +274,6 @@ group_config_options = group_options(
 
 
 class UrsulaCharacterOptions:
-
     __option_name__ = 'character_options'
 
     def __init__(self, config_options: UrsulaConfigOptions, teacher_uri, min_stake):
@@ -519,32 +514,43 @@ def _pre_launch_warnings(emitter, dev, force):
 
 # add by andi for debug
 if __name__ == '__main__':
-
-    # # 本地连接不上外网的链，需要代码中设置代理 pycharm设置了不起作用
+    # # If the local connection is not connected to the extranet's chain, you need to set the proxy PyCHARM in your code to set the function
     # # https://blog.csdn.net/whatday/article/details/112169945
     # import os
     # os.environ["http_proxy"] = "http://127.0.0.1:7890"
     # os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
+    # Only Windows supports paths. All other systems must start with the network path /, which together is keystore:///
 
-    # 只有windows支持路径，其他系统都必须是网络路径 /开头, 合起来就是 keystore:///
-
-   #  init(['--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic', # 'keystore:///Users/t/data/nulink/keystore' ,
-   # # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-   # #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-   #  '--eth-provider', 'https://http-testnet.hecochain.com',
-   #  '--network', 'heco_testnet',
-   #  '--payment-provider', 'https://http-testnet.hecochain.com',
-   #  '--payment-network', 'heco_testnet',
-   #  '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-   #  '--max-gas-price', '2000000000000'])
+    # init([
+    #     '--config-root', 'D:\\nulink_data\\',
+    #     '--rest-host', '192.168.3.20',
+    #     '--rest-port', '9151',
+    #     '--force',
+    #     '--debug',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic',
+    #     # 'keystore:///Users/t/data/nulink/keystore' ,
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+    #     #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+    #     '--eth-provider', 'https://http-testnet.hecochain.com',
+    #     '--network', 'heco_testnet',
+    #     '--payment-provider', 'https://http-testnet.hecochain.com',
+    #     '--payment-network', 'heco_testnet',
+    #     '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
+    #     '--max-gas-price', '2000000000000'])
 
     run([
         # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+        #     '--rest-host', '192.168.3.20',
+        #     '--rest-port', '9151',
+        '--teacher', 'https://8.219.188.70:9151',
+        '--config-file', 'D:\\nulink_data\\ursula.json',
+        '--db-filepath', 'D:\\nulink_data',
+        '--debug',
+        '--force',
         '--no-ip-checkup',
         '--no-block-until-ready'])
-
 
     """
         demo:

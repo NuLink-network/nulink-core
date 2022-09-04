@@ -15,10 +15,10 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import json
 from pathlib import Path
 from typing import Optional
+import os
 
 from constant_sorrow.constants import UNINITIALIZED_CONFIGURATION
 from cryptography.x509 import Certificate
@@ -34,7 +34,6 @@ from nulink.utilities.networking import LOOPBACK_ADDRESS
 
 
 class UrsulaConfiguration(CharacterConfiguration):
-
     from nulink.characters.lawful import Ursula
     CHARACTER_CLASS = Ursula
     NAME = CHARACTER_CLASS.__name__.lower()
@@ -94,6 +93,15 @@ class UrsulaConfiguration(CharacterConfiguration):
     def generate_runtime_filepaths(self, config_root: Path) -> dict:
         base_filepaths = super().generate_runtime_filepaths(config_root=config_root)
         filepaths = dict(db_filepath=config_root / self.DEFAULT_DB_NAME)
+
+        if not filepaths['db_filepath'].exists():
+            try:
+                # the self.DEFAULT_DB_NAME is a directory ,so we create directory (not a file)
+                os.makedirs(str(filepaths['db_filepath']))
+            except Exception as e:
+                # we may not have enough access
+                print(f"create {filepaths['db_filepath']} failed, reason: {str(e)}")
+
         base_filepaths.update(filepaths)
         return base_filepaths
 
@@ -135,6 +143,7 @@ class UrsulaConfiguration(CharacterConfiguration):
             class MockDatastoreThreadPool(object):
                 def callInThread(self, f, *args, **kwargs):
                     return f(*args, **kwargs)
+
             ursula.datastore_threadpool = MockDatastoreThreadPool()
 
         return ursula
