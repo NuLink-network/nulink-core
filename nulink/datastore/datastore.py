@@ -96,10 +96,10 @@ class Datastore:
 
         self.db_path = db_path
         disk_available_bytes = get_free_space_mb(str(db_path))
-        map_size = self.LMDB_MAP_SIZE if self.LMDB_MAP_SIZE < disk_available_bytes else disk_available_bytes - 30_000_000_000  # 10G
-        if map_size <= 20_000_000_000:
-            raise Exception(f"the disk {db_path.anchor} available space must greater than 50 G")
-        map_size = 200_000_000  # for andi test
+        map_size = self.LMDB_MAP_SIZE if self.LMDB_MAP_SIZE < disk_available_bytes else disk_available_bytes - 10_000_000_000  # 10G
+        if map_size <= 10_000_000_000:
+            raise Exception(f"the disk {db_path.anchor} available space must greater than 20 G")
+        # map_size = 200_000_000  # for test
         self.__db_env = lmdb.open(str(db_path), map_size=map_size)
 
     @contextmanager
