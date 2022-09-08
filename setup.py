@@ -45,7 +45,6 @@ PYPI_CLASSIFIERS = [
       "Operating System :: OS Independent",
       "Programming Language :: Python",
       "Programming Language :: Python :: 3 :: Only",
-      "Programming Language :: Python :: 3.6",
       "Programming Language :: Python :: 3.7",
       "Programming Language :: Python :: 3.8",
       "Programming Language :: Python :: 3.9",
@@ -91,7 +90,7 @@ class PostDevelopCommand(develop):
     def run(self):
         """development setup scripts (pre-requirements)"""
         develop.run(self)
-        subprocess.call(f"scripts/installation/install_solc.py")
+        # subprocess.call(f"scripts/installation/install_solc.py")
 
 
 #

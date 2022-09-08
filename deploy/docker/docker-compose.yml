@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  nulink:
+    image: nulink:latest
+    container_name: nulink
+    ports:
+      - "9151:9151"
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+    volumes:
+      - ~/.local/share/nulink:/nulink
+#    environment:
+#      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    stdin_open: true
+    tty: true
