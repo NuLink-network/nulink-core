@@ -25,18 +25,29 @@ Then you can do things like:
 
 ###### run in host machines
 
-* docker run  -p 19151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink nulink ursula init --signer keystore://./keystore_matic --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000
+* init an ursula config
 
-* docker run  -p 19151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+  `docker run  -p 19151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink nulink ursula init --signer keystore://./keystore_matic --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000`
+
+
+* start up an ursula
+  
+  `docker run  -p 19151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready`
+
+
 
 ###### or run in the docker container
 
-* docker run  -p 9151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink /bin/bash
+* run docker container:
+
+  `docker run  -p 9151:9151 -v /path/host/machine/directory:/code --rm -it iandy2233/nulink /bin/bash`
 
 
 * init an ursula config:
+
   `nulink ursula init --signer keystore:///code/subpath/to/keystore --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000`
 
 
 * start up an ursula:
+
   `nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready`
