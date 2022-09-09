@@ -15,9 +15,12 @@ These registries comprise the official addresses and ABIs for the networks' smar
         * [**SimplePREApplication**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
         * [**SubscriptionManager**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 * `heco_testnet`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum heco testnet.
+* `bsc_testnet`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum bsc testnet.
 
 
 ## Historical networks
 
+## heco_testnet tips
+heco_testnet test network lacks getPolicyCost method for SubscriptionManager contract
 
 

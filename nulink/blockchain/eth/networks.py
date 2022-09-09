@@ -31,32 +31,41 @@ class NetworksInventory:  # TODO: See #1564
     HECO = 'heco'
     HECO_TESTNET = 'heco_testnet'
 
+    BSC = 'bsc'
+    BSC_TESTNET = 'bsc_testnet'
+
     UNKNOWN = 'unknown'  # TODO: Is there a better way to signal an unknown network?
     DEFAULT = MAINNET
 
     __to_chain_id_eth = {
-        MAINNET: 1,      # Ethereum Mainnet
-        ORYX: 3,         # Ropsten
-        IBEX: 4,         # Rinkeby
-        LYNX: 5,         # Goerli
+        MAINNET: 1,  # Ethereum Mainnet
+        ORYX: 3,  # Ropsten
+        IBEX: 4,  # Rinkeby
+        LYNX: 5,  # Goerli
     }
 
     __to_chain_id_polygon = {
         # TODO: Use naming scheme?
-        POLYGON: 137,    # Polygon Mainnet
-        MUMBAI: 80001,   # Polygon Testnet (Mumbai)
+        POLYGON: 137,  # Polygon Mainnet
+        MUMBAI: 80001,  # Polygon Testnet (Mumbai)
     }
 
-    __to_chain_id_heco ={
+    __to_chain_id_heco = {
         HECO: 128,
         HECO_TESTNET: 256,
+    }
+
+    __to_chain_id_bsc = {
+        BSC: 56,
+        BSC_TESTNET: 97,
     }
 
     ETH_NETWORKS = tuple(__to_chain_id_eth.keys())
     POLY_NETWORKS = tuple(__to_chain_id_polygon.keys())
     HECO_NETWORKS = tuple(__to_chain_id_heco.keys())
+    BSC_NETWORKS = tuple(__to_chain_id_bsc.keys())
 
-    NETWORKS = ETH_NETWORKS + POLY_NETWORKS + HECO_NETWORKS
+    NETWORKS = ETH_NETWORKS + POLY_NETWORKS + HECO_NETWORKS + BSC_NETWORKS
 
     class UnrecognizedNetwork(RuntimeError):
         pass

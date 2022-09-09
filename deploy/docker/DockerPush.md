@@ -1,6 +1,6 @@
 ### Build to generate tag
-docker-compose build
 
+docker-compose build
 
 ```
 output:
@@ -9,7 +9,7 @@ output:
     Successfully tagged nulink:latest
 ```
 
-docker-compose ps
+docker-compose ps or docker images
 
 ```
 output:
@@ -28,4 +28,5 @@ docker push iandy2233/nulink:latest
 ### how to run
 
 docker pull iandy2233/nulink:latest
-docker run  -p 127.0.0.1:19123:19123/tcp -it nulink:latest /bin/bash
+
+docker run  -p 127.0.0.1:19123:19123/tcp -v /path/host/Machine/directory:/code --rm -it iandy2233/nulink /bin/bash

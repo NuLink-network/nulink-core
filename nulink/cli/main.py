@@ -39,7 +39,7 @@ from nulink.cli.painting.help import echo_version, echo_config_root_path, echo_l
 @click.option('--logging-path', help="Echo the logging root directory path",
               is_flag=True, callback=echo_logging_root_path, expose_value=False, is_eager=True)
 def nulink_cli():
-    """Top level command for all things nucypher."""
+    """Top level command for all things nulink."""
 
 
 #

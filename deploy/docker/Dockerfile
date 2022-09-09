@@ -1,5 +1,6 @@
 FROM nucypher/rust-python:3.9.9
 
+# ENV PATH=~/.local/bin:${PATH} # don't use the ~, when run ursula command in the host machine, the ~ is the  host machine (root user, not circleci user), show you can't find nulink executable file in the container's path (in the container, bash run as circleci user)
 ENV PATH=/home/circleci/.local/bin:${PATH}
 
 WORKDIR /code
@@ -28,6 +29,7 @@ RUN sh -c 'python3 -m site --user-site  | xargs sudo chmod 755 && python3 -m sit
 
 # https://www.baeldung.com/linux/docker-cmd-multiple-commands
 #CMD ["/bin/bash","-c","sudo chmod 755 ./startup.sh;./startup.sh"]
+# RUN export PATH="$HOME/.local/bin:~/.local/bin:$PATH"
 
 RUN export PATH="$HOME/.local/bin:$PATH"
 

@@ -67,6 +67,8 @@ TEACHER_NODES = {
     ),
     NetworksInventory.HECO_TESTNET: ("https://to/be/supplied",),
     NetworksInventory.HECO: ("https://to/be/supplied",),
+    NetworksInventory.BSC_TESTNET: ("https://8.219.188.70:9151", "https://8.219.188.70:9152"),
+    NetworksInventory.BSC: ("https://to/be/supplied",),
 }
 
 
@@ -946,7 +948,6 @@ class Learner:
 
 
 class Teacher:
-
     log = Logger("teacher")
     synchronous_query_timeout = 20  # How long to wait during REST endpoints for blockchain queries to resolve
     __DEFAULT_MIN_SEED_STAKE = 0

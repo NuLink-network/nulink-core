@@ -68,7 +68,7 @@ except KeyError:
     raise RuntimeError(message)
 
 # Alice Configuration
-DOMAIN: str = 'heco_testnet'  # mainnet
+DOMAIN: str = 'bsc_testnet'  # mainnet
 DEFAULT_SEEDNODE_URIS: List[str] = [
     *TEACHER_NODES[DOMAIN],
 ]

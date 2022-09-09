@@ -539,18 +539,36 @@ if __name__ == '__main__':
     #     '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
     #     '--max-gas-price', '2000000000000'])
 
-    run([
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        #     '--rest-host', '192.168.3.20',
-        #     '--rest-port', '9151',
-        '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', 'D:\\nulink_data\\ursula.json',
-        '--db-filepath', 'D:\\nulink_data',
-        '--debug',
+    init([
+        '--config-root', 'D:\\nulink_data\\',
+        '--rest-host', '192.168.3.20',
+        '--rest-port', '9151',
         '--force',
-        '--no-ip-checkup',
-        '--no-block-until-ready'])
+        '--debug',
+        '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic',
+        # 'keystore:///Users/t/data/nulink/keystore' ,
+        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+        #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+        '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+        '--network', 'bsc_testnet',
+        '--payment-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+        '--payment-network', 'bsc_testnet',
+        '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
+        '--max-gas-price', '2000000000000'])
+
+
+    # run([
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+    #     # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+    #     #     '--rest-host', '192.168.3.20',
+    #     #     '--rest-port', '9151',
+    #     '--teacher', 'https://8.219.188.70:9151',
+    #     '--config-file', 'D:\\nulink_data\\ursula.json',
+    #     '--db-filepath', 'D:\\nulink_data',
+    #     '--debug',
+    #     '--force',
+    #     '--no-ip-checkup',
+    #     '--no-block-until-ready'])
 
     """
         demo:

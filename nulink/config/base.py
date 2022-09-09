@@ -341,7 +341,7 @@ class CharacterConfiguration(BaseConfiguration):
 
     # Payments
     DEFAULT_PAYMENT_METHOD = 'SubscriptionManager'
-    DEFAULT_PAYMENT_NETWORK = 'heco_testnet'
+    DEFAULT_PAYMENT_NETWORK = 'bsc_testnet'
     DEFAULT_FEDERATED_PAYMENT_METHOD = 'Free'
 
     # Fields specified here are *not* passed into the Character's constructor

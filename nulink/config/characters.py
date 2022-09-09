@@ -97,7 +97,7 @@ class UrsulaConfiguration(CharacterConfiguration):
         if not filepaths['db_filepath'].exists():
             try:
                 # the self.DEFAULT_DB_NAME is a directory ,so we create directory (not a file)
-                os.makedirs(str(filepaths['db_filepath']))
+                os.makedirs(str(filepaths['db_filepath']), exist_ok=True, mode=0o777)
             except Exception as e:
                 # we may not have enough access
                 print(f"create {filepaths['db_filepath']} failed, reason: {str(e)}")
