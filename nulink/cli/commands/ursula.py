@@ -575,7 +575,7 @@ if __name__ == '__main__':
         
         nulink ursula init --signer keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic --eth-provider https://http-testnet.hecochain.com --network heco_testnet --payment-provider https://http-testnet.hecochain.com --payment-network heco_testnet --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000000000000
         
-        nulink ursula run --no-block-until-ready --no-ip-checkup
+        nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready --no-ip-checkup 
         
         nulink bond --signer keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_staker --eth-provider https://http-testnet.hecochain.com --network heco_testnet --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
     

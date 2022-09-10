@@ -853,6 +853,7 @@ class Learner:
             return
 
         try:
+            # metadata_payload: MetadataResponsePayload
             metadata_payload = metadata.verify(current_teacher.stamp.as_umbral_pubkey())
         except Exception as e:
             # TODO (#567): bucket the node as suspicious
