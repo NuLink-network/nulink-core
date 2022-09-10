@@ -24,6 +24,7 @@
 ###### run in host machines
 
 * ensure that the host has permissions on the directory to which it is mapped
+
   `chmod 777 /path/to/host/machine/directory`
 
 * init an ursula config
@@ -38,6 +39,7 @@
 ###### or run in the docker container
 
 * ensure that the host has permissions on the directory to which it is mapped
+
   `chmod 777 /path/to/host/machine/directory`
 
 * run docker container:
