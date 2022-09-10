@@ -751,7 +751,7 @@ class Ursula(Teacher, Character, Operator):
             self._availability_check = availability_check
             self._availability_tracker = AvailabilityTracker(ursula=self)
             if not federated_only:
-                self._operator_bonded_tracker = OperatorBondedTracker(ursula=self)
+                self._operator_bonded_tracker = OperatorBondedTracker(ursula=self, **character_kwargs)
 
             # Policy Payment
             if federated_only and not payment_method:

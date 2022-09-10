@@ -40,8 +40,9 @@ class OperatorBondedTracker(SimpleTask):
     class OperatorNoLongerBonded(RuntimeError):
         """Raised when a running node is no longer associated with a staking provider."""
 
-    def __init__(self, ursula):
+    def __init__(self, ursula, lonely: bool = False):
         self._ursula = ursula
+        self.lonely = lonely
         super().__init__()
 
     def run(self) -> None:
@@ -53,6 +54,15 @@ class OperatorBondedTracker(SimpleTask):
         if staking_provider_address == NULL_ADDRESS:
             # forcibly shut down ursula
             self._shutdown_ursula(halt_reactor=True)
+        else:
+            # when the operator bonded to the staker, automatically start the node discovery mechanism
+            self._start_ursula_learning_loop()
+
+    def _start_ursula_learning_loop(self):
+        if not self.lonely:
+            self._ursula.start_learning_loop(now=True)
+        emitter = StdoutEmitter()
+        emitter.message(f"✓ Node Discovery ({self.domain.capitalize()})", color='green')
 
     def _shutdown_ursula(self, halt_reactor=False):
         emitter = StdoutEmitter()
@@ -78,16 +88,15 @@ class AvailabilityTracker:
         处理示例中不可到达或无效远程节点的可能性。
     """
 
-
-    FAST_INTERVAL = 15    # Seconds
+    FAST_INTERVAL = 15  # Seconds
     SLOW_INTERVAL = 60 * 2
     SEEDING_DURATION = 60
     MAXIMUM_ALONE_TIME = 120
 
     MAXIMUM_SCORE = 10.0  # Score
-    SAMPLE_SIZE = 1       # Ursulas
-    SENSITIVITY = 0.5     # Threshold
-    CHARGE_RATE = 0.9     # Measurement Multiplier
+    SAMPLE_SIZE = 1  # Ursulas
+    SENSITIVITY = 0.5  # Threshold
+    CHARGE_RATE = 0.9  # Measurement Multiplier
 
     class Unreachable(RuntimeError):
         pass
