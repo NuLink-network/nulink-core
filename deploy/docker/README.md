@@ -25,6 +25,7 @@
 
 * ensure that the host has permissions on the directory to which it is mapped
   `chmod 777 /path/to/host/machine/directory`
+
 * init an ursula config
 
   `docker run  -p 9151:9151 -v /path/to/host/machine/directory:/code -v /path/to/host/machine/directory:/home/circleci/.local/share/nulink --rm -it iandy2233/nulink nulink ursula init --signer keystore:///code/subpath/to/keystore --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000`
@@ -35,6 +36,9 @@
 
 
 ###### or run in the docker container
+
+* ensure that the host has permissions on the directory to which it is mapped
+  `chmod 777 /path/to/host/machine/directory`
 
 * run docker container:
 
