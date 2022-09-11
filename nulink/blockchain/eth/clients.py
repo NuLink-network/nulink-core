@@ -68,6 +68,8 @@ PUBLIC_CHAINS = {
     80001: "Polygon/Mumbai",
     128: "Heco",
     256: "Heco/Testnet",
+    56: "Bsc",
+    97: "Bsc/Testnet",
 }
 
 LOCAL_CHAINS = {

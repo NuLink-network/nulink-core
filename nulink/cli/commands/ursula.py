@@ -281,7 +281,7 @@ class UrsulaCharacterOptions:
         self.teacher_uri = teacher_uri
         self.min_stake = min_stake
 
-    def create_character(self, emitter, config_file, json_ipc, load_seednodes=True):
+    def create_character(self, emitter, config_file, json_ipc, load_seednodes=True, verify_node_bonding=True):
         ursula_config = self.config_options.create_config(emitter, config_file)
         is_clef = ClefSigner.is_valid_clef_uri(self.config_options.signer_uri)
         password_required = all((not ursula_config.federated_only,
@@ -301,9 +301,9 @@ class UrsulaCharacterOptions:
                                         unlock_keystore=not self.config_options.dev,
                                         client_password=__password,
                                         unlock_signer=False,  # Ursula's unlock is managed separately using client_password.
-                                        lonely=self.config_options.lonely,
                                         start_learning_now=load_seednodes,
-                                        json_ipc=json_ipc)
+                                        json_ipc=json_ipc,
+                                        verify_node_bonding=verify_node_bonding)
             return ursula_config, URSULA
 
         except Keystore.AuthenticationFailed as e:
@@ -440,7 +440,8 @@ def run(general_config, character_options, config_file, interactive, dry_run, pr
 
     ursula_config, URSULA = character_options.create_character(emitter=emitter,
                                                                config_file=config_file,
-                                                               json_ipc=general_config.json_ipc)
+                                                               json_ipc=general_config.json_ipc,
+                                                               verify_node_bonding=block_until_ready)
 
     if ip_checkup and not (dev_mode or lonely):
         # Always skip startup IP checks for dev and lonely modes.
@@ -528,55 +529,26 @@ if __name__ == '__main__':
     #     '--rest-port', '9151',
     #     '--force',
     #     '--debug',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
     #     #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-    #     '--eth-provider', 'https://http-testnet.hecochain.com',
-    #     '--network', 'heco_testnet',
-    #     '--payment-provider', 'https://http-testnet.hecochain.com',
-    #     '--payment-network', 'heco_testnet',
+    #     '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+    #     '--network', 'bsc_testnet',
+    #     '--payment-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+    #     '--payment-network', 'bsc_testnet',
     #     '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
     #     '--max-gas-price', '2000000000000'])
 
-    init([
-        '--config-root', 'D:\\nulink_data\\',
-        '--rest-host', '192.168.3.20',
-        '--rest-port', '9151',
-        '--force',
-        '--debug',
-        '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic',
-        # 'keystore:///Users/t/data/nulink/keystore' ,
+    run([
         # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
-        '--network', 'bsc_testnet',
-        '--payment-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
-        '--payment-network', 'bsc_testnet',
-        '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-        '--max-gas-price', '2000000000000'])
-
-
-    # run([
-    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-    #     # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-    #     #     '--rest-host', '192.168.3.20',
-    #     #     '--rest-port', '9151',
-    #     '--teacher', 'https://8.219.188.70:9151',
-    #     '--config-file', 'D:\\nulink_data\\ursula.json',
-    #     '--db-filepath', 'D:\\nulink_data',
-    #     '--debug',
-    #     '--force',
-    #     '--no-ip-checkup',
-    #     '--no-block-until-ready'])
-
-    """
-        demo:
-        
-        nulink ursula init --signer keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_matic --eth-provider https://http-testnet.hecochain.com --network heco_testnet --payment-provider https://http-testnet.hecochain.com --payment-network heco_testnet --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000000000000
-        
-        nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready --no-ip-checkup 
-        
-        nulink bond --signer keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_staker --eth-provider https://http-testnet.hecochain.com --network heco_testnet --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
-    
-    """
+        # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
+        #     '--rest-host', '192.168.3.20',
+        #     '--rest-port', '9151',
+        '--teacher', 'https://8.219.188.70:9151',
+        '--config-file', 'D:\\nulink_data\\ursula.json',
+        '--db-filepath', 'D:\\nulink_data',
+        '--debug',
+        # '--force',
+        '--no-ip-checkup',
+        '--no-block-until-ready'])

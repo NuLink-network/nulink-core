@@ -35,14 +35,13 @@ from nulink.utilities.task import SimpleTask
 
 # OperatorBondedTracker 判断质押者的地址是否为NULL
 class OperatorBondedTracker(SimpleTask):
-    INTERVAL = 60 * 60  # 1 hour
+    INTERVAL = 30  # 30 seconds
 
     class OperatorNoLongerBonded(RuntimeError):
         """Raised when a running node is no longer associated with a staking provider."""
 
-    def __init__(self, ursula, lonely: bool = False):
+    def __init__(self, ursula):
         self._ursula = ursula
-        self.lonely = lonely
         super().__init__()
 
     def run(self) -> None:
@@ -53,25 +52,28 @@ class OperatorBondedTracker(SimpleTask):
             operator_address=self._ursula.operator_address)
         if staking_provider_address == NULL_ADDRESS:
             # forcibly shut down ursula
-            self._shutdown_ursula(halt_reactor=True)
+            self._shutdown_ursula(halt_reactor=False, halt_operator_bonded_tracker=False)
         else:
             # when the operator bonded to the staker, automatically start the node discovery mechanism
-            self._start_ursula_learning_loop()
+            self._start_ursula(hendrix=False)
 
-    def _start_ursula_learning_loop(self):
-        if not self.lonely:
-            self._ursula.start_learning_loop(now=True)
+    def _start_ursula(self, hendrix: bool = True, prometheus_config: 'PrometheusMetricsConfig' = None):
         emitter = StdoutEmitter()
-        emitter.message(f"✓ Node Discovery ({self.domain.capitalize()})", color='green')
+        emitter.message(f"Restarting services", color='yellow')
+        self._ursula.run(emitter, discovery=True, availability=False, worker=True, interactive=False, preflight=False, block_until_ready=False, eager=True, prometheus_config=prometheus_config)
 
-    def _shutdown_ursula(self, halt_reactor=False):
+    def _shutdown_ursula(self, halt_reactor=False, halt_operator_bonded_tracker=True):
         emitter = StdoutEmitter()
         emitter.message(f'x [Operator {self._ursula.operator_address} is no longer bonded to any '
                         f'staking provider] - Commencing auto-shutdown sequence...', color="red")
         try:
             raise self.OperatorNoLongerBonded()
+        except Exception as e:
+            # If the exception is not caught, the OperatorBondedTracker loop stops running
+            emitter.message(f"OperatorNoLongerBonded", color='red')
         finally:
-            self._ursula.stop(halt_reactor=halt_reactor)
+            print("finally _shutdown_ursula")
+            self._ursula.stop(halt_reactor=halt_reactor, halt_operator_bonded_tracker=halt_operator_bonded_tracker)
 
     def handle_errors(self, failure: Failure) -> None:
         cleaned_traceback = self.clean_traceback(failure)

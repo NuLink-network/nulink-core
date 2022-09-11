@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import uuid
 import weakref
 from http import HTTPStatus
@@ -52,7 +51,6 @@ status_template = Template(filename=str(TEMPLATES_DIR / "basic_status.mako")).ge
 
 
 class ProxyRESTServer:
-
     log = Logger("network-server")
 
     def __init__(self,
@@ -79,8 +77,9 @@ class ProxyRESTServer:
 def make_rest_app(
         db_filepath: Path,
         this_node,
-        log: Logger = Logger("http-application-layer")
-        ) -> Tuple[Flask, Datastore]:
+        log: Logger = Logger("http-application-layer"),
+        lmdb_map_size=None,
+) -> Tuple[Flask, Datastore]:
     """
     Creates a REST application and an associated ``Datastore`` object.
     Note that the REST app **does not** hold a reference to the datastore;
@@ -94,14 +93,13 @@ def make_rest_app(
     # and will hold the datastore reference if it is created there.
 
     log.info("Starting datastore {}".format(db_filepath))
-    datastore = Datastore(db_filepath)
+    datastore = Datastore(db_filepath, map_size=lmdb_map_size)
     rest_app = _make_rest_app(weakref.proxy(datastore), weakref.proxy(this_node), log)
 
     return rest_app, datastore
 
 
 def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
-
     # TODO: Avoid circular imports :-(
     from nulink.characters.lawful import Alice, Bob, Ursula
 

@@ -84,10 +84,10 @@ class Datastore:
     """
 
     # LMDB has a `map_size` arg that caps the total size of the database.
-    # We can set this arbitrarily high (512GB) to prevent any run-time crashes.
-    LMDB_MAP_SIZE = 512_000_000_000
+    # We can set this arbitrarily high (50GB) to prevent any run-time crashes.
+    LMDB_MAP_SIZE = 50_000_000_000
 
-    def __init__(self, db_path: Path) -> None:
+    def __init__(self, db_path: Path, map_size=None) -> None:
         """
         Initializes a Datastore object by path.
 
@@ -96,10 +96,13 @@ class Datastore:
 
         self.db_path = db_path
         disk_available_bytes = get_free_space_mb(str(db_path))
-        map_size = self.LMDB_MAP_SIZE if self.LMDB_MAP_SIZE < disk_available_bytes else disk_available_bytes - 10_000_000_000  # 10G
-        if map_size <= 10_000_000_000:
+        if not map_size:
+            map_size = self.LMDB_MAP_SIZE
+
+        map_size = map_size if map_size < disk_available_bytes else (disk_available_bytes - 10_000_000_000)
+        if map_size < 10_000_000_000:
             raise Exception(f"the disk {db_path.anchor} available space must greater than 20 G")
-        # map_size = 200_000_000  # for test
+
         self.__db_env = lmdb.open(str(db_path), map_size=map_size)
 
     @contextmanager
@@ -144,11 +147,11 @@ class Datastore:
 
     @contextmanager
     def query_by(self,
-              record_type: Type['DatastoreRecord'],
-              filter_func: Optional[Callable[[Union[Any, Type['DatastoreRecord']]], bool]] = None,
-              filter_field: str = "",
-              writeable: bool = False,
-              ) -> DatastoreQueryResult:
+                 record_type: Type['DatastoreRecord'],
+                 filter_func: Optional[Callable[[Union[Any, Type['DatastoreRecord']]], bool]] = None,
+                 filter_field: str = "",
+                 writeable: bool = False,
+                 ) -> DatastoreQueryResult:
         """
         Performs a query on the datastore for the record by `record_type`.
 

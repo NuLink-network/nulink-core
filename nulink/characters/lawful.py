@@ -751,7 +751,7 @@ class Ursula(Teacher, Character, Operator):
             self._availability_check = availability_check
             self._availability_tracker = AvailabilityTracker(ursula=self)
             if not federated_only:
-                self._operator_bonded_tracker = OperatorBondedTracker(ursula=self, **character_kwargs)
+                self._operator_bonded_tracker = OperatorBondedTracker(ursula=self)
 
             # Policy Payment
             if federated_only and not payment_method:
@@ -844,6 +844,7 @@ class Ursula(Teacher, Character, Operator):
         rest_app, datastore = make_rest_app(
             this_node=self,
             db_filepath=db_filepath,
+            lmdb_map_size=10_000_000_000
         )
         rest_server = ProxyRESTServer(rest_host=host,
                                       rest_port=port,
@@ -991,7 +992,7 @@ class Ursula(Teacher, Character, Operator):
         elif start_reactor:  # ... without hendrix
             reactor.run()  # <--- Blocking Call (Reactor)
 
-    def stop(self, halt_reactor: bool = False) -> None:
+    def stop(self, halt_reactor: bool = False, halt_operator_bonded_tracker=True) -> None:
         """
         Stop services for partially or fully initialized characters.
         # CAUTION #
@@ -1003,7 +1004,8 @@ class Ursula(Teacher, Character, Operator):
             self.stop_learning_loop()
             if not self.federated_only:
                 self.work_tracker.stop()
-                self._operator_bonded_tracker.stop()
+                if halt_operator_bonded_tracker:
+                    self._operator_bonded_tracker.stop()
         if halt_reactor:
             reactor.stop()
 

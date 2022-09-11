@@ -165,7 +165,6 @@ class NLK(ERC20):
     _unit = NlkUNits
 
 
-
 class WorkTrackerBase:
     """Baseclass for handling automated transaction tracking..."""
 
@@ -179,7 +178,7 @@ class WorkTrackerBase:
 
         super().__init__(*args, **kwargs)
         self.log = Logger('stake-tracker')
-        self.worker = worker   # TODO: What to call the subject here?  What is a work tracker without "work"?
+        self.worker = worker  # TODO: What to call the subject here?  What is a work tracker without "work"?
 
         self._tracking_task = task.LoopingCall(self._do_work)
         self._tracking_task.clock = self.CLOCK
@@ -288,7 +287,7 @@ class WorkTrackerBase:
         # TODO: Keep a purpose-built persistent log of worker transaction history
 
         unmined_transactions = 0
-        pending_transactions = self.pending.items()    # note: this must be performed non-mutatively
+        pending_transactions = self.pending.items()  # note: this must be performed non-mutatively
         for tx_firing_block_number, txhash in sorted(pending_transactions):
             if txhash is UNTRACKED_PENDING_TRANSACTION:
                 unmined_transactions += 1
