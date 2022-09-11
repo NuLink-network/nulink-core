@@ -1,8 +1,6 @@
-# Web3.py
+# nulink-web3
 
-[![Documentation Status](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
-[![Discord](https://img.shields.io/discord/809793915578089484?color=blue&label=chat&logo=discord&logoColor=white)](https://discord.gg/GHryRvPB84)
-[![Build Status](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)](https://circleci.com/gh/ethereum/web3.py)
+Fix Web3.py bugs for [nulink](https://www.nulink.org/). Forked by [web3.py](https://github.com/ethereum/web3.py/releases/tag/v6.0.0-beta.1) version 6.0.0b1.
 
 A Python library for interacting with Ethereum, inspired by [web3.js](https://github.com/ethereum/web3.js).
 
@@ -18,13 +16,3 @@ A Python library for interacting with Ethereum, inspired by [web3.js](https://gi
 ## Documentation
 
 For additional guides, examples, and APIs, see the [documentation](https://web3py.readthedocs.io/en/latest/).
-
-## Want to help?
-
-Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our
-guidelines for [contributing](https://web3py.readthedocs.io/en/latest/contributing.html),
-then check out issues that are labeled
-[Good First Issue](https://github.com/ethereum/web3.py/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
-
----
-#### Questions on implementation or usage? Join the conversation on [discord](https://discord.gg/GHryRvPB84).

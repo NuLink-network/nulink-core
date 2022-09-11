@@ -1,6 +1,7 @@
 import collections
 import math
 import operator
+import time
 from typing import (
     Iterable,
     Sequence,
@@ -76,7 +77,7 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
 
 
 def _get_raw_miner_data(
-    w3: Web3, sample_size: int
+        w3: Web3, sample_size: int
 ) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
     latest = w3.eth.get_block('latest', full_transactions=True)
 
@@ -94,12 +95,13 @@ def _get_raw_miner_data(
         # block numbers to make caching the data easier to implement.
         block = w3.eth.get_block(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
+            print(f"get block => number: {block['number']}")
             # type ignored b/c actual transaction is TxData not HexBytes
             yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
 
 
 def _aggregate_miner_data(
-    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
+        raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
 ) -> Iterable[MinerData]:
     data_by_miner = groupby(0, raw_data)
 
@@ -119,7 +121,7 @@ def _aggregate_miner_data(
 
 @to_tuple
 def _compute_probabilities(
-    miner_data: Iterable[MinerData], wait_blocks: int, sample_size: int
+        miner_data: Iterable[MinerData], wait_blocks: int, sample_size: int
 ) -> Iterable[Probability]:
     """
     Computes the probabilities that a txn will be accepted at each of the gas
@@ -138,7 +140,7 @@ def _compute_probabilities(
         yield Probability(low_percentile_gas_price, probability_accepted)
 
 
-def _compute_gas_price(probabilities: Sequence[Probability], desired_probability: float) -> Wei:
+def _compute_gas_price(probabilities: Sequence[Probability], desired_probability: float, last_gas_price: Wei) -> Wei:
     """
     Given a sorted range of ``Probability`` named-tuples returns a gas price
     computed based on where the ``desired_probability`` would fall within the
@@ -148,8 +150,10 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
     :param desired_probability: An floating point representation of the desired
         probability. (e.g. ``85% -> 0.85``)
     """
-    first = probabilities[0]
-    last = probabilities[-1]
+    # fix buy andi start for probabilities is ()
+    first = probabilities[0] if probabilities else Probability(last_gas_price, 1)
+    last = probabilities[-1] if probabilities else Probability(last_gas_price, 1)
+    # fix buy andi end
 
     if desired_probability >= first.prob:
         return Wei(int(first.gas_price))
@@ -183,9 +187,38 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
         raise Exception('Invariant')
 
 
+last_gas_price = 1_000_000_000
+last_gas_price_time = 0
+
+
+# fix buy andi start
+def get_current_gas_price(web3: Web3):
+    current_gas_price_time = time.time()  # second
+
+    global last_gas_price_time, last_gas_price
+
+    if current_gas_price_time - last_gas_price_time <= 5 * 60 * 60:  # 5 hours
+        return last_gas_price
+
+    i = 0
+    while True:
+        try:
+            last_gas_price = web3.eth.gas_price
+            last_gas_price_time = current_gas_price_time
+            return last_gas_price
+        except:
+            i += 1
+            if i >= 5:
+                raise
+            else:
+                time.sleep(i)
+
+
+# # fix buy andi end
+
 @curry
 def construct_time_based_gas_price_strategy(
-    max_wait_seconds: int, sample_size: int = 120, probability: int = 98, weighted: bool = False
+        max_wait_seconds: int, sample_size: int = 120, probability: int = 98, weighted: bool = False
 ) -> GasPriceStrategy:
     """
     A gas pricing strategy that uses recently mined block data to derive a gas
@@ -216,9 +249,11 @@ def construct_time_based_gas_price_strategy(
             wait_blocks=wait_blocks,
             sample_size=sample_size,
         )
-
-        gas_price = _compute_gas_price(probabilities, probability / 100)
+        # fix buy andi start add call param get_current_gas_price(web3)
+        gas_price = _compute_gas_price(probabilities, probability / 100, get_current_gas_price(web3))
+        # fix buy andi end
         return gas_price
+
     return time_based_gas_price_strategy
 
 
