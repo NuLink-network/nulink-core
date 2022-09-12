@@ -13,12 +13,17 @@ Then you can do things like:
 
 * init an ursula config:
 
-  `docker-compose run nulink nulink ursula init --signer keystore://D:\\keystore\\to\path\\keystore --eth-provider https://http-testnet.hecochain.com --network bsc_testnet --payment-provider https://http-testnet.hecochain.com --payment-network heco_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000000000000`
+```shell
+docker-compose run nulink nulink ursula init --signer keystore://D:\\keystore\\to\path\\keystore --eth-provider https://http-testnet.hecochain.com --network bsc_testnet --payment-provider https://http-testnet.hecochain.com --payment-network heco_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 2000000000000
+```
 * start up an ursula:
-  `docker-compose run nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready`
+```shell
+docker-compose run nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+```
 * open a shell:
-  `docker-compose run nulink bash`
-
+```shell
+docker-compose run nulink bash
+```
 
 **tested on (Ubuntu 20, MacOS 10.14, Windows 10)*
 
