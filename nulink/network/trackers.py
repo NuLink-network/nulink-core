@@ -31,6 +31,7 @@ from nulink.network.middleware import RestMiddleware
 from nulink.network.nodes import NodeSprout
 from nulink.utilities.logging import Logger
 from nulink.utilities.task import SimpleTask
+import time
 
 
 # OperatorBondedTracker 判断质押者的地址是否为NULL
@@ -45,22 +46,34 @@ class OperatorBondedTracker(SimpleTask):
         super().__init__()
 
     def run(self) -> None:
-        application_agent = ContractAgency.get_agent(PREApplicationAgent,
-                                                     registry=self._ursula.registry,
-                                                     eth_provider_uri=self._ursula.eth_provider_uri)
-        staking_provider_address = application_agent.get_staking_provider_from_operator(
-            operator_address=self._ursula.operator_address)
-        if staking_provider_address == NULL_ADDRESS:
-            # forcibly shut down ursula
-            self._shutdown_ursula(halt_reactor=False, halt_operator_bonded_tracker=False)
-        else:
-            # when the operator bonded to the staker, automatically start the node discovery mechanism
-            self._start_ursula(hendrix=False)
+        emitter = StdoutEmitter()
+        try:
+            emitter.message(f"OperatorBondedTracker run: time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} ", color='white')
+
+            application_agent = ContractAgency.get_agent(PREApplicationAgent,
+                                                         registry=self._ursula.registry,
+                                                         eth_provider_uri=self._ursula.eth_provider_uri)
+            staking_provider_address = application_agent.get_staking_provider_from_operator(
+                operator_address=self._ursula.operator_address)
+
+            if staking_provider_address == NULL_ADDRESS:
+                emitter.message(f"OperatorBondedTracker: ! Operator {self._ursula.operator_address} is not bonded to a staking provider", color='yellow')
+                # forcibly shut down ursula
+                # self._shutdown_ursula(halt_reactor=False, halt_operator_bonded_tracker=False)
+            else:
+                emitter.message(f"OperatorBondedTracker: ✓ Operator {self._ursula.operator_address} is bonded to staking provider {staking_provider_address}", color='green')
+                # when the operator bonded to the staking provider, automatically start the node discovery mechanism
+                # self._start_ursula(hendrix=False)
+        except BaseException as e:
+            import traceback
+            emitter.message(f"OperatorBondedTracker run exception: {traceback.format_exc()}", color='red')
 
     def _start_ursula(self, hendrix: bool = True, prometheus_config: 'PrometheusMetricsConfig' = None):
+        print("_start_ursula")
         emitter = StdoutEmitter()
         emitter.message(f"Restarting services", color='yellow')
-        self._ursula.run(emitter, discovery=True, availability=False, worker=True, interactive=False, preflight=False, block_until_ready=False, eager=True, prometheus_config=prometheus_config)
+        self._ursula.run(emitter, discovery=True, hendrix=hendrix, availability=False, worker=True, interactive=False, preflight=False, block_until_ready=False, eager=True,
+                         prometheus_config=prometheus_config)
 
     def _shutdown_ursula(self, halt_reactor=False, halt_operator_bonded_tracker=True):
         emitter = StdoutEmitter()

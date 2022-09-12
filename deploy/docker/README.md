@@ -35,6 +35,8 @@ These environment variables are used to better simplify the Docker installation 
 ###### # Password used for creation / update of nulink keystore_`_`_
 
     $ export NULINK_KEYSTORE_PASSWORD=<YOUR NULINK KEYSTORE PASSWORD>
+    
+    The password must be at least 8 characters long
 
 
 ###### # Password used to unlock node eth account
@@ -45,12 +47,23 @@ These environment variables are used to better simplify the Docker installation 
 
 * init an ursula config
 
-  `docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink  --restart on-failure -it iandy2233/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>`
+
+     docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink  --restart on-failure -it iandy2233/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>
+  
+   e.g.
+ 
+   
+     docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink  --restart on-failure -it iandy2233/nulink nulink ursula init --signer keystore:///code/keystore_woker_account --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 200
 
 * start up an ursula
-  
-  `docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready`
+    
 
+    docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+
+   e.g.
+
+
+    docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
 
 [//]: # (###### or run in the docker container)
 

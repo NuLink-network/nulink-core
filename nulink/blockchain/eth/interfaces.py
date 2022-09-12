@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import math
 import os
 import pprint
@@ -341,7 +340,7 @@ class BlockchainInterface:
             self.client = EthereumClient.from_w3(w3=self.w3)
         except requests.ConnectionError:  # RPC
             raise self.ConnectionFailed(f'Connection Failed - {str(self.eth_provider_uri)} - is RPC enabled?')
-        except FileNotFoundError:         # IPC File Protocol
+        except FileNotFoundError:  # IPC File Protocol
             raise self.ConnectionFailed(f'Connection Failed - {str(self.eth_provider_uri)} - is IPC enabled?')
         else:
             self.attach_middleware()
@@ -563,7 +562,7 @@ class BlockchainInterface:
         #
 
         # TODO: Show the USD Price:  https://api.coinmarketcap.com/v1/ticker/ethereum/
-        
+
         try:
             # post-london fork transactions (Type 2)
             max_unit_price = transaction_dict['maxFeePerGas']
@@ -592,6 +591,7 @@ class BlockchainInterface:
             txhash = self.client.send_raw_transaction(signed_raw_transaction)  # <--- BROADCAST
             emitter.message(f'TXHASH {txhash.hex()}', color='yellow')
         except (TestTransactionFailed, ValueError):
+            emitter.message(f"Broadcasting {transaction_name} failed message: traceback.format_exc()", color='red')
             raise  # TODO: Unify with Transaction failed handling -- Entry point for _handle_failed_transaction
         else:
             if fire_and_forget:
@@ -798,7 +798,6 @@ class BlockchainInterface:
 
 
 class BlockchainDeployerInterface(BlockchainInterface):
-
     TIMEOUT = 600  # seconds
     _CONTRACT_FACTORY = VersionedContract
 

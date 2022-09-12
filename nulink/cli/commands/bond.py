@@ -221,6 +221,5 @@ if __name__ == '__main__':
     """
         demo:
         
-        nulink bond --signer keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_staker --eth-provider https://http-testnet.hecochain.com --network heco_testnet --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
-
+        nulink bond --signer keystore:///home/andi/keystore_staker --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
     """

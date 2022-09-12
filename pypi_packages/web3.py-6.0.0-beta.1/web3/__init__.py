@@ -37,7 +37,7 @@ if sys.version_info < (3, 5):
         "Note that support for Python 3.5 will be removed in web3.py v5")
 
 
-__version__ = pkg_resources.get_distribution("web3").version
+__version__ = pkg_resources.get_distribution("nulink-web3").version
 
 __all__ = [
     "__version__",

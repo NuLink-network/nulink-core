@@ -63,15 +63,15 @@ with open('./README.md') as readme:
     long_description = readme.read()
 
 setup(
-    name='web3',
+    name='nulink-web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='6.0.0-beta.1',
+    version='1.0.1',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description=long_description,
-    author='Piper Merriam',
-    author_email='pipermerriam@gmail.com',
-    url='https://github.com/ethereum/web3.py',
+    author='andi',
+    author_email='iandy2233@gmail.com',
+    url='https://github.com/NuLink-network/nulink-core',
     include_package_data=True,
     install_requires=[
         "aiohttp>=3.7.4.post0,<4",

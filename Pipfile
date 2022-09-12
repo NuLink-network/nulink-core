@@ -36,7 +36,7 @@ jinja2 = "<3.1.0"
 # Third-Party Ethereum
 py-evm = "*"
 eth-tester = "*"
-web3 = "*"
+nulink-web3 = "*"
 eth-utils = "*"
 # CLI / Configuration
 appdirs = "*"
