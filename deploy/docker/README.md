@@ -48,22 +48,94 @@ These environment variables are used to better simplify the Docker installation 
 * init an ursula config
 
 
-     docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink  --restart on-failure -it iandy2233/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>
+     docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink  --restart on-failure -it nulink/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>
   
    e.g.
- 
+
+   Input:
+
+     docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink  --restart on-failure -it nulink/nulink nulink ursula init --signer keystore:///code/keystore_wokrer_account --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 200
    
-     docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink  --restart on-failure -it iandy2233/nulink nulink ursula init --signer keystore:///code/keystore_woker_account --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 200
+   Output:
+
+     # step 1
+     Detected IPv4 address (8.219.188.70) - Is this the public-facing address of Worker? [y/N]: y
+     
+     Please provide a password to lock Operator keys.
+     Do not forget this password, and ideally store it using a password manager.
+     
+     # step 2
+     Enter nulink keystore password (8 character minimum): xxxxxx
+     Repeat for confirmation: xxxxxx
+     
+     Backup your seed words, you will not be able to view them again.
+     
+     hammer fatal jazz era hurt shoulder stand story find move earn  much actor animal stamp know vital odor coin electric torch quick siege tonight
+     
+     # step 3
+     Have you backed up your seed phrase? [y/N]: y
+     
+     # step 4
+     Confirm seed words: hammer fatal jazz era hurt shoulder stand story find move earn  much actor animal stamp know vital odor coin electric torch quick siege tonight
+     
+     
+     Generated keystore
+     
+     
+     Public Key:   02dacea4c7f5563004af37f282ca10f7
+     Path to Keystore: /root/.local/share/nulink/keystore
+     
+     - You can share your public key with anyone. Others need it to interact with you.
+     - Never share secret keys with anyone!
+     - Backup your keystore! Character keys are required to interact with the protocol!
+     - Remember your password! Without the password, it's impossible to decrypt the key!
+     
+     
+     Generated configuration file at non-default filepath /root/.local/share/nulink/ursula-02dacea4.json
+     * NOTE: for a non-default configuration filepath use `--config-file "/root/.local/share/nulink/ursula-02dacea4.json"` with subsequent `ursula` CLI commands
+     
+     * Review configuration  -> nulink ursula config
+     * Start working         -> nulink ursula run
 
 * start up an ursula
     
 
-    docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+    docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
 
    e.g.
 
+   Input:
 
-    docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula iandy2233/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+    docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+
+   Output:
+
+    8d269b8e845ae0ba7bb9ad106030da1789b0da73554a72fa4b779f1bf4437bd1
+
+* how do I view Worker addresses   
+
+
+    docker logs -f ursula3
+
+   e.g.
+    
+   Input:
+
+    docker logs -f ursula3
+
+   Output:
+
+    Authenticating Ursula
+    Loaded Ursula (bsc_testnet)
+    ✓ External IP matches configuration
+    Starting services
+    ✓ Node Discovery (Bsc_testnet)
+    ✓ Work Tracking
+    ✓ Start Operator Bonded Tracker
+    ✓ Rest Server https://8.219.188.70:9151
+    Working ~ Keep Ursula Online!
+
+
 
 [//]: # (###### or run in the docker container)
 
@@ -71,7 +143,7 @@ These environment variables are used to better simplify the Docker installation 
 [//]: # (* run docker container:)
 
 [//]: # ()
-[//]: # (  `docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code --restart on-failure -it iandy2233/nulink /bin/bash`)
+[//]: # (  `docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code --restart on-failure -it nulink/nulink /bin/bash`)
 
 [//]: # ()
 [//]: # ()

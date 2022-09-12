@@ -21,12 +21,12 @@ output:
 
 docker login
 
-docker tag nulink:latest iandy2233/nulink:latest
+docker tag nulink:latest nulink/nulink:latest
 
-docker push iandy2233/nulink:latest
+docker push nulink/nulink:latest
 
 ### how to run
 
-docker pull iandy2233/nulink:latest
+docker pull nulink/nulink:latest
 
-docker run  -p 127.0.0.1:19123:19123/tcp -v /path/host/Machine/directory:/code --rm -it iandy2233/nulink /bin/bash
+docker run  -p 127.0.0.1:19123:19123/tcp -v /path/host/Machine/directory:/code --rm -it nulink/nulink /bin/bash
