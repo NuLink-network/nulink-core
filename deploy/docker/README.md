@@ -26,7 +26,7 @@
 * ensure that the host directory selected in the previous step has permissions
 
 ```shell
-chmod 766 </path/to/host/machine/directory>
+chmod -R 777 </path/to/host/machine/directory>
 ```
 
 ###### Export Node Environment Variables
