@@ -16,6 +16,7 @@ These registries comprise the official addresses and ABIs for the networks' smar
         * [**SubscriptionManager**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 * `heco_testnet`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum heco testnet.
 * `bsc_testnet`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum bsc testnet.
+* `horus`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum bsc testnet.
 
 
 ## Historical networks

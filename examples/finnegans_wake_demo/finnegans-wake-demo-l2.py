@@ -63,7 +63,7 @@ print("\n************** Setup **************\n")
 # NuLink Network #
 ####################
 
-L1_NETWORK = 'bsc_testnet'  # or 'mainnet'
+L1_NETWORK = 'horus'  # or 'mainnet'
 L2_NETWORK = 'bsc_testnet'  # or 'mainnet'
 
 #####################

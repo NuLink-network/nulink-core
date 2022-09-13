@@ -162,7 +162,7 @@ def unbond(registry_filepath, eth_provider_uri, signer_uri, staking_provider, ne
     #
     # Setup
     #
-    
+
     emitter = StdoutEmitter()
     if not signer_uri:
         emitter.message('--signer is required', color='red')
@@ -179,7 +179,7 @@ def unbond(registry_filepath, eth_provider_uri, signer_uri, staking_provider, ne
     #
     # Check
     #
-    
+
     bonded, onchain_operator_address = is_bonded(agent=agent, staking_provider=staking_provider, return_address=True)
     if not bonded:
         emitter.message(NOT_BONDED.format(provider=staking_provider), color='red')
@@ -200,7 +200,6 @@ def unbond(registry_filepath, eth_provider_uri, signer_uri, staking_provider, ne
 
 # add by andi for debug
 if __name__ == '__main__':
-
     # # 本地连接不上外网的链，需要代码中设置代理 pycharm设置了不起作用
     # # https://blog.csdn.net/whatday/article/details/112169945
     # import os
@@ -212,14 +211,14 @@ if __name__ == '__main__':
         #  '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         #  # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_staker',  # 'keystore:///Users/t/data/nulink/keystore' ,
-          '--eth-provider', 'https://http-testnet.hecochain.com',
-          '--network', 'heco_testnet',
-          '--staking-provider', '0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01',
-          '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6'
-          ])
+        '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+        '--network', 'horus',
+        '--staking-provider', '0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01',
+        '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6'
+    ])
 
     """
         demo:
         
-        nulink bond --signer keystore:///home/andi/keystore_staker --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network bsc_testnet --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
+        nulink bond --signer keystore:///home/andi/keystore_staker --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network horus --staking-provider 0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01 --operator-address 0x7DEff413E415bd2507da4988393d8540a28bf3c6
     """

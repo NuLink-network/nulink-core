@@ -69,7 +69,7 @@ PUBLIC_CHAINS = {
     128: "Heco",
     256: "Heco/Testnet",
     56: "Bsc",
-    97: "Bsc/Testnet",
+    97: "Bsc/Testnet",  # "horus"
 }
 
 LOCAL_CHAINS = {
@@ -79,10 +79,10 @@ LOCAL_CHAINS = {
 
 # TODO: This list is incomplete, but it suffices for the moment - See #1857
 POA_CHAINS = {
-    4,    # Rinkeby
-    5,    # Goerli
-    42,   # Kovan
-    77,   # Sokol
+    4,  # Rinkeby
+    5,  # Goerli
+    42,  # Kovan
+    77,  # Sokol
     100,  # xDAI
 }
 

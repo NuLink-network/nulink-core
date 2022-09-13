@@ -38,7 +38,7 @@ from nulink.utilities.logging import GlobalLoggerSettings
 
 GlobalLoggerSettings.start_console_logging()
 
-L1_NETWORK = 'bsc_testnet'  # or 'mainnet'
+L1_NETWORK = 'horus'  # or 'mainnet'
 
 
 # To create a Bob, we need the doctor's private keys previously generated.

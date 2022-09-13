@@ -34,6 +34,8 @@ class NetworksInventory:  # TODO: See #1564
     BSC = 'bsc'
     BSC_TESTNET = 'bsc_testnet'
 
+    HORUS = 'horus'  # bsc testnet
+
     UNKNOWN = 'unknown'  # TODO: Is there a better way to signal an unknown network?
     DEFAULT = MAINNET
 
@@ -58,6 +60,7 @@ class NetworksInventory:  # TODO: See #1564
     __to_chain_id_bsc = {
         BSC: 56,
         BSC_TESTNET: 97,
+        HORUS: 97,
     }
 
     ETH_NETWORKS = tuple(__to_chain_id_eth.keys())
