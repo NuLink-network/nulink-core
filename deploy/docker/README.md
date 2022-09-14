@@ -50,13 +50,13 @@ $ export NULINK_OPERATOR_ETH_PASSWORD=<YOUR OPERATOR ETH ACCOUNT PASSWORD>
 * init an ursula config
 
 ```shell
-docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD --restart on-failure -it nulink/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network horus --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>
+docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD --rm -it nulink/nulink nulink ursula init --signer keystore:///code/<sub/path/to/keystore> --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network horus --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  <OPERATOR ADDRESS> --max-gas-price <GWEI>
 ```  
    e.g.
 
    Input:
 ```shell
-docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD --restart on-failure -it nulink/nulink nulink ursula init --signer keystore:///code/keystore_wokrer_account --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network horus --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 200
+docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD --rm -it nulink/nulink nulink ursula init --signer keystore:///code/keystore_wokrer_account --eth-provider https://data-seed-prebsc-2-s2.binance.org:8545 --network horus --payment-provider https://data-seed-prebsc-2-s2.binance.org:8545 --payment-network bsc_testnet --operator-address  0x7DEff413E415bd2507da4988393d8540a28bf3c6 --max-gas-price 200
 ```   
    Output:
 ```shell
