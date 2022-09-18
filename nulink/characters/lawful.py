@@ -902,7 +902,10 @@ class Ursula(Teacher, Character, Operator):
             prometheus_config: 'PrometheusMetricsConfig' = None,
             preflight: bool = True,
             block_until_ready: bool = True,
-            eager: bool = False
+            eager: bool = False,
+            restart_run_args: tuple = None,  # restart ursula.py 's run(...) method's parameters，You cannot run the Ursula.run() method directly; you need to call the constructor first
+            start_service: bool = True,
+            restart_finished: bool = False,
             ) -> None:
 
         """Schedule and start select ursula services, then optionally start the reactor."""
@@ -953,7 +956,7 @@ class Ursula(Teacher, Character, Operator):
 
         # Continuous bonded check now that Ursula is all ready to run
         if not self.federated_only:
-            self._operator_bonded_tracker.start(now=eager)
+            self._operator_bonded_tracker.start_run(restart_run_args, restart_finished, now=eager)
             if emitter:
                 emitter.message(f"✓ Start Operator Bonded Tracker", color='green')
 
@@ -967,30 +970,31 @@ class Ursula(Teacher, Character, Operator):
         if interactive and emitter:
             stdio.StandardIO(UrsulaCommandProtocol(ursula=self, emitter=emitter))
 
-        if hendrix:
-            if emitter:
-                emitter.message(f"✓ Rest Server https://{self.rest_interface}", color='green')
-
-            deployer = self.get_deployer()
-            deployer.addServices()
-            deployer.catalogServers(deployer.hendrix)
-
-            if not start_reactor:
-                return
-
-            if emitter:
-                emitter.message("Working ~ Keep Ursula Online!", color='blue', bold=True)
-
-            try:
-                deployer.run()  # <--- Blocking Call (Reactor)
-            except Exception as e:
-                self.log.critical(str(e))
+        if start_service:
+            if hendrix:
                 if emitter:
-                    emitter.message(f"{e.__class__.__name__} {e}", color='red', bold=True)
-                raise  # Crash :-(
+                    emitter.message(f"✓ Rest Server https://{self.rest_interface}", color='green')
 
-        elif start_reactor:  # ... without hendrix
-            reactor.run()  # <--- Blocking Call (Reactor)
+                deployer = self.get_deployer()
+                deployer.addServices()
+                deployer.catalogServers(deployer.hendrix)
+
+                if not start_reactor:
+                    return
+
+                if emitter:
+                    emitter.message("Working ~ Keep Ursula Online!", color='blue', bold=True)
+
+                try:
+                    deployer.run()  # <--- Blocking Call (Reactor)
+                except Exception as e:
+                    self.log.critical(str(e))
+                    if emitter:
+                        emitter.message(f"{e.__class__.__name__} {e}", color='red', bold=True)
+                    raise  # Crash :-(
+
+            elif start_reactor:  # ... without hendrix
+                reactor.run()  # <--- Blocking Call (Reactor)
 
     def stop(self, halt_reactor: bool = False, halt_operator_bonded_tracker=True) -> None:
         """

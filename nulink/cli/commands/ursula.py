@@ -64,7 +64,7 @@ from nulink.cli.options import (
 )
 from nulink.cli.painting.help import paint_new_installation_help
 from nulink.cli.types import EIP55_CHECKSUM_ADDRESS, NETWORK_PORT, OPERATOR_IP
-from nulink.cli.utils import make_cli_character, setup_emitter
+from nulink.cli.utils import make_cli_character, setup_emitter, ursula_run_origin_params_save
 from nulink.config.characters import UrsulaConfiguration
 from nulink.config.constants import (
     NULINK_ENVVAR_OPERATOR_ETH_PASSWORD,
@@ -388,6 +388,7 @@ def forget(general_config, config_options, config_file):
     forget_nodes(emitter, configuration=ursula_config)
 
 
+@ursula_run_origin_params_save
 @ursula.command()
 @group_character_options
 @option_config_file
@@ -402,9 +403,17 @@ def forget(general_config, config_options, config_file):
 @click.option("--metrics-interval", help="The frequency of metrics collection", type=click.INT, default=90)
 @click.option("--ip-checkup/--no-ip-checkup", help="Verify external IP matches configuration", default=True)
 @click.option("--block-until-ready/--no-block-until-ready", help="block while the operator is not bonded to a staking provider", default=True)
+@click.option("--origin-args", help="auto param you don't need to pass this parameter")
+@click.option("--start-service", help="start hendrix or reactor service: auto param you don't need to pass this parameter", default=True)
+@click.option("--restart-finished/--not-restart-finished", help="Indicates whether the server is restarted successfully, auto param you don't need to pass this parameter", default=False)
 def run(general_config, character_options, config_file, interactive, dry_run, prometheus, metrics_port,
-        metrics_listen_address, metrics_prefix, metrics_interval, force, ip_checkup, block_until_ready):
+        metrics_listen_address, metrics_prefix, metrics_interval, force, ip_checkup, block_until_ready, origin_args, start_service, restart_finished):
     """Run an "Ursula" node."""
+
+    if origin_args:
+        origin_args = eval(origin_args)[0]
+        if (origin_args_index := origin_args.index('--origin-args')) >= 0:
+            del origin_args[origin_args_index: origin_args_index + 2]
 
     emitter = setup_emitter(general_config)
     dev_mode = character_options.config_options.dev
@@ -453,7 +462,10 @@ def run(general_config, character_options, config_file, interactive, dry_run, pr
                    interactive=interactive,
                    prometheus_config=prometheus_config,
                    preflight=not dev_mode,
-                   block_until_ready=block_until_ready)
+                   block_until_ready=block_until_ready,
+                   restart_run_args=origin_args,
+                   start_service=start_service,
+                   restart_finished=restart_finished)
     finally:
         if dry_run:
             URSULA.stop()
@@ -545,7 +557,7 @@ if __name__ == '__main__':
         # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         #     '--rest-host', '192.168.3.20',
         #     '--rest-port', '9151',
-        '--teacher', 'https://8.219.188.70:9151',
+        # '--teacher', 'https://8.219.188.70:9151',
         '--config-file', 'D:\\nulink_data\\ursula.json',
         '--db-filepath', 'D:\\nulink_data',
         # '--debug',

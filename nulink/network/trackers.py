@@ -36,14 +36,21 @@ import time
 
 # OperatorBondedTracker 判断质押者的地址是否为NULL
 class OperatorBondedTracker(SimpleTask):
-    INTERVAL = 30  # 30 seconds
+    INTERVAL = 30  # 60 seconds
 
     class OperatorNoLongerBonded(RuntimeError):
         """Raised when a running node is no longer associated with a staking provider."""
 
     def __init__(self, ursula):
         self._ursula = ursula
+        self._restart_run_args = []
+        self._restarted = False
         super().__init__()
+
+    def start_run(self, restart_run_args, restart_finished, now: bool = False):
+        self._restart_run_args = restart_run_args
+        self._restarted = restart_finished
+        self.start(now)
 
     def run(self) -> None:
         emitter = StdoutEmitter()
@@ -57,23 +64,53 @@ class OperatorBondedTracker(SimpleTask):
                 operator_address=self._ursula.operator_address)
 
             if staking_provider_address == NULL_ADDRESS:
+                self._restarted = False
                 emitter.message(f"OperatorBondedTracker: ! Operator {self._ursula.operator_address} is not bonded to a staking provider", color='yellow')
-                # forcibly shut down ursula
-                # self._shutdown_ursula(halt_reactor=False, halt_operator_bonded_tracker=False)
             else:
-                emitter.message(f"OperatorBondedTracker: ✓ Operator {self._ursula.operator_address} is bonded to staking provider {staking_provider_address}", color='green')
-                # when the operator bonded to the staking provider, automatically start the node discovery mechanism
-                # self._start_ursula(hendrix=False)
+                if not self._restarted:
+                    emitter.message(f"OperatorBondedTracker: ✓ Operator {self._ursula.operator_address} is bonded to staking provider {staking_provider_address}", color='green')
+
+                    # when the operator bonded to the staking provider, automatically start the node discovery mechanism
+                    self._start_ursula(start_service=False)
+
         except BaseException as e:
             import traceback
             emitter.message(f"OperatorBondedTracker run exception: {traceback.format_exc()}", color='red')
 
-    def _start_ursula(self, hendrix: bool = True, prometheus_config: 'PrometheusMetricsConfig' = None):
-        print("_start_ursula")
-        emitter = StdoutEmitter()
-        emitter.message(f"Restarting services", color='yellow')
-        self._ursula.run(emitter, discovery=True, hendrix=hendrix, availability=False, worker=True, interactive=False, preflight=False, block_until_ready=False, eager=True,
-                         prometheus_config=prometheus_config)
+    def _start_ursula(self, start_service: bool = True, prometheus_config: 'PrometheusMetricsConfig' = None):
+        if not self._restarted:
+            print("_start_ursula")
+            emitter = StdoutEmitter()
+            emitter.message(f"Restarting services", color='yellow')
+            # forcibly shut down ursula
+            self._shutdown_ursula(halt_reactor=False, halt_operator_bonded_tracker=True)
+
+            # self._ursula.get_deployer().stop()
+
+            def restart_run_arg_add(option_str, add_option_value: str = None):
+
+                if option_str in self._restart_run_args and (origin_option_index := self._restart_run_args.index(option_str)) >= 0:
+                    del self._restart_run_args[origin_option_index]
+                    if origin_option_index < len(self._restart_run_args) and not str(self._restart_run_args[origin_option_index]).lower().startswith('--'):
+                        # the command format is: --hendrix False
+                        del self._restart_run_args[origin_option_index]
+
+                if add_option_value is not None:
+                    self._restart_run_args.extend([option_str, str(add_option_value)])
+                else:
+                    self._restart_run_args.append(option_str)
+
+            #
+            restart_run_arg_add('--start-service', str(start_service))
+            restart_run_arg_add('--restart-finished', None)
+
+            # restart ursula.py 's run(...) method's parameters，You cannot run the Ursula.run() method directly; you need to call the constructor first
+            from nulink.cli.commands.ursula import run as ursula_run
+
+            ursula_run(self._restart_run_args, standalone_mode=False)
+            self._restarted = True
+            # self._ursula.run(emitter, discovery=True, hendrix=hendrix, availability=False, worker=True, interactive=False, preflight=False, block_until_ready=False, eager=True,
+            #                  prometheus_config=prometheus_config)
 
     def _shutdown_ursula(self, halt_reactor=False, halt_operator_bonded_tracker=True):
         emitter = StdoutEmitter()

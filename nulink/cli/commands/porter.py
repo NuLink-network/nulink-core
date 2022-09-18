@@ -176,9 +176,9 @@ if __name__ == '__main__':
 
     run([
         '--http-port', '9155',
-        '--teacher', '8.219.188.70:9151',  # '192.168.3.20:9151',  # '127.0.0.1:9151',
-        '--network', 'heco_testnet',
-        '--eth-provider', 'https://http-testnet.hecochain.com',
+        # '--teacher', '127.0.0.1:9151',  # '192.168.3.20:9151',  # '127.0.0.1:9151',
+        '--network', 'horus',
+        '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
         '--allow-origins',
         '--debug'])
 

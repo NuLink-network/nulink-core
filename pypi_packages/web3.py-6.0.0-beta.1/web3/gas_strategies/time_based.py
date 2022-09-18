@@ -95,7 +95,7 @@ def _get_raw_miner_data(
         # block numbers to make caching the data easier to implement.
         block = w3.eth.get_block(block['parentHash'], full_transactions=True)
         for transaction in block['transactions']:
-            print(f"get block => number: {block['number']}")
+            # print(f"get block => number: {block['number']}")
             # type ignored b/c actual transaction is TxData not HexBytes
             yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
 

@@ -20,6 +20,8 @@ import shutil
 from distutils.util import strtobool
 from pathlib import Path
 from typing import Dict, Optional, Tuple
+from functools import wraps
+import copy
 
 import click
 from constant_sorrow.constants import NO_CONTROL_PROTOCOL
@@ -74,7 +76,6 @@ def make_cli_character(character_config,
                        json_ipc: bool = False,
                        **config_args
                        ) -> Character:
-
     #
     # Pre-Init
     #
@@ -82,8 +83,8 @@ def make_cli_character(character_config,
     # Handle KEYSTORE
     if unlock_keystore:
         unlock_nulink_keystore(emitter,
-                                 character_configuration=character_config,
-                                 password=get_nulink_password(emitter=emitter, confirm=False))
+                               character_configuration=character_config,
+                               password=get_nulink_password(emitter=emitter, confirm=False))
 
     # Handle Signer/Wallet
     if unlock_signer:
@@ -286,3 +287,24 @@ def retrieve_events(emitter: StdoutEmitter,
         entries = event.getLogs(fromBlock=from_block, toBlock=to_block, argument_filters=argument_filters)
         for event_record in entries:
             emitter.echo(f"  - {EventRecord(event_record)}")
+
+
+def ursula_run_origin_params_save(func):
+    """Attaches an option to the command.  All positional arguments are
+    passed as parameter declarations to :class:`Option`; all keyword
+    arguments are forwarded unchanged (except ``cls``).
+    This is equivalent to creating an :class:`Option` instance manually
+    and attaching it to the :attr:`Command.params` list.
+
+    :param cls: the option class to instantiate.  This defaults to
+                :class:`Option`.
+    """
+
+    @wraps(func)
+    def decorator(*args, **kwargs):
+
+        warpper_args = list(args)
+        warpper_args[0].extend(['--origin-args', args])
+        return func(*warpper_args, **kwargs)
+
+    return decorator

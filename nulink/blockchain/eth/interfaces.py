@@ -24,6 +24,7 @@ from eth.typing import TransactionDict
 from typing import Callable, NamedTuple, Tuple, Union, Optional
 from typing import List
 from urllib.parse import urlparse
+import traceback
 
 import requests
 from eth_tester import EthereumTester
@@ -512,6 +513,9 @@ class BlockchainInterface:
                 # as a pending transaction can cause gas estimation to fail, notably in case of worklock refunds.
                 payload['gas'] = contract_function.estimateGas(payload, block_identifier='latest')
             transaction_dict = contract_function.buildTransaction(payload)
+            # to fix web3 under price issue
+            transaction_dict['gasPrice'] = contract_function.web3.eth.gas_price
+
         except (TestTransactionFailed, ValidationError, ValueError) as error:
             # Note: Geth (1.9.15) raises ValueError in the same condition that pyevm raises ValidationError here.
             # Treat this condition as "Transaction Failed" during gas estimation.
@@ -591,7 +595,7 @@ class BlockchainInterface:
             txhash = self.client.send_raw_transaction(signed_raw_transaction)  # <--- BROADCAST
             emitter.message(f'TXHASH {txhash.hex()}', color='yellow')
         except (TestTransactionFailed, ValueError):
-            emitter.message(f"Broadcasting {transaction_name} failed message: traceback.format_exc()", color='red')
+            emitter.message(f"Broadcasting {transaction_name} failed message: {traceback.format_exc()}", color='red')
             raise  # TODO: Unify with Transaction failed handling -- Entry point for _handle_failed_transaction
         else:
             if fire_and_forget:
@@ -924,8 +928,8 @@ class BlockchainDeployerInterface(BlockchainInterface):
         for version, data in contract_data.items():
             major, minor, patch = [int(v) for v in version[1:].split(".", 3)]
             if current_version_parsed[0] == -1 or \
-               requested_version == 'latest' and (major, minor, patch) > current_version_parsed or \
-               requested_version == 'earliest' and (major, minor, patch) < current_version_parsed:
+                    requested_version == 'latest' and (major, minor, patch) > current_version_parsed or \
+                    requested_version == 'earliest' and (major, minor, patch) < current_version_parsed:
                 current_version_parsed = (major, minor, patch)
                 current_data = data
                 current_version = version
