@@ -17,7 +17,7 @@
 
 from typing import Tuple, Union
 
-import click
+import nuclick as click
 import maya
 from eth_typing import ChecksumAddress
 

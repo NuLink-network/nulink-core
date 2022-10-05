@@ -3,8 +3,9 @@ import time
 
 import pytest
 
-import click._termui_impl
-from click._compat import WIN
+import nuclick as click
+import nuclick._termui_impl
+from nuclick._compat import WIN
 
 
 class FakeClock:

@@ -1,4 +1,4 @@
-from click._compat import should_strip_ansi
+from nuclick._compat import should_strip_ansi
 
 
 def test_is_jupyter_kernel_output():

@@ -128,7 +128,7 @@ with this decorator will make it into a callable script:
 
 .. click:example::
 
-    import click
+    import nuclick
 
     @click.command()
     def hello():

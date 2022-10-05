@@ -16,7 +16,7 @@ along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 from pathlib import Path
 
-import click
+import nuclick as click
 
 from nulink.control.emitters import StdoutEmitter
 from nulink.characters.control.interfaces import AliceInterface

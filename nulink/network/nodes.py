@@ -67,8 +67,8 @@ TEACHER_NODES = {
     ),
     NetworksInventory.HECO_TESTNET: ("https://to/be/supplied",),
     NetworksInventory.HECO: ("https://to/be/supplied",),
-    NetworksInventory.BSC_TESTNET: ("https://8.219.188.70:9151",),
-    NetworksInventory.HORUS: ("https://8.219.188.70:9151",),
+    NetworksInventory.BSC_TESTNET: ("https://54.241.67.36:9151",),
+    NetworksInventory.HORUS: ("https://54.241.67.36:9151",),
     NetworksInventory.BSC: ("https://to/be/supplied",),
 }
 
@@ -785,7 +785,7 @@ class Learner:
         current_teacher = self.current_teacher_node()  # Will raise if there's no available teacher.
 
         if isinstance(self, Teacher):
-            announce_nodes = [self.metadata()]
+            announce_nodes = [self.metadata()] # Ursula class is the subclass of Teacher class
         else:
             announce_nodes = []
 

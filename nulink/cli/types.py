@@ -20,7 +20,7 @@ from decimal import Decimal, DecimalException
 from ipaddress import ip_address
 from pathlib import Path
 
-import click
+import nuclick as click
 from cryptography.exceptions import InternalError
 from eth_utils import to_checksum_address
 from nucypher_core.umbral import PublicKey

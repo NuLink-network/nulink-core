@@ -1,7 +1,7 @@
 import os
 
-import click
-from click.shell_completion import CompletionItem
+import nuclick as click
+from nuclick.shell_completion import CompletionItem
 
 
 @click.group()

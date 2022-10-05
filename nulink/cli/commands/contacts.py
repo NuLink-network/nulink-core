@@ -15,7 +15,7 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import click
+import nuclick as click
 import os
 import shutil
 

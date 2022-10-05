@@ -15,8 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import click
-from click.testing import CliRunner
+import nuclick as click
+from nuclick.testing import CliRunner
 
 from nulink.cli.commands import (
     alice,

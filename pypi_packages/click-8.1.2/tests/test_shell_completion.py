@@ -1,14 +1,14 @@
 import pytest
 
-from click.core import Argument
-from click.core import Command
-from click.core import Group
-from click.core import Option
-from click.shell_completion import CompletionItem
-from click.shell_completion import ShellComplete
-from click.types import Choice
-from click.types import File
-from click.types import Path
+from nuclick.core import Argument
+from nuclick.core import Command
+from nuclick.core import Group
+from nuclick.core import Option
+from nuclick.shell_completion import CompletionItem
+from nuclick.shell_completion import ShellComplete
+from nuclick.types import Choice
+from nuclick.types import File
+from nuclick.types import Path
 
 
 def _get_completions(cli, args, incomplete):

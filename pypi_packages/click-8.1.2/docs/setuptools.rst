@@ -54,7 +54,7 @@ Contents of ``yourscript.py``:
 
 .. click:example::
 
-    import click
+    import nuclick
 
     @click.command()
     def cli():

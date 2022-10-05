@@ -15,13 +15,12 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import functools
 from collections import namedtuple
 from pathlib import Path
 from typing import Sequence
 
-import click
+import nuclick as click
 
 from nulink.blockchain.eth.constants import NULINK_CONTRACT_NAMES
 from nulink.cli.types import (
@@ -186,7 +185,15 @@ def group_options(option_class, **options):
                 del kwargs[name]
 
             kwargs[option_name] = option_class(**to_group)
-            return func(**kwargs)
+            try:
+                return func(**kwargs)
+            except TypeError as e:
+                if "_inner_origin_args" in str(e):
+                    if '_inner_origin_args' in kwargs:
+                        kwargs.pop('_inner_origin_args')
+                    return func(**kwargs)
+                else:
+                    raise
 
         for dec in decorators:
             wrapper = dec(wrapper)
@@ -197,20 +204,18 @@ def group_options(option_class, **options):
 
 
 def wrap_option(handler, **options):
-
     assert len(options) == 1
     name = list(options)[0]
     dec = options[name]
 
     @functools.wraps(handler)
     def _decorator(func):
-
         @functools.wraps(func)
         def wrapper(**kwargs):
             if name not in kwargs:
                 raise ValueError(
-                        f"When trying to wrap a CLI option with {handler}, "
-                        f"{name} was not found among arguments")
+                    f"When trying to wrap a CLI option with {handler}, "
+                    f"{name} was not found among arguments")
             option_val = kwargs[name]
             option_name, new_val = handler(option_val)
             del kwargs[name]

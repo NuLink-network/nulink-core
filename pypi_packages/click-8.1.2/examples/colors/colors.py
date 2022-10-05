@@ -1,4 +1,4 @@
-import click
+import nuclick as click
 
 
 all_colors = (

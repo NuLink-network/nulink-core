@@ -18,7 +18,7 @@
 
 import os
 
-import click
+import nuclick as click
 from constant_sorrow.constants import NO_PASSWORD
 
 from nulink.blockchain.eth.decorators import validate_checksum_address

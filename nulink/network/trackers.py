@@ -48,6 +48,7 @@ class OperatorBondedTracker(SimpleTask):
         super().__init__()
 
     def start_run(self, restart_run_args, restart_finished, now: bool = False):
+        # print(f"restart_run_args: {restart_run_args}")
         self._restart_run_args = restart_run_args
         self._restarted = restart_finished
         self.start(now)
@@ -55,7 +56,7 @@ class OperatorBondedTracker(SimpleTask):
     def run(self) -> None:
         emitter = StdoutEmitter()
         try:
-            emitter.message(f"OperatorBondedTracker run: time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} ", color='white')
+            # emitter.message(f"OperatorBondedTracker run: time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())} ", color='white')
 
             application_agent = ContractAgency.get_agent(PREApplicationAgent,
                                                          registry=self._ursula.registry,

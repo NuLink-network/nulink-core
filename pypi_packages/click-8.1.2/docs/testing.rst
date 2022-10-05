@@ -25,7 +25,7 @@ data, exit code, and optional exception attached:
 .. code-block:: python
    :caption: hello.py
 
-   import click
+   import nuclick
 
    @click.command()
    @click.argument('name')
@@ -35,7 +35,7 @@ data, exit code, and optional exception attached:
 .. code-block:: python
    :caption: test_hello.py
 
-   from click.testing import CliRunner
+   from nuclick.testing import CliRunner
    from hello import hello
 
    def test_hello_world():
@@ -49,7 +49,7 @@ For subcommand testing, a subcommand name must be specified in the `args` parame
 .. code-block:: python
    :caption: sync.py
 
-   import click
+   import nuclick
 
    @click.group()
    @click.option('--debug/--no-debug', default=False)
@@ -63,7 +63,7 @@ For subcommand testing, a subcommand name must be specified in the `args` parame
 .. code-block:: python
    :caption: test_sync.py
 
-   from click.testing import CliRunner
+   from nuclick.testing import CliRunner
    from sync import cli
 
    def test_sync():
@@ -89,7 +89,7 @@ current working directory to a new, empty folder.
 .. code-block:: python
    :caption: cat.py
 
-   import click
+   import nuclick
 
    @click.command()
    @click.argument('f', type=click.File())
@@ -99,7 +99,7 @@ current working directory to a new, empty folder.
 .. code-block:: python
    :caption: test_cat.py
 
-   from click.testing import CliRunner
+   from nuclick.testing import CliRunner
    from cat import cat
 
    def test_cat():
@@ -134,7 +134,7 @@ stream (stdin).  This is very useful for testing prompts, for instance:
 .. code-block:: python
    :caption: prompt.py
 
-   import click
+   import nuclick
 
    @click.command()
    @click.option('--foo', prompt=True)
@@ -144,7 +144,7 @@ stream (stdin).  This is very useful for testing prompts, for instance:
 .. code-block:: python
    :caption: test_prompt.py
 
-   from click.testing import CliRunner
+   from nuclick.testing import CliRunner
    from prompt import prompt
 
    def test_prompts():

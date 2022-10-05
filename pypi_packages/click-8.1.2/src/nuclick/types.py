@@ -316,7 +316,7 @@ class Choice(ParamType):
 
         .. versionadded:: 8.0
         """
-        from click.shell_completion import CompletionItem
+        from nuclick.shell_completion import CompletionItem
 
         str_choices = map(str, self.choices)
 
@@ -745,7 +745,7 @@ class File(ParamType):
 
         .. versionadded:: 8.0
         """
-        from click.shell_completion import CompletionItem
+        from nuclick.shell_completion import CompletionItem
 
         return [CompletionItem(incomplete, type="file")]
 
@@ -924,7 +924,7 @@ class Path(ParamType):
 
         .. versionadded:: 8.0
         """
-        from click.shell_completion import CompletionItem
+        from nuclick.shell_completion import CompletionItem
 
         type = "dir" if self.dir_okay and not self.file_okay else "file"
         return [CompletionItem(incomplete, type=type)]

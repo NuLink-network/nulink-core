@@ -23,7 +23,7 @@ from typing import Dict, Optional, Tuple
 from functools import wraps
 import copy
 
-import click
+import nuclick as click
 from constant_sorrow.constants import NO_CONTROL_PROTOCOL
 from web3.types import BlockIdentifier
 
@@ -303,8 +303,9 @@ def ursula_run_origin_params_save(func):
     @wraps(func)
     def decorator(*args, **kwargs):
 
-        warpper_args = list(args)
-        warpper_args[0].extend(['--origin-args', args])
-        return func(*warpper_args, **kwargs)
+        wrapper_args = list(args)
+        wrapper_args[0].extend(['--origin-args', args])
+
+        return func(*wrapper_args, **kwargs)
 
     return decorator

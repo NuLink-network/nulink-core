@@ -4,7 +4,7 @@ import pathlib
 import pytest
 from conftest import symlinks_supported
 
-import click
+import nuclick as click
 
 
 @pytest.mark.parametrize(

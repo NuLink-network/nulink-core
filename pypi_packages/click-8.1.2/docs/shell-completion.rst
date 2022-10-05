@@ -213,8 +213,8 @@ The example code is for a made up shell "My Shell" or "mysh" for short.
 
 .. code-block:: python
 
-    from click.shell_completion import add_completion_class
-    from click.shell_completion import ShellComplete
+    from nuclick.shell_completion import add_completion_class
+    from nuclick.shell_completion import ShellComplete
 
     _mysh_source = """\
     %(complete_func)s {
@@ -239,7 +239,7 @@ method must return a ``(args, incomplete)`` tuple.
 .. code-block:: python
 
     import os
-    from click.parser import split_arg_string
+    from nuclick.parser import split_arg_string
 
     class MyshComplete(ShellComplete):
         ...

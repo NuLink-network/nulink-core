@@ -17,7 +17,7 @@
 
 from collections import namedtuple
 
-import click
+import nuclick as click
 import maya
 from constant_sorrow.constants import FEDERATED
 from datetime import timedelta

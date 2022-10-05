@@ -16,7 +16,7 @@
 """
 from base64 import b64encode, b64decode
 
-import click
+import nuclick as click
 from marshmallow import fields
 
 from nulink.control.specifications.exceptions import InvalidInputData

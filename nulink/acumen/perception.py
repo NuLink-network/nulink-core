@@ -15,7 +15,6 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import random
 import weakref
 from collections import deque
@@ -32,7 +31,6 @@ from .nicknames import Nickname
 
 
 class ArchivedFleetState(NamedTuple):
-
     checksum: str
     nickname: Nickname
     timestamp: maya.MayaDT
@@ -229,7 +227,7 @@ class FleetSensor:
         self._domain = domain
 
         self._current_state = FleetState.new(this_node)
-        self._archived_states = deque([self._current_state.archived()], maxlen=5) # 存储所有节点的 以太坊地址和节点个数
+        self._archived_states = deque([self._current_state.archived()], maxlen=5)  # 存储所有节点的 以太坊地址和节点个数
         self._remote_states = {}
         self._remote_last_seen = {}
 
@@ -320,7 +318,7 @@ class FleetSensor:
         """
         # `_archived_states` is never empty, one state is created in the constructor
         previous_states_num = min(len(self._archived_states) - 1, quantity)
-        return list(self._archived_states)[-previous_states_num-1:-1]
+        return list(self._archived_states)[-previous_states_num - 1:-1]
 
     def addresses(self):
         return self._current_state.addresses()

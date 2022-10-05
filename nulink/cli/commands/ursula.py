@@ -17,7 +17,7 @@
 
 from pathlib import Path
 
-import click
+import nuclick as click
 
 from nulink.blockchain.eth.signers.software import ClefSigner
 from nulink.blockchain.eth.networks import NetworksInventory
@@ -388,7 +388,7 @@ def forget(general_config, config_options, config_file):
     forget_nodes(emitter, configuration=ursula_config)
 
 
-@ursula_run_origin_params_save
+# @ursula_run_origin_params_save
 @ursula.command()
 @group_character_options
 @option_config_file
@@ -403,17 +403,11 @@ def forget(general_config, config_options, config_file):
 @click.option("--metrics-interval", help="The frequency of metrics collection", type=click.INT, default=90)
 @click.option("--ip-checkup/--no-ip-checkup", help="Verify external IP matches configuration", default=True)
 @click.option("--block-until-ready/--no-block-until-ready", help="block while the operator is not bonded to a staking provider", default=True)
-@click.option("--origin-args", help="auto param you don't need to pass this parameter")
 @click.option("--start-service", help="start hendrix or reactor service: auto param you don't need to pass this parameter", default=True)
 @click.option("--restart-finished/--not-restart-finished", help="Indicates whether the server is restarted successfully, auto param you don't need to pass this parameter", default=False)
 def run(general_config, character_options, config_file, interactive, dry_run, prometheus, metrics_port,
-        metrics_listen_address, metrics_prefix, metrics_interval, force, ip_checkup, block_until_ready, origin_args, start_service, restart_finished):
+        metrics_listen_address, metrics_prefix, metrics_interval, force, ip_checkup, block_until_ready, start_service, restart_finished, _inner_origin_args):
     """Run an "Ursula" node."""
-
-    if origin_args:
-        origin_args = eval(origin_args)[0]
-        if (origin_args_index := origin_args.index('--origin-args')) >= 0:
-            del origin_args[origin_args_index: origin_args_index + 2]
 
     emitter = setup_emitter(general_config)
     dev_mode = character_options.config_options.dev
@@ -463,7 +457,7 @@ def run(general_config, character_options, config_file, interactive, dry_run, pr
                    prometheus_config=prometheus_config,
                    preflight=not dev_mode,
                    block_until_ready=block_until_ready,
-                   restart_run_args=origin_args,
+                   restart_run_args=_inner_origin_args,
                    start_service=start_service,
                    restart_finished=restart_finished)
     finally:
@@ -557,10 +551,10 @@ if __name__ == '__main__':
         # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         #     '--rest-host', '192.168.3.20',
         #     '--rest-port', '9151',
-        # '--teacher', 'https://8.219.188.70:9151',
+        '--teacher', 'https://8.219.188.70:9151',
         '--config-file', 'D:\\nulink_data\\ursula.json',
         '--db-filepath', 'D:\\nulink_data',
         # '--debug',
         # '--force',
-        '--no-ip-checkup',
+        # '--no-ip-checkup',
         '--no-block-until-ready'])

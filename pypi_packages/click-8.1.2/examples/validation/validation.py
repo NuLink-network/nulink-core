@@ -1,6 +1,6 @@
 from urllib import parse as urlparse
 
-import click
+import nuclick as click
 
 
 def validate_count(ctx, param, value):

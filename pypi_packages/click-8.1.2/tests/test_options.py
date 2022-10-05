@@ -3,8 +3,8 @@ import re
 
 import pytest
 
-import click
-from click import Option
+import nuclick as click
+from nuclick import Option
 
 
 def test_prefixes(runner):

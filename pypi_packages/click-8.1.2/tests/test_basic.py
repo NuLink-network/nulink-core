@@ -3,7 +3,7 @@ from itertools import chain
 
 import pytest
 
-import click
+import nuclick as click
 
 
 def test_basic_functionality(runner):

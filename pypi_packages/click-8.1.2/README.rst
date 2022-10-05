@@ -1,7 +1,9 @@
-\$ click\_
-==========
+\$ nulink-click\_
+=================
 
-Click is a Python package for creating beautiful command line interfaces
+modify click features to support get the origin input parametes in program for [nulink](https://www.nulink.org/). Forked by [click](https://github.com/pallets/click/releases/tag/8.1.2) version 8.1.2.
+
+Nulink click is a Python package for creating beautiful command line interfaces
 in a composable way with as little code as necessary. It's the "Command
 Line Interface Creation Kit". It's highly configurable but comes with
 sensible defaults out of the box.
@@ -24,7 +26,7 @@ Install and update using `pip`_:
 
 .. code-block:: text
 
-    $ pip install -U click
+    $ pip install -U nulink-click
 
 .. _pip: https://pip.pypa.io/en/stable/getting-started/
 
@@ -34,7 +36,7 @@ A Simple Example
 
 .. code-block:: python
 
-    import click
+    import nuclick
 
     @click.command()
     @click.option("--count", default=1, help="Number of greetings.")

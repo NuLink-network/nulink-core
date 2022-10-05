@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-import click
+import nuclick as click
 
 
 def debug():

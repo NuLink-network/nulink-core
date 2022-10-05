@@ -16,7 +16,7 @@
 """
 
 
-import click
+import nuclick as click
 from marshmallow import validates_schema
 
 from nulink.characters.control.specifications import fields as character_fields

@@ -18,7 +18,7 @@
 
 from unittest.mock import Mock
 
-import click
+import nuclick as click
 import pytest
 from eth_utils import is_checksum_address
 from web3 import Web3

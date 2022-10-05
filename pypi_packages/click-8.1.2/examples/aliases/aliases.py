@@ -1,7 +1,7 @@
 import configparser
 import os
 
-import click
+import nuclick as click
 
 
 class Config:

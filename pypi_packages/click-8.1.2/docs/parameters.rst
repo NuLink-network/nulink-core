@@ -112,7 +112,7 @@ integers.
 
 .. code-block:: python
 
-    import click
+    import nuclick
 
     class BasedIntParamType(click.ParamType):
         name = "integer"

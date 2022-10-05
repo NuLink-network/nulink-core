@@ -19,7 +19,7 @@ import os
 from pathlib import Path
 from typing import Optional, Type
 
-import click
+import nuclick as click
 from tabulate import tabulate
 from web3.main import Web3
 

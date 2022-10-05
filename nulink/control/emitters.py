@@ -22,7 +22,7 @@ import os
 from functools import partial
 from typing import Callable, Union
 
-import click
+import nuclick as click
 from flask import Response
 
 import nulink

@@ -4,9 +4,9 @@ from io import BytesIO
 
 import pytest
 
-import click
-from click._compat import WIN
-from click.testing import CliRunner
+import nuclick as click
+from nuclick._compat import WIN
+from nuclick.testing import CliRunner
 
 
 def test_runner():

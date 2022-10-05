@@ -15,7 +15,7 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import click
+import nuclick as click
 import pytest
 
 from nulink.blockchain.eth.clients import EthereumTesterClient, PUBLIC_CHAINS

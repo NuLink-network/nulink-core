@@ -16,7 +16,7 @@
 """
 from collections import namedtuple
 
-import click
+import nuclick as click
 import maya
 
 from nulink.control.emitters import StdoutEmitter
