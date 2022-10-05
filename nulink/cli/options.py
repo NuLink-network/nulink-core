@@ -187,10 +187,13 @@ def group_options(option_class, **options):
             kwargs[option_name] = option_class(**to_group)
             try:
                 return func(**kwargs)
-            except:
-                if '_inner_origin_args' in kwargs:
-                    kwargs.pop('_inner_origin_args')
-                return func(**kwargs)
+            except TypeError as e:
+                if "_inner_origin_args" in str(e):
+                    if '_inner_origin_args' in kwargs:
+                        kwargs.pop('_inner_origin_args')
+                    return func(**kwargs)
+                else:
+                    raise
 
         for dec in decorators:
             wrapper = dec(wrapper)

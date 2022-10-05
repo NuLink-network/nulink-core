@@ -40,7 +40,7 @@ nulink-web3 = ">=1.0.2"
 eth-utils = "*"
 # CLI / Configuration
 appdirs = "*"
-nulink-click = ">=0.0.2"
+nulink-click = ">=0.0.3"
 colorama = "*"
 tabulate = "*"
 

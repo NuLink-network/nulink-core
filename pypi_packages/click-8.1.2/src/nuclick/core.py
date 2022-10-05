@@ -759,11 +759,13 @@ class Context:
             with ctx:
                 try:
                     return __callback(*args, **kwargs)
-                except:
-                    if '_inner_origin_args' in kwargs:
-                        kwargs.pop('_inner_origin_args')
-                    return __callback(*args, **kwargs)
-
+                except TypeError as e:
+                    if "_inner_origin_args" in str(e):
+                        if '_inner_origin_args' in kwargs:
+                            kwargs.pop('_inner_origin_args')
+                        return __callback(*args, **kwargs)
+                    else:
+                        raise
 
     def forward(
         __self, __cmd: "Command", *args: t.Any, **kwargs: t.Any  # noqa: B902

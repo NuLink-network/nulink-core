@@ -556,5 +556,5 @@ if __name__ == '__main__':
         '--db-filepath', 'D:\\nulink_data',
         # '--debug',
         # '--force',
-        '--no-ip-checkup',
+        # '--no-ip-checkup',
         '--no-block-until-ready'])
