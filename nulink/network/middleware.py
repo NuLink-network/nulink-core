@@ -281,12 +281,12 @@ class RestMiddleware:
         response = self.client.post(node_or_sprout=responder,
                                     data=bytes(initiator.metatada()),
                                     path="check_availability",
-                                    timeout=6,  # Two round trips are expected
+                                    timeout=15,  # Two round trips are expected
                                     )
         return response
 
     def ping(self, node):
-        response = self.client.get(node_or_sprout=node, path="ping", timeout=2)
+        response = self.client.get(node_or_sprout=node, path="ping", timeout=10)
         return response
 
     def get_nodes_via_rest(self,

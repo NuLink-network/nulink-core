@@ -28,7 +28,7 @@ from typing import Callable, Tuple
 
 import maya
 import pytest
-from click.testing import CliRunner
+from nuclick.testing import CliRunner
 from eth_utils import to_checksum_address
 from web3 import Web3
 from web3.contract import Contract

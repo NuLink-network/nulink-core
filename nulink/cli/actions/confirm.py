@@ -18,7 +18,7 @@
 
 from typing import Type, Union, Dict
 
-import click
+import nuclick as click
 from constant_sorrow.constants import UNKNOWN_DEVELOPMENT_CHAIN_ID
 from maya import MayaDT
 from tabulate import tabulate

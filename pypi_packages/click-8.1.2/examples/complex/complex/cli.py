@@ -1,7 +1,7 @@
 import os
 import sys
 
-import click
+import nuclick as click
 
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix="COMPLEX")

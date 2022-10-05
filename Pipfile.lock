@@ -239,13 +239,13 @@
             "markers": "python_version >= '3'",
             "version": "==2.0.12"
         },
-        "click": {
+        "nulink-click": {
             "hashes": [
                 "sha256:24e1a4a9ec5bf6299411369b208c1df2188d9eb8d916302fe6bf03faed227f1e",
                 "sha256:479707fe14d9ec9a0757618b7a100a0ae4c4e236fac5b7f80ca68028141a1a72"
             ],
             "index": "pypi",
-            "version": "==8.1.2"
+            "version": "==0.0.1"
         },
         "colorama": {
             "hashes": [
@@ -1426,13 +1426,13 @@
             "markers": "python_version >= '3.6'",
             "version": "==2.1.7"
         },
-        "web3": {
+        "nulink-web3": {
             "hashes": [
                 "sha256:5478195fcc0e912da5bf5d0847788aac2f7ce0094a7eecb090f8cb94b0777e3e",
                 "sha256:d7b233e4a02c5780974ec6c51ef977c63632d779efd0ebc3c3259e8b983a9e8b"
             ],
             "index": "pypi",
-            "version": "==6.0.0b1"
+            "version": "==1.0.2"
         },
         "websockets": {
             "hashes": [

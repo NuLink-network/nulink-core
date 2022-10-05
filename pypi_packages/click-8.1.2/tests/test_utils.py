@@ -6,9 +6,10 @@ from io import StringIO
 
 import pytest
 
-import click._termui_impl
-import click.utils
-from click._compat import WIN
+import nuclick as click
+import nuclick._termui_impl
+import nuclick.utils
+from nuclick._compat import WIN
 
 
 def test_echo(runner):

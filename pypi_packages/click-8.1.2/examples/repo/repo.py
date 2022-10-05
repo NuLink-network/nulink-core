@@ -2,7 +2,7 @@ import os
 import posixpath
 import sys
 
-import click
+import nuclick as click
 
 
 class Repo:

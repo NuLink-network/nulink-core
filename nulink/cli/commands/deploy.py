@@ -19,7 +19,7 @@ along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 import json
 from pathlib import Path
 
-import click
+import nuclick as click
 from constant_sorrow import constants
 from typing import Tuple
 

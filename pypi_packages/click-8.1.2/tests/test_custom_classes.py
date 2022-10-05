@@ -1,4 +1,4 @@
-import click
+import nuclick as click
 
 
 def test_command_context_class():

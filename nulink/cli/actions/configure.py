@@ -15,14 +15,13 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import glob
 import json
 from json.decoder import JSONDecodeError
 from pathlib import Path
 from typing import Optional, Type, List
 
-import click
+import nuclick as click
 
 from nulink.characters.lawful import Ursula
 from nulink.cli.actions.confirm import confirm_destroy_configuration
@@ -86,7 +85,7 @@ def get_or_update_configuration(emitter: StdoutEmitter,
     except config_class.ConfigurationError:
         return handle_invalid_configuration_file(emitter=emitter, config_class=config_class, filepath=filepath)
 
-    emitter.echo(f"{config_class.NAME.capitalize()} Configuration {filepath} \n {'='*55}")
+    emitter.echo(f"{config_class.NAME.capitalize()} Configuration {filepath} \n {'=' * 55}")
     if updates:
         pretty_fields = ', '.join(updates)
         emitter.message(SUCCESSFUL_UPDATE_CONFIGURATION_VALUES.format(fields=pretty_fields), color='yellow')
@@ -137,7 +136,6 @@ def handle_invalid_configuration_file(emitter: StdoutEmitter,
 
 
 def collect_operator_ip_address(emitter: StdoutEmitter, network: str, force: bool = False) -> str:
-
     # From node swarm
     try:
         message = f'Detecting external IP address automatically'
@@ -189,3 +187,30 @@ def perform_startup_ip_check(emitter: StdoutEmitter, ursula: Ursula, force: bool
         raise click.Abort()
     else:
         emitter.message('✓ External IP matches configuration', 'green')
+
+
+def get_external_ip(emitter: StdoutEmitter, ursula: Ursula) -> str or None:
+    """
+    Used on ursula startup to determine if the external
+    IP address is consistent with the configuration's values.
+    """
+    try:
+        external_ip = determine_external_ip_address(network=ursula.domain, known_nodes=ursula.known_nodes)
+    except UnknownIPAddress:
+        message = 'Cannot automatically determine external IP address'
+        emitter.message(message)
+        return None
+
+    rest_host = ursula.rest_interface.host
+    try:
+        validate_operator_ip(ip=rest_host)
+    except InvalidOperatorIP:
+        message = f'{rest_host} is not a valid or permitted operator IP address.  Set the correct external IP then try again\n' \
+                  f'automatic configuration -> nulink ursula config ip-address\n' \
+                  f'manual configuration    -> nulink ursula config --rest-host <IP ADDRESS>'
+        emitter.message(message)
+        return None
+
+    # ip_mismatch = external_ip != rest_host
+
+    return external_ip

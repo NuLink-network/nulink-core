@@ -17,7 +17,7 @@ that it works the same in many different terminal environments.
 
 Example::
 
-    import click
+    import nuclick
 
     click.echo('Hello World!')
 
@@ -69,7 +69,7 @@ can still call that in your code, but it's not required for Click.
 
 For styling a string, the :func:`style` function can be used::
 
-    import click
+    import nuclick
 
     click.echo(click.style('Hello World!', fg='green'))
     click.echo(click.style('Some more text', bg='blue', fg='white'))
@@ -124,7 +124,7 @@ clears the entire visible screen in a platform-agnostic way:
 
 ::
 
-    import click
+    import nuclick
     click.clear()
 
 
@@ -146,7 +146,7 @@ is instead a pipe.
 
 Example::
 
-    import click
+    import nuclick
 
     click.echo('Continue? [yn] ', nl=False)
     c = click.getchar()
@@ -184,7 +184,7 @@ run interactively.
 
 Example::
 
-    import click
+    import nuclick
     click.pause()
 
 
@@ -201,7 +201,7 @@ will be ``None``, otherwise the entered text.
 
 Example usage::
 
-    import click
+    import nuclick
 
     def get_commit_message():
         MARKER = '# Everything below is ignored\n'
@@ -214,7 +214,7 @@ a specific filename.  In this case, the return value is always `None`.
 
 Example usage::
 
-    import click
+    import nuclick
     click.edit(filename='/etc/passwd')
 
 
@@ -269,7 +269,7 @@ stream object (except in very odd cases; see :doc:`/unicode-support`).
 
 Example::
 
-    import click
+    import nuclick
 
     stdin_text = click.get_text_stream('stdin')
     stdout_binary = click.get_binary_stream('stdout')
@@ -292,7 +292,7 @@ intelligently open stdin/stdout as well as any other file.
 
 Example::
 
-    import click
+    import nuclick
 
     stdout = click.open_file('-', 'w')
     test_file = click.open_file('test.txt', 'w')
@@ -320,7 +320,7 @@ for per-user config files for your application depending on the OS.
 Example usage::
 
     import os
-    import click
+    import nuclick
     import ConfigParser
 
     APP_NAME = 'My Application'
@@ -361,7 +361,7 @@ time to do processing.  So say you have a loop like this::
 To hook this up with an automatically updating progress bar, all you need
 to do is to change the code to this::
 
-    import click
+    import nuclick
 
     with click.progressbar(all_the_users_to_process) as bar:
         for user in bar:

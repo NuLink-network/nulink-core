@@ -77,7 +77,7 @@ state of our tool:
 .. click:example::
 
     import os
-    import click
+    import nuclick
 
 
     class Repo(object):

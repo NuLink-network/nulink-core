@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
-
+import json
 import uuid
 import weakref
 from http import HTTPStatus
@@ -35,6 +35,7 @@ from nucypher_core import (
 )
 
 from nulink.config.constants import MAX_UPLOAD_CONTENT_LENGTH
+from nulink.control.emitters import StdoutEmitter
 from nulink.crypto.keypairs import DecryptingKeypair
 from nulink.crypto.signing import InvalidSignature
 from nulink.datastore.datastore import Datastore
@@ -280,5 +281,39 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
             log.debug("Template Rendering Exception:\n" + text_error)
             return Response(response=html_error, headers=headers, status=HTTPStatus.INTERNAL_SERVER_ERROR)
         return Response(response=content, headers=headers)
+
+    @rest_app.route("/checkip", methods=['GET'])
+    def checkip():
+        """
+        Add a checking mechanism: when the backend server ping the node, the node need to return a signature which is signed by the worker account, the message is the node uri.
+        Then when server check the signature, it can check if this worker is running with specific URI.
+        https://github.com/NuLink-network/nulink-core/issues/3
+
+        The problem with this scheme is that if the user uses a domain name,
+        we can't get it, and the front end can't use the domain name to verify the signature
+
+
+        The original idea is to register with a domain name in the Ursula init, and then do not get an external IP address,
+        take the user Ursula init IP or domain name as a signature, when the front end gets the signature,
+        and use the same IP or domain name as the Ursula init to verify it. However, when I verified this scheme,
+        I found that Ursula init cannot be registered with a domain name, only an IP. So it doesn't work.
+
+        the current plan:
+
+        """
+        # "Asks this node: What is my IP address?"
+        # requester_ip_address = request.remote_addr
+
+        emitter = StdoutEmitter()
+
+        from nulink.cli.actions.configure import get_external_ip
+
+        # ip = get_external_ip(emitter, this_node)
+        # emitter.message(f"external ip: {ip},  rest_interface.host: {this_node.rest_interface.host}")
+        emitter.message(f"rest_interface.host: {this_node.rest_interface.host}")
+
+        signed_message = this_node.signer.sign_message(this_node.wallet_address, this_node.rest_interface.host.encode()).hex()
+        emitter.message(f"signed_message: {signed_message}")
+        return Response(json.dumps({"worker_signed": signed_message}), content_type="application/json", status=HTTPStatus.OK)
 
     return rest_app

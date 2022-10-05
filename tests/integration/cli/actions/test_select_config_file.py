@@ -19,7 +19,7 @@ from pathlib import Path
 
 import os
 
-import click
+import nuclick as click
 import pytest
 
 from nulink.cli.actions.select import select_config_file

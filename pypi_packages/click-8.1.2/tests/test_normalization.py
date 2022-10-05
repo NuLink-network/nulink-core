@@ -1,4 +1,4 @@
-import click
+import nuclick as click
 
 
 CONTEXT_SETTINGS = dict(token_normalize_func=lambda x: x.lower())

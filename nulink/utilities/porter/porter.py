@@ -64,7 +64,7 @@ the Pipe for PRE Application network operations
     _LONG_LEARNING_DELAY = 30
     _ROUNDS_WITHOUT_NODES_AFTER_WHICH_TO_SLOW_DOWN = 25
 
-    DEFAULT_EXECUTION_TIMEOUT = 15  # 15s
+    DEFAULT_EXECUTION_TIMEOUT = 45  # change 15s to 45s by andi
 
     DEFAULT_PORT = 9155
 

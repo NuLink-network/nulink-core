@@ -22,7 +22,7 @@ along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 # the proper dependencies and configuration to run an actual mining node.
 
 
-from click.testing import CliRunner
+from nuclick.testing import CliRunner
 
 from nulink.cli.main import nulink_cli
 from nulink.exceptions import DevelopmentInstallationRequired

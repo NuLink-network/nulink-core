@@ -1,6 +1,6 @@
 from complex.cli import pass_environment
 
-import click
+import nuclick as click
 
 
 @click.command("status", short_help="Shows file changes.")

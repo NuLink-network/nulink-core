@@ -22,7 +22,7 @@ from base64 import b64decode, b64encode
 
 import maya
 import pytest
-from click.testing import CliRunner
+from nuclick.testing import CliRunner
 
 from nucypher_core import MessageKit, EncryptedTreasureMap
 

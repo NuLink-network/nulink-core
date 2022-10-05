@@ -19,7 +19,7 @@
 from base64 import b64decode
 from pathlib import Path
 
-import click
+import nuclick as click
 
 from nulink.control.emitters import StdoutEmitter
 from nulink.characters.control.interfaces import BobInterface

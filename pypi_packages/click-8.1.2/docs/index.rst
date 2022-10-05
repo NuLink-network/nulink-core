@@ -27,7 +27,7 @@ What does it look like?  Here is an example of a simple Click program:
 
 .. click:example::
 
-    import click
+    import nuclick
 
     @click.command()
     @click.option('--count', default=1, help='Number of greetings.')

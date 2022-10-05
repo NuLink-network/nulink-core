@@ -17,7 +17,7 @@
 """
 import os
 
-import click
+import nuclick as click
 
 from nulink.control.emitters import StdoutEmitter, JSONRPCStdoutEmitter
 from nulink.cli.options import group_options

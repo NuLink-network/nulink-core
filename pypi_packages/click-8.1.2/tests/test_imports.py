@@ -2,7 +2,7 @@ import json
 import subprocess
 import sys
 
-from click._compat import WIN
+from nuclick._compat import WIN
 
 
 IMPORT_TEST = b"""\
@@ -20,7 +20,7 @@ def tracking_import(module, locals=None, globals=None, fromlist=None,
     return rv
 builtins.__import__ = tracking_import
 
-import click
+import nuclick as click
 rv = list(found_imports)
 import json
 click.echo(json.dumps(rv))

@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-import click
+import nuclick as click
 
 
 def test_other_command_invoke(runner):

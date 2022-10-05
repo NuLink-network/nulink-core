@@ -16,7 +16,7 @@
 """
 from pathlib import Path
 
-import click
+import nuclick as click
 
 from nulink.blockchain.eth.networks import NetworksInventory
 from nulink.characters.lawful import Ursula

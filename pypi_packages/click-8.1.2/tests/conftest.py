@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 
-from click.testing import CliRunner
+from nuclick.testing import CliRunner
 
 
 @pytest.fixture(scope="function")

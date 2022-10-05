@@ -27,7 +27,7 @@ from pathlib import Path
 from secrets import token_bytes
 from typing import Callable, ClassVar, Dict, List, Union, Optional, Tuple
 
-import click
+import nuclick as click
 from constant_sorrow.constants import KEYSTORE_LOCKED
 from mnemonic.mnemonic import Mnemonic
 

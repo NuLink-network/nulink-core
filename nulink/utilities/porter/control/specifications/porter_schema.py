@@ -15,7 +15,7 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import click
+import nuclick as click
 from marshmallow import fields as marshmallow_fields
 from marshmallow import validates_schema
 

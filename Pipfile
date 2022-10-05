@@ -36,11 +36,11 @@ jinja2 = "<3.1.0"
 # Third-Party Ethereum
 py-evm = "*"
 eth-tester = "*"
-nulink-web3 = "*"
+nulink-web3 = ">=1.0.2"
 eth-utils = "*"
 # CLI / Configuration
 appdirs = "*"
-click = ">=7.0"
+nulink-click = ">=0.0.2"
 colorama = "*"
 tabulate = "*"
 

@@ -54,9 +54,11 @@ class NotAPublicKey:
 
     _umbral_pubkey_from_bytes = PublicKey.from_bytes
 
-    def _tick():
+    @classmethod
+    def _tick(cls):
         for serial in good_serials:
             yield serial
+
     tick = _tick()
 
     def __init__(self, serial=None):
@@ -95,7 +97,6 @@ class NotAPrivateKey:
 
 
 class NotASignature:
-
     fake_signature_bytes = b'@\xbfS&\x97\xb3\x9e\x9e\xd3\\j\x9f\x0e\x8fY\x0c\xbeS\x08d\x0b%s\xf6\x17\xe2\xb6\xcd\x95u\xaapON\xd9E\xb3\x10M\xe1\xf4u\x0bL\x99q\xd6\r\x8e_\xe5I\x1e\xe5\xa2\xcf\xe5\x8be_\x077Gz'
 
     def __bytes__(self):

@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageEnhance
 from PIL import ImageFilter
 
-import click
+import nuclick as click
 
 
 @click.group(chain=True)

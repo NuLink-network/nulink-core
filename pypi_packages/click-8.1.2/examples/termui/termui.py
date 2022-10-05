@@ -2,7 +2,7 @@ import math
 import random
 import time
 
-import click
+import nuclick as click
 
 
 @click.group()

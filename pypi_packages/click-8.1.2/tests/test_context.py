@@ -2,9 +2,9 @@ from contextlib import contextmanager
 
 import pytest
 
-import click
-from click.core import ParameterSource
-from click.decorators import pass_meta_key
+import nuclick as click
+from nuclick.core import ParameterSource
+from nuclick.decorators import pass_meta_key
 
 
 def test_ensure_context_objects(runner):

@@ -10,7 +10,7 @@
 -r typing.txt
 cfgv==3.3.1
     # via pre-commit
-click==8.0.3
+nulink-click==0.0.2
     # via
     #   pip-compile-multi
     #   pip-tools

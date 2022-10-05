@@ -19,7 +19,7 @@
 import os
 from pathlib import Path
 
-import click
+import nuclick as click
 
 from nulink.blockchain.eth.agents import (
     ContractAgency,

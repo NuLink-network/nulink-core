@@ -1,8 +1,8 @@
 import pytest
 
-import click
-from click.parser import OptionParser
-from click.parser import split_arg_string
+import nuclick as click
+from nuclick.parser import OptionParser
+from nuclick.parser import split_arg_string
 
 
 @pytest.mark.parametrize(
