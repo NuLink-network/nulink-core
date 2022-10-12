@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import socket
 import ssl
 import time
@@ -30,12 +29,14 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509 import Certificate
 from nucypher_core import MetadataRequest, FleetStateChecksum, NodeMetadata
-from requests.exceptions import SSLError
+from requests.exceptions import SSLError, JSONDecodeError
 
 from nulink.blockchain.eth.registry import BaseContractRegistry
 from nulink.config.storages import ForgetfulNodeStorage
 from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.utilities.logging import Logger
+from nulink.utilities.version import check_version_pickle_symbol, check_version, VersionMismatchError
+from nulink import __version__
 
 SSL_LOGGER = Logger('ssl-middleware')
 EXEMPT_FROM_VERIFICATION.bool_value(False)
@@ -131,7 +132,30 @@ class NulinkMiddlewareClient:
                             host=host, port=port,
                             path="public_information",
                             timeout=20)
-        return response.content
+
+        if not str(response.status_code).startswith('2'):
+            return response.content
+
+        response_data = response.content
+
+        # check whether the version needs to be upgraded
+        bytes_list = response_data.split(bytes(check_version_pickle_symbol, 'utf-8'))
+        len_bytes_list = len(bytes_list)
+        if len_bytes_list == 1:
+            # old version
+            raise VersionMismatchError(f"the teacher {host}:{port}'s version 0.1.0 is too low, you can't connect to it")
+        else:
+            # current len_bytes_list must be 2
+            assert len_bytes_list == 2
+            node_metadata_bytes, version_bytes = bytes_list
+            version_str = version_bytes.decode('utf-8')
+
+            if not check_version(version_str):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {host}:{port}'s version {version_str} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+            return node_metadata_bytes
 
     def __getattr__(self, method_name):
         # Quick sanity check.
@@ -248,11 +272,13 @@ class RestMiddleware:
 
     class PaymentRequired(UnexpectedResponse):
         """Raised for HTTP 402"""
+
         def __init__(self, *args, **kwargs):
             super().__init__(status=HTTPStatus.PAYMENT_REQUIRED, *args, **kwargs)
 
     class Unauthorized(UnexpectedResponse):
         """Raised for HTTP 403"""
+
         def __init__(self, *args, **kwargs):
             super().__init__(status=HTTPStatus.FORBIDDEN, *args, **kwargs)
 
@@ -287,7 +313,23 @@ class RestMiddleware:
 
     def ping(self, node):
         response = self.client.get(node_or_sprout=node, path="ping", timeout=10)
-        return response
+
+        if not str(response.status_code).startswith('2'):
+            return response
+
+        try:
+            # "application/json" in response.headers['Content-Type'].lower()
+            ping_response = response.json()
+            ver = ping_response.get('version')
+            if not check_version(ver):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {ping_response.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+            return ping_response.get('requester_ip')
+        except JSONDecodeError:
+            # old version content-type is text/html
+            raise VersionMismatchError(f"the teacher {node.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")
 
     def get_nodes_via_rest(self,
                            node,
@@ -296,8 +338,38 @@ class RestMiddleware:
 
         request = MetadataRequest(fleet_state_checksum=fleet_state_checksum,
                                   announce_nodes=announce_nodes)
+
+        # add version info to the request
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+
         response = self.client.post(node_or_sprout=node,
                                     path="node_metadata",
-                                    data=bytes(request),
+                                    data=bytes(request) + split_symbol + bytes(__version__, 'utf-8'),
                                     )
-        return response
+
+        if not str(response.status_code).startswith('2'):
+            return response
+
+        response_data = response.content
+
+        # check whether the version needs to be upgraded
+        bytes_list = response_data.split(bytes(check_version_pickle_symbol, 'utf-8'))
+        len_bytes_list = len(bytes_list)
+        if len_bytes_list == 1:
+            # The peer end is an older version
+            raise VersionMismatchError(f"the teacher {node.rest_url()}'s version 0.1.0 is too low, you can't connect to it")
+        else:
+            # current len_bytes_list must be 2
+            assert len_bytes_list == 2
+            node_metadata_bytes, version_bytes = bytes_list
+            version_str = version_bytes.decode('utf-8')
+
+            if not check_version(version_str):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {node.rest_url()}'s version {version_str} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+            # response.content = node_metadata_bytes
+            # to set response.content, we can't change it directly, we can' change it by set response._content
+            response._content = node_metadata_bytes
+            return response

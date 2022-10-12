@@ -1350,13 +1350,13 @@
             "markers": "python_version >= '3.6' and python_version < '4'",
             "version": "==2.0.0a5"
         },
-        "twisted": {
+        "nulink-twisted": {
             "hashes": [
                 "sha256:a047990f57dfae1e0bd2b7df2526d4f16dcdc843774dc108b78c52f2a5f13680",
                 "sha256:f9f7a91f94932477a9fc3b169d57f54f96c6e74a23d78d9ce54039a7f48928a2"
             ],
             "markers": "python_full_version >= '3.6.7'",
-            "version": "==22.4.0"
+            "version": "==0.1.0"
         },
         "txaio": {
             "hashes": [

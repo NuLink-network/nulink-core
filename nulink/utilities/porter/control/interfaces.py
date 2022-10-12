@@ -55,6 +55,12 @@ class PorterInterface(ControlInterface):
 
         return response_data
 
+    @attach_schema(porter_schema.GetCurrentVersion)
+    def get_current_version(self) -> dict:
+        version = self.implementer.get_current_version()
+
+        return {"version": version}
+
     @attach_schema(porter_schema.AliceRevoke)
     def revoke(self) -> dict:
         # Steps (analogous to nucypher.character.control.interfaces):

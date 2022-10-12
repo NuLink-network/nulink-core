@@ -33,7 +33,7 @@ from nucypher_core import (
     MetadataResponse,
     MetadataResponsePayload,
 )
-
+from nulink import __version__
 from nulink.config.constants import MAX_UPLOAD_CONTENT_LENGTH
 from nulink.control.emitters import StdoutEmitter
 from nulink.crypto.keypairs import DecryptingKeypair
@@ -44,6 +44,7 @@ from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.network.nodes import NodeSprout
 from nulink.network.protocols import InterfaceInfo
 from nulink.utilities.logging import Logger
+from nulink.utilities.version import check_version_pickle_symbol, VersionMismatchError, check_version
 
 HERE = BASE_DIR = Path(__file__).parent
 TEMPLATES_DIR = HERE / "templates"
@@ -114,7 +115,11 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     @rest_app.route("/public_information")
     def public_information():
         """REST endpoint for public keys and address."""
-        response = Response(response=bytes(this_node.metadata()), mimetype='application/octet-stream')
+        # add version info
+        from nulink import __version__
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+
+        response = Response(response=bytes(this_node.metadata()) + split_symbol + bytes(__version__, 'utf-8'), mimetype='application/octet-stream')
         return response
 
     @rest_app.route('/node_metadata', methods=["GET"])
@@ -124,31 +129,66 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
             # Learn when learned about
             this_node.start_learning_loop()
 
+        # notice: Since the peer requests this interface is the note_Metadata interface of the teacher node, the node must be a teacher
         # All known nodes + this node
         response_bytes = this_node.bytestring_of_known_nodes()
-        return Response(response_bytes, headers=headers)
+
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+
+        return Response(response_bytes + split_symbol + bytes(__version__, 'utf-8'), headers=headers)
 
     @rest_app.route('/node_metadata', methods=["POST"])
     def node_metadata_exchange():
 
-        metadata_request = MetadataRequest.from_bytes(request.data)
+        def bytestring_of_empty_known_nodes():
+            headers = {'Content-Type': 'application/octet-stream'}
+            response_payload = MetadataResponsePayload(timestamp_epoch=this_node.known_nodes.timestamp.epoch,
+                                                       announce_nodes=[])
+            response = MetadataResponse(this_node.stamp.as_umbral_signer(), response_payload)
+
+            split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+            return Response(bytes(response) + split_symbol + bytes(__version__, 'utf-8'), headers=headers)
+
+        try:
+            metadata_request = MetadataRequest.from_bytes(request.data)
+            # The code runs here, indicating that an older version of the node sent a node_metadata Post request, so return an empty node list, Indicates that we do not support the old version
+            return bytestring_of_empty_known_nodes()
+        except Exception as e:
+            log.info(f"Post/node_metadata MetadataRequest.from_bytes failed: {str(e)}")
+
+            split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+            # bytes(request) + split_symbol + bytes(__version__, 'utf-8')
+
+            bytes_list = request.data.split(split_symbol)
+            len_bytes_list = len(bytes_list)
+            if len_bytes_list == 1:
+                # Note The version of the requesting end is relatively early, return an empty node list, Indicates that we do not support the old version
+                return bytestring_of_empty_known_nodes()
+            else:
+                # current len_bytes_list must be 2
+                assert len_bytes_list == 2
+                node_metadata_bytes, version_bytes = bytes_list
+                version_str = version_bytes.decode('utf-8')
+
+                if not check_version(version_str):
+                    # Note The version of the requesting end is different from the current node version, return an empty node list, Indicates that we do not support the old version
+                    return bytestring_of_empty_known_nodes()
+
+            metadata_request = MetadataRequest.from_bytes(node_metadata_bytes)
 
         # If these nodes already have the same fleet state, no exchange is necessary.
 
         learner_fleet_state = request.args.get('fleet')
         if metadata_request.fleet_state_checksum == this_node.known_nodes.checksum:
             # log.debug("Learner already knew fleet state {}; doing nothing.".format(learner_fleet_state))  # 1712
-            headers = {'Content-Type': 'application/octet-stream'}
-            # No nodes in the response: same fleet state
-            response_payload = MetadataResponsePayload(timestamp_epoch=this_node.known_nodes.timestamp.epoch,
-                                                       announce_nodes=[])
-            response = MetadataResponse(this_node.stamp.as_umbral_signer(),
-                                        response_payload)
-            return Response(bytes(response), headers=headers)
+            return bytestring_of_empty_known_nodes()
 
+        # announce_nodes is the Teacher Node
         if metadata_request.announce_nodes:
             for metadata in metadata_request.announce_nodes:
                 try:
+                    # # from nucypher_core import NodeMetadata
+                    # return self.signature.verify(message=bytes(self._metadata_payload), verifying_pk=self.verifying_key)
                     metadata.verify()
                 except Exception:
                     # inconsistent metadata
@@ -231,7 +271,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     def ping():
         """Asks this node: What is my IP address?"""
         requester_ip_address = request.remote_addr
-        return Response(requester_ip_address, status=HTTPStatus.OK)
+
+        return Response(json.dumps({'requester_ip': requester_ip_address, 'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
 
     @rest_app.route("/check_availability", methods=['POST'])
     def check_availability():

@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from pathlib import Path
 
 import pytest_twisted
@@ -24,7 +23,8 @@ from cryptography.hazmat.primitives import serialization
 from twisted.internet import threads
 
 from nulink.characters.lawful import Ursula
-
+from nulink.utilities.version import check_version, check_version_pickle_symbol, VersionMismatchError
+from nulink import __version__
 
 @pytest_twisted.inlineCallbacks
 def test_federated_nodes_connect_via_tls_and_verify(lonely_ursula_maker):
@@ -40,8 +40,28 @@ def test_federated_nodes_connect_via_tls_and_verify(lonely_ursula_maker):
 
     def check_node_with_cert(node, cert_file):
         response = requests.get("https://{}/public_information".format(node.rest_url()), verify=cert_file)
-        ursula = Ursula.from_metadata_bytes(response.content)
-        assert ursula == node
+        response_data = response.content
+
+        # check whether the version needs to be upgraded
+        bytes_list = response_data.split(bytes(check_version_pickle_symbol, 'utf-8'))
+        len_bytes_list = len(bytes_list)
+        if len_bytes_list == 1:
+            # old version
+            raise VersionMismatchError(f"the teacher {node.rest_url()}'s version 0.1.0 is too low, you can't connect to it")
+        else:
+            # current len_bytes_list must be 2
+            assert len_bytes_list == 2
+            node_metadata_bytes, version_bytes = bytes_list
+            version_str = version_bytes.decode('utf-8')
+
+            if not check_version(version_str):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {node.rest_url()}'s version {version_str} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+
+            ursula = Ursula.from_metadata_bytes(node_metadata_bytes)
+            assert ursula == node
 
     try:
         with open("test-cert", "wb") as f:

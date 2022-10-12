@@ -14,7 +14,8 @@
  You should have received a copy of the GNU Affero General Public License
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
-
+import json
+from http import HTTPStatus
 from pathlib import Path
 from typing import List, NamedTuple, Optional, Sequence
 
@@ -163,6 +164,10 @@ the Pipe for PRE Application network operations
         else:
             return len(self.known_nodes)
 
+    def get_current_version(self):
+        from nulink import __version__
+        return str(__version__)
+
     def retrieve_cfrags(self,
                         treasure_map: TreasureMap,
                         retrieval_kits: Sequence[RetrievalKit],
@@ -267,5 +272,13 @@ the Pipe for PRE Application network operations
             """Porter control endpoint for executing a PRE work order on behalf of Bob."""
             response = controller(method_name='retrieve_cfrags', control_request=request)
             return response
+
+        @porter_flask_control.route('/version', methods=['GET'])
+        def get_current_version() -> Response:
+            """Porter control endpoint for get Current Version."""
+            # response = controller(method_name='get_current_version', control_request=request)
+            # return response
+            from nulink import __version__
+            return Response(json.dumps({'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
 
         return controller
