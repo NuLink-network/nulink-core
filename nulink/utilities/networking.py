@@ -15,13 +15,12 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import random
 from ipaddress import ip_address
 from typing import Union, Optional
 
 import requests
-from requests.exceptions import RequestException, HTTPError
+from requests.exceptions import RequestException, HTTPError, JSONDecodeError
 
 from nulink.acumen.perception import FleetSensor
 from nulink.blockchain.eth.registry import BaseContractRegistry
@@ -29,6 +28,8 @@ from nulink.config.storages import LocalFileBasedNodeStorage
 from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.network.middleware import RestMiddleware, NulinkMiddlewareClient
 from nulink.utilities.logging import Logger
+from nulink.utilities.version import check_version, VersionMismatchError
+from nulink import __version__
 
 
 class UnknownIPAddress(RuntimeError):
@@ -97,11 +98,25 @@ def _request_from_node(teacher,
     except NodeSeemsToBeDown:
         # This node is unreachable.  Move on.
         return
+
     if response.status_code == 200:
         try:
-            ip = str(ip_address(response.text))
+            # "application/json" in response.headers['Content-Type'].lower()
+            ping_response = response.json()
+            ver = ping_response.get('version')
+            if not check_version(ver):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {ping_response.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+        except JSONDecodeError:
+            # old version content-type is text/html
+            raise VersionMismatchError(f"the teacher {teacher.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")
+
+        try:
+            ip = str(ip_address(ping_response.get('requester_ip')))
         except ValueError:
-            error = f'Teacher {teacher} returned an invalid IP response; Got {response.text}'
+            error = f"Teacher {teacher} returned an invalid IP response; Got {ping_response.get('requester_ip')}"
             raise UnknownIPAddress(error)
         log.info(f'Fetched external IP address ({ip}) from teacher ({teacher}).')
         return ip
@@ -115,7 +130,6 @@ def get_external_ip_from_default_teacher(network: str,
                                          registry: Optional[BaseContractRegistry] = None,
                                          log: Logger = IP_DETECTION_LOGGER
                                          ) -> Union[str, None]:
-
     # Prevents circular imports
     from nulink.characters.lawful import Ursula
     from nulink.network.nodes import TEACHER_NODES

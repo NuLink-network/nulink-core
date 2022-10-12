@@ -94,7 +94,8 @@ tabulate==0.8.9
 toolz==0.11.2; python_version >= '3.5'
 trezor==0.13.0
 trie==2.0.0a5; python_version >= '3.6' and python_version < '4'
-twisted==22.4.0; python_full_version >= '3.6.7'
+nulink-twisted==0.1.0; python_full_version >= '3.6.7'
+# twisted==22.4.0; python_full_version >= '3.6.7'
 txaio==22.2.1; python_version >= '3.6'
 typing-extensions==3.10.0.2
 tzlocal==2.1

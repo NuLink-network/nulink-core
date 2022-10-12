@@ -551,10 +551,17 @@ if __name__ == '__main__':
         # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
         #     '--rest-host', '192.168.3.20',
         #     '--rest-port', '9151',
-        '--teacher', 'https://8.219.188.70:9151',
+        # '--teacher', 'https://8.219.188.70:9151',
         '--config-file', 'D:\\nulink_data\\ursula.json',
         '--db-filepath', 'D:\\nulink_data',
         # '--debug',
         # '--force',
-        # '--no-ip-checkup',
-        '--no-block-until-ready'])
+        '--no-ip-checkup',
+        '--no-block-until-ready',
+        '--console-logs',
+        '--file-logs',
+    ])
+
+    """
+    nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs
+    """

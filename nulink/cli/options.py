@@ -16,6 +16,7 @@ along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import functools
+import sys
 from collections import namedtuple
 from pathlib import Path
 from typing import Sequence
@@ -185,15 +186,22 @@ def group_options(option_class, **options):
                 del kwargs[name]
 
             kwargs[option_name] = option_class(**to_group)
+            has_origin_args = False
             try:
                 return func(**kwargs)
             except TypeError as e:
                 if "_inner_origin_args" in str(e):
                     if '_inner_origin_args' in kwargs:
                         kwargs.pop('_inner_origin_args')
-                    return func(**kwargs)
+                        has_origin_args = True
+                        # will throw exception: during handling of the above exception another exception occurred
+                        # return func(**kwargs)
                 else:
                     raise
+
+            # to avoid exception: during handling of the above exception another exception occurred
+            if has_origin_args:
+                return func(**kwargs)
 
         for dec in decorators:
             wrapper = dec(wrapper)

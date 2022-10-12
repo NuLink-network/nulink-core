@@ -23,7 +23,7 @@ and encrypted while maintaining the ability to share that data with trusted part
 
 .. attention::
 
-    In order to run a PRE node on Threshold, ``nulink`` v0.1.0 or above will be required.
+    In order to run a PRE node on Threshold, ``nulink`` v0.2.0 or above will be required.
     See `releases <https://pypi.org/project/nulink/#history>`_ for the latest version.
 
 
