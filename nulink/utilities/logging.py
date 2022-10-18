@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import pathlib
 from contextlib import contextmanager
 from twisted.logger import (
@@ -80,7 +79,6 @@ def initialize_sentry(dsn: str):
 
 
 class GlobalLoggerSettings:
-
     log_level = LogLevel.levelWithName("info")
     _json_ipc = False  # TODO: Oh no... #1754
 

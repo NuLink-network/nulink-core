@@ -433,12 +433,13 @@ class WorkTracker(WorkTrackerBase):
         should_continue = self.worker.get_staking_provider_address() != NULL_ADDRESS
         if should_continue:
             return True
+
         self.log.warn('COMMIT PREVENTED - Operator is not bonded to a staking provider.')
         return False
 
     def _fire_commitment(self):
         """Makes an initial/replacement operator commitment transaction"""
-        # 质押的操作者确认与质押者正确绑定的操作，需要修改链上数据
+        # The operator of the pledge confirms the successful binding operation with the pledge, and needs to modify the on-chain data
         transacting_power = self.worker.transacting_power
         with transacting_power:
             txhash = self.worker.confirm_address(fire_and_forget=True)  # < --- blockchain WRITE

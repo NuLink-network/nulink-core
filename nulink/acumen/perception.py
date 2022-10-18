@@ -238,7 +238,7 @@ class FleetSensor:
         self._auto_update_state = False
 
     def record_node(self, node: 'Ursula'):
-
+        #  domain is network  e.g. mainnet
         if node.domain == self._domain:
             # Replace the existing object with a newer object, even if they're equal
             # (this object can be mutated externally).

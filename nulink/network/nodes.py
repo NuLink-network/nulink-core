@@ -40,6 +40,7 @@ from requests.exceptions import SSLError
 from twisted.internet import reactor, task
 from twisted.internet.defer import Deferred
 
+import nulink
 from nulink.acumen.nicknames import Nickname
 from nulink.acumen.perception import FleetSensor
 from nulink.blockchain.eth.agents import ContractAgency, PREApplicationAgent
@@ -59,6 +60,7 @@ from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.network.middleware import RestMiddleware
 from nulink.network.protocols import InterfaceInfo, SuspiciousActivity
 from nulink.utilities.logging import Logger
+from nulink.utilities.version import VersionMismatchError
 
 TEACHER_NODES = {
     NetworksInventory.MAINNET: (
@@ -174,7 +176,7 @@ class NodeSprout:
                       rest_host=self._metadata_payload.host,
                       rest_port=self._metadata_payload.port,
                       checksum_address=self.checksum_address,
-                      domain=self._metadata_payload.domain,
+                      domain=self._metadata_payload.domain,  # network e.g. 'mainnet'
                       timestamp=self.timestamp,
                       operator_signature_from_metadata=self.operator_signature_from_metadata,
                       certificate=load_der_x509_certificate(self._metadata_payload.certificate_der, backend=default_backend()),
@@ -182,6 +184,9 @@ class NodeSprout:
                       )
 
     def mature(self):
+        """
+            NodeSprout (an abridged node class)  => Ursula
+        """
         if self._is_finishing:
             return self._finishing_mutex.get()
 
@@ -354,19 +359,22 @@ class Learner:
 
         discovered = []
 
-        if self.domain:
+        if self.domain:  # mainnet or horus and so on
             canonical_sage_uris = TEACHER_NODES.get(self.domain, ())
 
             for uri in canonical_sage_uris:
                 try:
+                    self.log.info(f"try to get public node information from teacher {uri} ...")
                     maybe_sage_node = self.node_class.from_teacher_uri(teacher_uri=uri,
                                                                        min_stake=0,  # TODO: Where to get this?
                                                                        federated_only=self.federated_only,
                                                                        network_middleware=self.network_middleware,
                                                                        registry=self.registry)
+
+                except VersionMismatchError as e:
+                    self.log.warn(f"the Teacher {uri}: {e}")
                 except Exception as e:
                     # TODO: log traceback here?
-                    # TODO: distinguish between versioning errors and other errors?
                     self.log.warn(f"Failed to instantiate a node at {uri}: {e}")
                 else:
                     new_node = self.remember_node(maybe_sage_node, record_fleet_state=False)
@@ -381,6 +389,7 @@ class Learner:
             self.log.debug(f"Seeding from: {node_tag}")
 
             try:
+                # seed_node: NodeSprout (An abridged node class)
                 seed_node = self.node_class.from_seednode_metadata(seednode_metadata=seednode_metadata,
                                                                    network_middleware=self.network_middleware,
                                                                    )
@@ -465,6 +474,11 @@ class Learner:
             # blockchain calls to determine if stranger nodes are bonded.
             # Note: self.registry is composed on blockchainy character subclasses.
             registry = self.registry if self._verify_node_bonding else None  # TODO: Federated mode?
+
+            if isinstance(node, Teacher):
+                self.log.info(f"start verify Teacher node {node.rest_url()} by get public node information ...")
+            else:
+                self.log.info(f"start verify node {node.rest_url()} by get public node information ...")
 
             try:
                 node.verify_node(force=force_verification_recheck,
@@ -557,7 +571,7 @@ class Learner:
         nodes_we_know_about = self.known_nodes.shuffled()
 
         if not nodes_we_know_about:
-            raise self.NotEnoughTeachers("Need some nodes to start learning from.")
+            raise self.NotEnoughTeachers(f"Need some nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node")
 
         self.teacher_nodes.extend(nodes_we_know_about)
 
@@ -785,7 +799,7 @@ class Learner:
         current_teacher = self.current_teacher_node()  # Will raise if there's no available teacher.
 
         if isinstance(self, Teacher):
-            announce_nodes = [self.metadata()] # Ursula class is the subclass of Teacher class
+            announce_nodes = [self.metadata()]  # Ursula class is the subclass of Teacher class
         else:
             announce_nodes = []
 
@@ -798,6 +812,8 @@ class Learner:
             return RELAX
 
         try:
+            # announce_nodes: teacher node (current Ursula Node ) => class Ursula(Teacher, Character, Operator)
+            # post /node_metadata  to teacher node, return the current_teacher's  all known nodes
             response = self.network_middleware.get_nodes_via_rest(node=current_teacher,
                                                                   announce_nodes=announce_nodes,
                                                                   fleet_state_checksum=self.known_nodes.checksum)
@@ -834,7 +850,7 @@ class Learner:
             self.cycle_teacher_node()
 
         if response.status_code != 200:
-            self.log.info("Bad response from teacher {}: {} - {}".format(current_teacher, response, response.content))
+            self.log.info("Bad response from teacher {}: {} - {}, maybe the version mismatch".format(current_teacher, response, response.content))
             return
 
         # TODO: we really should be checking this *before* we ask it for a node list,
@@ -1162,6 +1178,7 @@ class Teacher:
                                                                    port=self.rest_interface.port)
 
         try:
+            # response_data is the 'NodeMetadata' bytes, NodeMetadata is the signer object of NodeMetadataPayload: NodeMetadata(signer=self.stamp.as_umbral_signer(), payload=payload)
             sprout = self.from_metadata_bytes(response_data)
         except Exception as e:
             raise self.InvalidNode(str(e))

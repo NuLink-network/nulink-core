@@ -923,7 +923,7 @@ class Ursula(Teacher, Character, Operator):
         #
 
         if emitter:
-            emitter.message(f"Starting services", color='yellow')
+            emitter.message(f"Starting services [current version: {nulink.__version__}]", color='yellow')
 
         if discovery and not self.lonely:
             self.start_learning_loop(now=eager)
@@ -939,6 +939,11 @@ class Ursula(Teacher, Character, Operator):
             if block_until_ready:
                 # Sets (staker's) checksum address; Prevent worker startup before bonding
                 self.block_until_ready()
+            else:
+                # add to Assign a value to the checksum address, so that the node generates metadata() by call public_information' this_node.metadata()
+                self.get_staking_provider_address()
+
+            emitter.message(f"✓ operator address: {self.operator_address}", color='green')
 
             work_is_needed = self.get_work_is_needed_check()(self)
             if work_is_needed:
@@ -1058,6 +1063,7 @@ class Ursula(Teacher, Character, Operator):
             operator_signature = None
         else:
             operator_signature = self.operator_signature
+
         payload = NodeMetadataPayload(staking_provider_address=self.canonical_address,
                                       domain=self.domain,
                                       timestamp_epoch=timestamp.epoch,
@@ -1097,6 +1103,7 @@ class Ursula(Teacher, Character, Operator):
                       host: str,
                       port: int):
         response_data = network_middleware.client.node_information(host, port)
+
         stranger_ursula_from_public_keys = cls.from_metadata_bytes(response_data)
         return stranger_ursula_from_public_keys
 
@@ -1180,6 +1187,7 @@ class Ursula(Teacher, Character, Operator):
             raise
         real_host = certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
 
+        cls.log.info(f"try to get public node information from teacher {real_host}:{port} ...")
         # Load the host as a potential seed node
         potential_seed_node = cls.from_rest_url(
             host=real_host,

@@ -169,7 +169,7 @@ class Character(Learner):
             else:
                 self.registry = NO_BLOCKCHAIN_CONNECTION.bool_value(False)
 
-            # REST  与Ursula节点交互的网络中间件(检测是否在线，发送重加密请求，撤销操作	等)
+            # REST  Network middleware that interacts with Ursula nodes (checking online, sending re-encryption requests, undo operations, etc.)
             self.network_middleware = network_middleware or RestMiddleware(registry=self.registry,
                                                                            eth_provider_uri=eth_provider_uri)
 

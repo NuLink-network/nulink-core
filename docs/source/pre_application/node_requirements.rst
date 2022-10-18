@@ -45,7 +45,7 @@ and has its own
 Heco Testnet Node Provider URI
 +++++++++++++++++++++++++
 
-As of ``nulink`` v0.1.0, policy management occurs on the Heco Testnet layer 2 side-chain
+As of ``nulink`` v0.2.0, policy management occurs on the Heco Testnet layer 2 side-chain
 by default. In order to validate the payment of policies before responding to service required, PRE nodes will need to
 make requests to the Heco Testnet side-chain. Much like an Ethereum provider endpoint, the PRE node will need
 to configure a Heco Testnet RPC endpoint URI e.g. (``https://<URI>``) for the node to use.  This value is specified via
@@ -56,7 +56,7 @@ the ``--payment-provider`` CLI parameter.
 Bsc Testnet Node Provider URI
 +++++++++++++++++++++++++
 
-As of ``nulink`` v0.1.0, policy management occurs on the Bsc Testnet layer 2 side-chain
+As of ``nulink`` v0.2.0, policy management occurs on the Bsc Testnet layer 2 side-chain
 by default. In order to validate the payment of policies before responding to service required, PRE nodes will need to
 make requests to the Heco Testnet side-chain. Much like an Ethereum provider endpoint, the PRE node will need
 to configure a Bsc Testnet RPC endpoint URI e.g. (``https://<URI>``) for the node to use.  This value is specified via

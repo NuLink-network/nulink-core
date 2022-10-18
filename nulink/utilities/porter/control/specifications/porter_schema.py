@@ -166,6 +166,7 @@ class BobRetrieveCFrags(BaseSchema):
 # Staker Endpoints
 #
 class StakerGetUrsulasTotal(BaseSchema):
+    # input
     return_list = base_fields.fields.Boolean(
         required=False,
         load_only=True,
@@ -178,3 +179,8 @@ class StakerGetUrsulasTotal(BaseSchema):
     # output
     total = marshmallow_fields.Integer()
     list = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSimpleSchema), dump_only=True)
+
+
+class GetCurrentVersion(BaseSchema):
+    # output
+    version = marshmallow_fields.String(dump_only=True)

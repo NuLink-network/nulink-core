@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import random
 import socket
 import time
@@ -27,7 +26,9 @@ from nucypher_core import MetadataRequest, FleetStateChecksum
 
 from nulink.characters.lawful import Ursula
 from nulink.network.middleware import NulinkMiddlewareClient, RestMiddleware
+from nulink.utilities.version import check_version_pickle_symbol, check_version, VersionMismatchError
 from tests.utils.ursula import MOCK_KNOWN_URSULAS_CACHE
+from nulink import __version__
 
 
 class BadTestUrsulas(RuntimeError):
@@ -62,7 +63,7 @@ class _TestMiddlewareClient(NulinkMiddlewareClient):
         try:
             return mkuc[port]
         except KeyError:
-             raise BadTestUrsulas(
+            raise BadTestUrsulas(
                 "Can't find an Ursula with port {} - did you spin up the right test ursulas?".format(port))
 
     def parse_node_or_host_and_port(self, node=None, host=None, port=None):
@@ -120,6 +121,7 @@ class SluggishLargeFleetMiddleware(MockRestMiddlewareForLargeFleetTests):
     """
     Similar to above, but with added delay to simulate network latency.
     """
+
     def put_treasure_map_on_node(self, node, *args, **kwargs):
         time.sleep(random.randrange(5, 15) / 100)
         result = super().put_treasure_map_on_node(node=node, *args, **kwargs)
@@ -185,11 +187,41 @@ class EvilMiddleWare(MockRestMiddleware):
         """
         fleet_state_checksum = FleetStateChecksum(this_node=None, other_nodes=[])
         request = MetadataRequest(fleet_state_checksum=fleet_state_checksum, announce_nodes=[shitty_metadata])
+
+        # add version info to the request
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+
         response = self.client.post(node_or_sprout=ursula,
                                     path="node_metadata",
-                                    data=bytes(request)
+                                    data=bytes(request) + split_symbol + bytes(__version__, 'utf-8'),
                                     )
-        return response
+
+        if not str(response.status_code).startswith('2'):
+            return response
+
+        response_data = response.content
+
+        # check whether the version needs to be upgraded
+        bytes_list = response_data.split(bytes(check_version_pickle_symbol, 'utf-8'))
+        len_bytes_list = len(bytes_list)
+        if len_bytes_list == 1:
+            # The peer end is an older version
+            raise VersionMismatchError(f"the teacher {ursula.rest_url()}'s version 0.1.0 is too low, you can't connect to it")
+        else:
+            # current len_bytes_list must be 2
+            assert len_bytes_list == 2
+            node_metadata_bytes, version_bytes = bytes_list
+            version_str = version_bytes.decode('utf-8')
+
+            if not check_version(version_str):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {ursula.rest_url()}'s version {version_str} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+            # response.content = node_metadata_bytes
+            # to set response.content, we can't change it directly, we can' change it by set response._content
+            response._content = node_metadata_bytes
+            return response
 
     def upload_arbitrary_data(self, node, path, data):
         response = self.client.post(node_or_sprout=node,
