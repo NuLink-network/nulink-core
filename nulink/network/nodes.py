@@ -67,8 +67,8 @@ TEACHER_NODES = {
     ),
     NetworksInventory.HECO_TESTNET: ("https://to/be/supplied",),
     NetworksInventory.HECO: ("https://to/be/supplied",),
-    NetworksInventory.BSC_TESTNET: ("https://54.241.67.36:9151",),
-    NetworksInventory.HORUS: ("https://54.241.67.36:9151",),
+    NetworksInventory.BSC_TESTNET: ("https://8.219.188.70:9152",),
+    NetworksInventory.HORUS: ("https://8.219.188.70:9152",),
     NetworksInventory.BSC: ("https://to/be/supplied",),
 }
 
