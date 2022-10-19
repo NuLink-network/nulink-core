@@ -1,0 +1,1 @@
+chalk.tar.gz  uncompress it to the dist-packages directory on your linux server
