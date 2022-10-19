@@ -140,6 +140,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     @rest_app.route('/node_metadata', methods=["POST"])
     def node_metadata_exchange():
 
+        log.info(f"known_nodes {len(this_node.known_nodes)}")
+
         def bytestring_of_empty_known_nodes():
             headers = {'Content-Type': 'application/octet-stream'}
             response_payload = MetadataResponsePayload(timestamp_epoch=this_node.known_nodes.timestamp.epoch,
@@ -151,9 +153,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         try:
             metadata_request = MetadataRequest.from_bytes(request.data)
-            # The code runs here, indicating that an older version of the node sent a node_metadata Post request, so return an empty node list, Indicates that we do not support the old version
-            return bytestring_of_empty_known_nodes()
         except Exception as e:
+            # The code runs here, indicating that an older version of the node sent a node_metadata Post request, so return an empty node list, Indicates that we do not support the old version
             log.info(f"Post/node_metadata MetadataRequest.from_bytes failed: {str(e)}")
 
             split_symbol = bytes(check_version_pickle_symbol, 'utf-8')

@@ -53,7 +53,6 @@ class NodeStorage(ABC):
                  character_class=None,
                  registry: BaseContractRegistry = None,
                  ) -> None:
-
         from nulink.characters.lawful import Ursula
 
         self.log = Logger(self.__class__.__name__)
@@ -93,7 +92,6 @@ class NodeStorage(ABC):
                                port: int,  # used to avoid duplicate certs with the same IP
                                certificate: Certificate,
                                force: bool = True) -> Path:
-
         # Read
         x509 = OpenSSL.crypto.X509.from_cryptography(certificate)
         subject_components = x509.get_subject().get_components()
@@ -216,7 +214,7 @@ class ForgetfulNodeStorage(NodeStorage):
         return self.__metadata[node.stamp]
 
     def generate_certificate_filepath(self, host: str, port: int) -> Path:
-        filename = f'{host}:{port}.pem'
+        filename = f'{host}_{port}.pem'  # fix support window path
         filepath = self._temp_certificates_dir / filename
         return filepath
 
@@ -311,7 +309,7 @@ class LocalFileBasedNodeStorage(NodeStorage):
 
     @validate_checksum_address
     def __get_certificate_filename(self, host: str, port: int) -> str:
-        return f'{host}:{port}.{Encoding.PEM.name.lower()}'
+        return f'{host}_{port}.{Encoding.PEM.name.lower()}' # fix support window path
 
     def __get_certificate_filepath(self, certificate_filename: str) -> Path:
         return self.certificates_dir / certificate_filename

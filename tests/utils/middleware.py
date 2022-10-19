@@ -193,6 +193,7 @@ class EvilMiddleWare(MockRestMiddleware):
 
         response = self.client.post(node_or_sprout=ursula,
                                     path="node_metadata",
+                                    timeout=15,
                                     data=bytes(request) + split_symbol + bytes(__version__, 'utf-8'),
                                     )
 

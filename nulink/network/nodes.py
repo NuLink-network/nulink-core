@@ -340,6 +340,7 @@ class Learner:
         self._learning_round = 0  # type: int
         self._rounds_without_new_nodes = 0  # type: int
         self._seed_nodes = seed_nodes or []
+        print(f"Learner seed_nodes {len(self._seed_nodes)}")
 
         if self.start_learning_now and not self.lonely:
             self.start_learning_loop(now=self.learn_on_same_thread)
@@ -380,13 +381,14 @@ class Learner:
                     new_node = self.remember_node(maybe_sage_node, record_fleet_state=False)
                     discovered.append(new_node)
 
+        self.log.info(f"=============> self._seed_nodes <================ {len(self._seed_nodes)}")
         for seednode_metadata in self._seed_nodes:
 
             node_tag = "{}|{}:{}".format(seednode_metadata.checksum_address,
                                          seednode_metadata.rest_host,
                                          seednode_metadata.rest_port)
 
-            self.log.debug(f"Seeding from: {node_tag}")
+            self.log.info(f"Seeding from: {node_tag}")
 
             try:
                 # seed_node: NodeSprout (An abridged node class)
@@ -406,6 +408,7 @@ class Learner:
         self.done_seeding = True
 
         nodes_restored_from_storage = self.read_nodes_from_storage() if read_storage else []
+        self.log.info(f"discoverd node by read_nodes_from_storage() {len(nodes_restored_from_storage)}")
         discovered.extend(nodes_restored_from_storage)
 
         if discovered and record_fleet_state:
@@ -1041,6 +1044,7 @@ class Teacher:
     def bytestring_of_known_nodes(self):
         # TODO (#1537): FleetSensor does metadata-to-byte conversion as well,
         # we may be able to cache the results there.
+        self.log.info(f"bytestring_of_known_nodes known_nodes {len(self.known_nodes)}")
         announce_nodes = [self.metadata()] + [node.metadata() for node in self.known_nodes]
         response_payload = MetadataResponsePayload(timestamp_epoch=self.known_nodes.timestamp.epoch,
                                                    announce_nodes=announce_nodes)

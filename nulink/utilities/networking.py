@@ -85,7 +85,7 @@ def _request(url: str, certificate=None) -> Union[str, None]:
 
 def _request_from_node(teacher,
                        client: Optional[NulinkMiddlewareClient] = None,
-                       timeout: int = 2,
+                       timeout: int = 8,
                        log: Logger = IP_DETECTION_LOGGER
                        ) -> Union[str, None]:
     if not client:

@@ -44,7 +44,7 @@ EXEMPT_FROM_VERIFICATION.bool_value(False)
 
 class NulinkMiddlewareClient:
     library = requests
-    timeout = 1.2
+    timeout = 5
 
     def __init__(self,
                  registry: Optional['BaseContractRegistry'] = None,
@@ -59,7 +59,7 @@ class NulinkMiddlewareClient:
     def get_certificate(self,
                         host,
                         port,
-                        timeout=4,
+                        timeout=10,
                         retry_attempts: int = 3,
                         retry_rate: int = 2,
                         current_attempt: int = 0):
@@ -218,6 +218,7 @@ class NulinkMiddlewareClient:
         if cached_cert_filepath.exists():
             # already cached try it
             try:
+                # ignore ssl error
                 # Send request
                 response = self.invoke_method(method, endpoint, verify=cached_cert_filepath,
                                               *args, **kwargs)
@@ -344,6 +345,7 @@ class RestMiddleware:
 
         response = self.client.post(node_or_sprout=node,
                                     path="node_metadata",
+                                    timeout=15,
                                     data=bytes(request) + split_symbol + bytes(__version__, 'utf-8'),
                                     )
 
