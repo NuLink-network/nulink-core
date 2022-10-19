@@ -102,13 +102,13 @@ Generated configuration file at non-default filepath /root/.local/share/nulink/u
 * start up an ursula
 
 ```shell
-    docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+    docker run  -p 9151:9151 -v </path/to/host/machine/directory>:/code -v </path/to/host/machine/directory>:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready --console-logs
 ```
    e.g.
 
    Input:
 ```shell
-    docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready
+    docker run  -p 9151:9151 -v /home/andi:/code -v /home/andi:/home/circleci/.local/share/nulink -e NULINK_KEYSTORE_PASSWORD -e NULINK_OPERATOR_ETH_PASSWORD --restart on-failure -d --name ursula nulink/nulink nulink ursula run --teacher https://8.219.188.70:9151 --no-block-until-ready --console-logs
 ```
    Output:
 ```shell
