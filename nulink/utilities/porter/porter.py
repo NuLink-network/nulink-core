@@ -65,7 +65,7 @@ the Pipe for PRE Application network operations
     _LONG_LEARNING_DELAY = 30
     _ROUNDS_WITHOUT_NODES_AFTER_WHICH_TO_SLOW_DOWN = 25
 
-    DEFAULT_EXECUTION_TIMEOUT = 45  # change 15s to 45s by andi
+    DEFAULT_EXECUTION_TIMEOUT = 15
 
     DEFAULT_PORT = 9155
 
@@ -155,6 +155,8 @@ the Pipe for PRE Application network operations
             # don't wait for it to stop by "joining" - too slow...
 
         ursulas_info = successes.values()
+
+
         return list(ursulas_info)
 
     def get_ursulas_total(self, return_list=False):
