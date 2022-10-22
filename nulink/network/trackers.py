@@ -114,17 +114,8 @@ class OperatorBondedTracker(SimpleTask):
             #                  prometheus_config=prometheus_config)
 
     def _shutdown_ursula(self, halt_reactor=False, halt_operator_bonded_tracker=True):
-        emitter = StdoutEmitter()
-        emitter.message(f'x [Operator {self._ursula.operator_address} is no longer bonded to any '
-                        f'staking provider] - Commencing auto-shutdown sequence...', color="red")
-        try:
-            raise self.OperatorNoLongerBonded()
-        except Exception as e:
-            # If the exception is not caught, the OperatorBondedTracker loop stops running
-            emitter.message(f"OperatorNoLongerBonded", color='red')
-        finally:
-            print("finally _shutdown_ursula")
-            self._ursula.stop(halt_reactor=halt_reactor, halt_operator_bonded_tracker=halt_operator_bonded_tracker)
+        print("_shutdown_ursula")
+        self._ursula.stop(halt_reactor=halt_reactor, halt_operator_bonded_tracker=halt_operator_bonded_tracker)
 
     def handle_errors(self, failure: Failure) -> None:
         cleaned_traceback = self.clean_traceback(failure)
