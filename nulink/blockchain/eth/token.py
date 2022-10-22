@@ -20,6 +20,7 @@ from _pydecimal import Decimal
 from typing import Callable, Dict, Union
 
 import maya
+import web3.exceptions
 from constant_sorrow.constants import (
     NOT_STAKING,
     UNTRACKED_PENDING_TRANSACTION
@@ -389,8 +390,14 @@ class WorkTrackerBase:
         if self._final_work_prep_before_transaction() is False:
             return
 
-        txhash = self._fire_commitment()
-        self.__pending[current_block_number] = txhash
+        try:
+            txhash = self._fire_commitment()
+            self.__pending[current_block_number] = txhash
+        except web3.exceptions.ContractLogicError as e:
+            if 'execution reverted: Operator address is already confirmed' in str(e):
+                self.log.warn(f'Confirming operator address {self.worker.operator_address} is already confirmed ')
+            else:
+                raise
 
     #  the following four methods are specific to PRE network schemes and must be implemented as below
     def _configure(self, stakes):
