@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from abc import ABC, abstractmethod
 from typing import Sequence, Optional, Iterable, List, Dict
 
@@ -116,87 +115,117 @@ class Policy(ABC):
         else:
             raise RuntimeError(f"{ursula} is not available for selection ({status_code}).")
 
-    def _sample(self,
-                network_middleware: RestMiddleware,
-                ursulas: Optional[Iterable['Ursula']] = None,
-                timeout: int = 10,
-                ) -> List['Ursula']:
-        """Send concurrent requests to the /ping HTTP endpoint of nodes drawn from the reservoir."""
+    def get_enough_ursulas(self, worker_pool: WorkerPool) -> Dict[ChecksumAddress, 'Ursula']:
+        from nulink.utilities.porter.porter import Porter
 
-        ursulas = ursulas or []
-        handpicked_addresses = [ChecksumAddress(ursula.checksum_address) for ursula in ursulas]
+        success_workers: Dict[ChecksumAddress, 'Ursula'] = worker_pool.get_successes()
 
-        self.publisher.block_until_number_of_known_nodes_is(self.shares, learn_on_this_thread=True, eager=True)
-        # 获取 active stakers
-        reservoir = self._make_reservoir(handpicked_addresses)
-        value_factory = PrefetchStrategy(reservoir, self.shares)
+        _nulink_workers: set[ChecksumAddress] = Porter.get_nulink_worker_addresses()
 
-        def worker(address) -> 'Ursula':
-            return self._ping_node(address, network_middleware)
+        need_to_successes = worker_pool.get_target_successes() - len(success_workers)
 
-        worker_pool = WorkerPool(
-            worker=worker,
-            value_factory=value_factory,
-            target_successes=self.shares,
-            timeout=timeout,
-            stagger_timeout=1
-        )
-        worker_pool.start()
-        try:
-            successes = worker_pool.block_until_target_successes()
-        except (WorkerPool.OutOfValues, WorkerPool.TimedOut):
-            # It's possible to raise some other exceptions here but we will use the logic below.
-            successes = worker_pool.get_successes()
-        finally:
-            worker_pool.cancel()
-            worker_pool.join()
-        failures = worker_pool.get_failures()
+        enough_success_ursulas: Dict[ChecksumAddress, 'Ursula'] = success_workers
 
-        accepted_addresses = ", ".join(ursula.checksum_address for ursula in successes.values())
-        if len(successes) < self.shares:
-            rejections = "\n".join(f"{address}: {value}" for address, (type_, value, traceback) in failures.items())
-            message = "Failed to contact enough sampled nodes.\n"\
-                      f"Selected:\n{accepted_addresses}\n" \
-                      f"Unavailable:\n{rejections}"
-            self.log.debug(message)
-            raise self.NotEnoughUrsulas(message)
+        for checksum_address in _nulink_workers:
+            if need_to_successes <= 0:
+                return enough_success_ursulas
 
-        self.log.debug(f"Selected nodes for policy: {accepted_addresses}")
-        ursulas = list(successes.values())
-        return ursulas
+            if checksum_address in success_workers:
+                continue
+            if checksum_address not in self.publisher.known_nodes:
+                continue
 
-    def enact(self, network_middleware: RestMiddleware, ursulas: Optional[Iterable['Ursula']] = None) -> 'EnactedPolicy':
-        """Attempts to enact the policy, returns an `EnactedPolicy` object on success."""
+            ursula = self.publisher.known_nodes[checksum_address]
 
-        ursulas = self._sample(network_middleware=network_middleware, ursulas=ursulas)
-        self._publish(ursulas=ursulas)
+            enough_success_ursulas[checksum_address] = ursula
+            need_to_successes = need_to_successes - 1
 
-        assigned_kfrags = {
-            ursula.canonical_address: (ursula.public_keys(DecryptingPower), vkfrag)
-            for ursula, vkfrag in zip(ursulas, self.kfrags)
-        }
+        return enough_success_ursulas
 
-        treasure_map = TreasureMap(signer=self.publisher.stamp.as_umbral_signer(),
-                                   hrac=self.hrac,
-                                   policy_encrypting_key=self.public_key,
-                                   assigned_kfrags=assigned_kfrags,
-                                   threshold=self.threshold)
 
-        enc_treasure_map = treasure_map.encrypt(signer=self.publisher.stamp.as_umbral_signer(),
-                                                recipient_key=self.bob.public_keys(DecryptingPower))
 
-        # TODO: Signal revocation without using encrypted kfrag
-        revocation_kit = RevocationKit(treasure_map=treasure_map, signer=self.publisher.stamp)
+def _sample(self,
+            network_middleware: RestMiddleware,
+            ursulas: Optional[Iterable['Ursula']] = None,
+            timeout: int = 10,
+            ) -> List['Ursula']:
+    """Send concurrent requests to the /ping HTTP endpoint of nodes drawn from the reservoir."""
 
-        enacted_policy = EnactedPolicy(self.hrac,
-                                       self.label,
-                                       self.public_key,
-                                       treasure_map.threshold,
-                                       enc_treasure_map,
-                                       revocation_kit,
-                                       self.publisher.stamp.as_umbral_pubkey())
+    ursulas = ursulas or []
+    handpicked_addresses = [ChecksumAddress(ursula.checksum_address) for ursula in ursulas]
 
-        return enacted_policy
+    self.publisher.block_until_number_of_known_nodes_is(self.shares, learn_on_this_thread=True, eager=True)
+    # 获取 active stakers
+    reservoir = self._make_reservoir(handpicked_addresses)
+    value_factory = PrefetchStrategy(reservoir, self.shares)
+
+    def worker(address) -> 'Ursula':
+        return self._ping_node(address, network_middleware)
+
+    worker_pool = WorkerPool(
+        worker=worker,
+        value_factory=value_factory,
+        target_successes=self.shares,
+        timeout=timeout,
+        stagger_timeout=1
+    )
+    worker_pool.start()
+    try:
+        successes = worker_pool.block_until_target_successes()
+    except (WorkerPool.OutOfValues, WorkerPool.TimedOut):
+        # It's possible to raise some other exceptions here but we will use the logic below.
+        successes = self.get_enough_ursulas(worker_pool)
+    finally:
+        worker_pool.cancel()
+        worker_pool.join()
+    failures = worker_pool.get_failures()
+
+    accepted_addresses = ", ".join(ursula.checksum_address for ursula in successes.values())
+    if len(successes) < self.shares:
+        rejections = "\n".join(f"{address}: {value}" for address, (type_, value, traceback) in failures.items())
+        message = "Failed to contact enough sampled nodes.\n" \
+                  f"Selected:\n{accepted_addresses}\n" \
+                  f"Unavailable:\n{rejections}"
+        self.log.debug(message)
+        raise self.NotEnoughUrsulas(message)
+
+    self.log.debug(f"Selected nodes for policy: {accepted_addresses}")
+    ursulas = list(successes.values())
+    return ursulas
+
+
+def enact(self, network_middleware: RestMiddleware, ursulas: Optional[Iterable['Ursula']] = None) -> 'EnactedPolicy':
+    """Attempts to enact the policy, returns an `EnactedPolicy` object on success."""
+
+    ursulas = self._sample(network_middleware=network_middleware, ursulas=ursulas)
+    self._publish(ursulas=ursulas)
+
+    assigned_kfrags = {
+        ursula.canonical_address: (ursula.public_keys(DecryptingPower), vkfrag)
+        for ursula, vkfrag in zip(ursulas, self.kfrags)
+    }
+
+    treasure_map = TreasureMap(signer=self.publisher.stamp.as_umbral_signer(),
+                               hrac=self.hrac,
+                               policy_encrypting_key=self.public_key,
+                               assigned_kfrags=assigned_kfrags,
+                               threshold=self.threshold)
+
+    enc_treasure_map = treasure_map.encrypt(signer=self.publisher.stamp.as_umbral_signer(),
+                                            recipient_key=self.bob.public_keys(DecryptingPower))
+
+    # TODO: Signal revocation without using encrypted kfrag
+    revocation_kit = RevocationKit(treasure_map=treasure_map, signer=self.publisher.stamp)
+
+    enacted_policy = EnactedPolicy(self.hrac,
+                                   self.label,
+                                   self.public_key,
+                                   treasure_map.threshold,
+                                   enc_treasure_map,
+                                   revocation_kit,
+                                   self.publisher.stamp.as_umbral_pubkey())
+
+    return enacted_policy
 
 
 class FederatedPolicy(Policy):
@@ -228,7 +257,6 @@ class EnactedPolicy:
                  treasure_map: 'EncryptedTreasureMap',
                  revocation_kit: RevocationKit,
                  publisher_verifying_key: PublicKey):
-
         self.hrac = hrac
         self.label = label
         self.public_key = public_key

@@ -173,27 +173,34 @@ the Pipe for PRE Application network operations
             self.make_cli_controller()
         self.log.info(self.BANNER)
 
-    def get_nulink_workers(self) -> Dict[str, 'Porter.UrsulaInfo']:
+    @classmethod
+    def get_nulink_workers(cls) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
 
         # Porter.UrsulaInfo(checksum_address=ursula_address,
         #                   uri=f"{ursula.rest_interface.formal_uri}",
         #                   encrypting_key=ursula.public_keys(DecryptingPower))
 
-        porter_ursula_worker_dict: Dict[str, Porter.UrsulaInfo] = {checksum_address: Porter.UrsulaInfo(checksum_address=to_checksum_address(checksum_address),
-                                                                                                       uri=ursula_info["uri"],
-                                                                                                       encrypting_key=PublicKey.from_bytes(bytes.fromhex(ursula_info["encrypting_key"])))
-                                                                   for checksum_address, ursula_info in nulink_workers.items()}
+        porter_ursula_worker_dict: Dict[ChecksumAddress, Porter.UrsulaInfo] = {to_checksum_address(checksum_address): Porter.UrsulaInfo(checksum_address=to_checksum_address(checksum_address),
+                                                                                                                                        uri=ursula_info["uri"],
+                                                                                                                                        encrypting_key=PublicKey.from_bytes(
+                                                                                                                                            bytes.fromhex(ursula_info["encrypting_key"])))
+                                                                               for checksum_address, ursula_info in nulink_workers.items()}
 
         return porter_ursula_worker_dict
 
-    def get_enough_ursulas(self, worker_pool: WorkerPool) -> Dict[str, 'Porter.UrsulaInfo']:
+    @classmethod
+    def get_nulink_worker_addresses(cls) -> set[ChecksumAddress]:
 
-        success_workers: Dict[str, Porter.UrsulaInfo] = worker_pool.get_successes()
+        return set([to_checksum_address(checksum_address) for checksum_address in nulink_workers.keys()])
+
+    def get_enough_ursulas(self, worker_pool: WorkerPool) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
+
+        success_workers: Dict[ChecksumAddress, Porter.UrsulaInfo] = worker_pool.get_successes()
         # need_to_add_worker_len = worker_pool.get_target_successes() - len(success_workers)
 
-        enough_success_workers: Dict[str, 'Porter.UrsulaInfo'] = success_workers
+        enough_success_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = success_workers
 
-        _nulink_workers: Dict[str, 'Porter.UrsulaInfo'] = self.get_nulink_workers()
+        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers()
 
         enough_success_workers.update(_nulink_workers)
 
@@ -204,25 +211,6 @@ the Pipe for PRE Application network operations
             len_enough_success_workers -= 1
 
         return enough_success_workers
-
-        # if need_to_add_worker_len <= 0:
-        #     # don't need to add workers
-        #     return enough_success_workers
-        #
-        # _nulink_workers: Dict[str, 'Porter.UrsulaInfo'] = self.get_nulink_workers()
-        # if len(_nulink_workers) < need_to_add_worker_len:
-        #     # There are not enough nulink workers
-        #     return enough_success_workers
-        #
-        # need_to_add_len_counter = need_to_add_worker_len
-        # for checksum_address, ursula_info in success_workers.items():
-        #     if need_to_add_len_counter <= 0:
-        #         break
-        #
-        #     if checksum_address not in _nulink_workers:
-        #         enough_success_workers[checksum_address] = _nulink_workers[checksum_address]
-        #
-        # return enough_success_workers
 
     def get_ursulas(self,
                     quantity: int,
@@ -264,6 +252,8 @@ the Pipe for PRE Application network operations
             workers = self.get_enough_ursulas(worker_pool)
             if len(workers) >= worker_pool.get_target_successes():
                 successes = workers
+            else:
+                raise ex
         finally:
             worker_pool.cancel()
             # don't wait for it to stop by "joining" - too slow...
