@@ -28,7 +28,7 @@ from nucypher_core import (
     ReencryptionResponse,
     ReencryptionRequest,
     RetrievalKit,
-    )
+)
 from nucypher_core.umbral import (
     Capsule,
     PublicKey,
@@ -57,7 +57,7 @@ class RetrievalPlan:
 
         # Records the retrieval results, indexed by capsule
         self._results = {retrieval_kit.capsule: {}
-                         for retrieval_kit in retrieval_kits} # {capsule: {ursula_address: cfrag}}
+                         for retrieval_kit in retrieval_kits}  # {capsule: {ursula_address: cfrag}}
 
         # Records the addresses of Ursulas that were already queried, indexed by capsule.
         self._queried_addresses = {retrieval_kit.capsule: set(retrieval_kit.queried_addresses)
@@ -65,7 +65,7 @@ class RetrievalPlan:
 
         # Records the capsules already processed by a corresponding Ursula.
         # An inverse of `_queried_addresses`.
-        self._processed_capsules = defaultdict(set) # {ursula_address: {capsule}}
+        self._processed_capsules = defaultdict(set)  # {ursula_address: {capsule}}
         for retrieval_kit in retrieval_kits:
             for address in retrieval_kit.queried_addresses:
                 self._processed_capsules[address].add(retrieval_kit.capsule)
@@ -78,8 +78,8 @@ class RetrievalPlan:
             ursulas_to_contact_last |= queried_addresses
 
         # Randomize Ursulas' priorities
-        ursulas_pick_order = list(treasure_map.destinations) # checksum addresses
-        random.shuffle(ursulas_pick_order) # mutates list in-place
+        ursulas_pick_order = list(treasure_map.destinations)  # checksum addresses
+        random.shuffle(ursulas_pick_order)  # mutates list in-place
 
         ursulas_pick_order = [ursula for ursula in ursulas_pick_order
                               if ursula not in ursulas_to_contact_last]
@@ -116,10 +116,10 @@ class RetrievalPlan:
     def is_complete(self) -> bool:
         return (
             # there are no more Ursulas to query
-            not bool(self._ursulas_pick_order) or
-            # all the capsules have enough cfrags for decryption
-            all(len(addresses) >= self._threshold for addresses in self._queried_addresses.values())
-            )
+                not bool(self._ursulas_pick_order) or
+                # all the capsules have enough cfrags for decryption
+                all(len(addresses) >= self._threshold for addresses in self._queried_addresses.values())
+        )
 
     def results(self) -> List['RetrievalResult']:
         # TODO (#1995): when that issue is fixed, conversion is no longer needed
@@ -188,6 +188,7 @@ class RetrievalClient:
                               alice_verifying_key: PublicKey,
                               policy_encrypting_key: PublicKey,
                               bob_encrypting_key: PublicKey,
+                              timeout=2
                               ) -> Dict['Capsule', 'VerifiedCapsuleFrag']:
         """
         Sends a reencryption request to a single Ursula and processes the results.
@@ -198,7 +199,7 @@ class RetrievalClient:
         middleware = self._learner.network_middleware
 
         try:
-            response = middleware.reencrypt(ursula, bytes(reencryption_request))
+            response = middleware.reencrypt(ursula, bytes(reencryption_request), timeout)
         except NodeSeemsToBeDown as e:
             # TODO: What to do here?  Ursula isn't supposed to be down.  NRN
             message = (f"Ursula ({ursula}) seems to be down "
@@ -214,7 +215,7 @@ class RetrievalClient:
             self.log.warn(message)
             raise RuntimeError(message) from e
         except middleware.UnexpectedResponse:
-            raise # TODO: Handle this
+            raise  # TODO: Handle this
 
         try:
             reencryption_response = ReencryptionResponse.from_bytes(response.content)
@@ -251,15 +252,17 @@ class RetrievalClient:
             self,
             treasure_map: TreasureMap,
             retrieval_kits: Sequence[RetrievalKit],
-            alice_verifying_key: PublicKey, # KeyFrag signer's key
-            bob_encrypting_key: PublicKey, # User's public key (reencryption target)
+            alice_verifying_key: PublicKey,  # KeyFrag signer's key
+            bob_encrypting_key: PublicKey,  # User's public key (reencryption target)
             bob_verifying_key: PublicKey,
-            ) -> List[RetrievalResult]:
+    ) -> List[RetrievalResult]:
 
         self._ensure_ursula_availability(treasure_map)
 
         retrieval_plan = RetrievalPlan(treasure_map=treasure_map, retrieval_kits=retrieval_kits)
 
+        success_len = 0
+        failed_order_list = []
         while not retrieval_plan.is_complete():
             # TODO (#2789): Currently we'll only query one Ursula once during the retrieval.
             # Alternatively we may re-query Ursulas that were offline until the timeout expires.
@@ -290,8 +293,62 @@ class RetrievalClient:
                 # TODO (#2789): at this point we can separate the exceptions to "acceptable"
                 # (Ursula is not reachable) and "unacceptable" (Ursula provided bad results).
                 self.log.warn(f"Ursula {ursula} failed to reencrypt: {e}")
+                failed_order_list.append(work_order)
                 continue
 
+            success_len += 1
             retrieval_plan.update(work_order, cfrags)
+
+        # run the pragma here, the cfrags maybe not enough cause by last exception: continue -> on line 297
+        # fix for: Reduce the probability of insufficient cfrags
+        re_failed_order_list = failed_order_list
+        retry_round = 0
+        timeout = retry_round + 5
+
+        while success_len < retrieval_plan._threshold and bool(re_failed_order_list):
+            if retry_round > 5:
+                break
+
+            failed_order_list = re_failed_order_list
+            re_failed_order_list = []
+            retry_round += 1
+
+            while success_len < retrieval_plan._threshold and bool(failed_order_list):
+                # Alternatively we may re-query Ursulas that were offline until the timeout expires.
+                work_order = failed_order_list.pop()
+
+                # TODO (#1995): when that issue is fixed, conversion is no longer needed
+                ursula_checksum_address = to_checksum_address(work_order.ursula_address)
+
+                if ursula_checksum_address not in self._learner.known_nodes:
+                    continue
+
+                ursula = self._learner.known_nodes[ursula_checksum_address]
+                reencryption_request = ReencryptionRequest(
+                    hrac=treasure_map.hrac,
+                    capsules=work_order.capsules,
+                    encrypted_kfrag=treasure_map.destinations[work_order.ursula_address],
+                    bob_verifying_key=bob_verifying_key,
+                    publisher_verifying_key=treasure_map.publisher_verifying_key)
+
+                try:
+                    cfrags = self._request_reencryption(ursula=ursula,
+                                                        reencryption_request=reencryption_request,
+                                                        alice_verifying_key=alice_verifying_key,
+                                                        policy_encrypting_key=treasure_map.policy_encrypting_key,
+                                                        bob_encrypting_key=bob_encrypting_key,
+                                                        timeout=timeout)
+                except Exception as e:
+                    # TODO (#2789): at this point we can separate the exceptions to "acceptable"
+                    # (Ursula is not reachable) and "unacceptable" (Ursula provided bad results).
+                    self.log.warn(f"Ursula {ursula} failed to reencrypt: {e}")
+                    # put it at the front
+                    re_failed_order_list.insert(0, work_order)
+                    continue
+
+                success_len += 1
+                retrieval_plan.update(work_order, cfrags)
+
+        # run the pragma here, The probability of not having enough cfrags is greatly reduced, But it can happen, It cannot be avoided entirely, except at the cost of time
 
         return retrieval_plan.results()

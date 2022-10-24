@@ -150,12 +150,15 @@ the Pipe for PRE Application network operations
         worker_pool.start()
         try:
             successes = worker_pool.block_until_target_successes()
+        except (WorkerPool.TimedOut, WorkerPool.OutOfValues) as ex:
+            workers = worker_pool.get_enough_ursulas()
+            if len(workers) >= worker_pool._target_successes:
+                successes = workers
         finally:
             worker_pool.cancel()
             # don't wait for it to stop by "joining" - too slow...
 
         ursulas_info = successes.values()
-
 
         return list(ursulas_info)
 

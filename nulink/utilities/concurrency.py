@@ -26,7 +26,6 @@ from constant_sorrow.constants import PRODUCER_STOPPED, TIMEOUT_TRIGGERED
 from twisted.python.threadpool import ThreadPool
 from nucypher_core.umbral import PublicKey
 
-
 nulink_workers: Dict = \
     {
         "0x8D0d076635F627Aa62e5D422e7B66D1fe6fbc534": {
@@ -352,15 +351,10 @@ class WorkerPool:
 
         result = self._target_value.get()
 
-        if result in [TIMEOUT_TRIGGERED, PRODUCER_STOPPED]:
-            workers = self.get_enough_ursulas()
-            if len(workers) >= self._target_successes:
-                return workers
-
-            if result == TIMEOUT_TRIGGERED:
-                raise self.TimedOut(timeout=self._timeout, failures=self.get_failures())
-            elif result == PRODUCER_STOPPED:
-                raise self.OutOfValues(failures=self.get_failures())
+        if result == TIMEOUT_TRIGGERED:
+            raise self.TimedOut(timeout=self._timeout, failures=self.get_failures())
+        elif result == PRODUCER_STOPPED:
+            raise self.OutOfValues(failures=self.get_failures())
 
         return result
 

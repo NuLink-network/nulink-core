@@ -295,12 +295,12 @@ class RestMiddleware:
         )
         return response
 
-    def reencrypt(self, ursula: 'Ursula', reencryption_request_bytes: bytes):
+    def reencrypt(self, ursula: 'Ursula', reencryption_request_bytes: bytes, timeout=2):
         response = self.client.post(
             node_or_sprout=ursula,
             path=f"reencrypt",
             data=reencryption_request_bytes,
-            timeout=2
+            timeout=timeout
         )
         return response
 
