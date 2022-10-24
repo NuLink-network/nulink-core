@@ -17,7 +17,7 @@ along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 
 from collections import defaultdict
 import random
-from typing import Dict, Sequence, List
+from typing import Dict, Sequence, List, Optional, Tuple
 
 from eth_typing.evm import ChecksumAddress
 from eth_utils import to_checksum_address
@@ -136,6 +136,29 @@ class RetrievalWorkOrder:
     def __init__(self, ursula_address: ChecksumAddress, capsules: List[Capsule]):
         self.ursula_address = ursula_address
         self.capsules = capsules
+
+
+class RetrievalStrategy:
+    """
+    Encapsulates the batch get strategy from a reservoir.
+    Determines how many values to draw based on the number of values
+    that have already led to successes.
+    """
+
+    def __init__(self, retrieval_work_order_key_list: List[ChecksumAddress], need_successes: int):
+        self.retrieval_work_order_key_list = retrieval_work_order_key_list
+        self.need_successes = need_successes
+
+    def __call__(self, successes: int) -> Optional[List[ChecksumAddress]]:
+        batch = []
+        for i in range(self.need_successes - successes):
+            value = self.retrieval_work_order_key_list.pop()
+            if value is None:
+                break
+            batch.append(value)
+        if not batch:
+            return None
+        return batch
 
 
 class RetrievalClient:
@@ -260,70 +283,35 @@ class RetrievalClient:
         self._ensure_ursula_availability(treasure_map)
 
         retrieval_plan = RetrievalPlan(treasure_map=treasure_map, retrieval_kits=retrieval_kits)
-
-        success_len = 0
-        failed_order_list = []
-        while not retrieval_plan.is_complete():
-            # TODO (#2789): Currently we'll only query one Ursula once during the retrieval.
-            # Alternatively we may re-query Ursulas that were offline until the timeout expires.
-
-            work_order = retrieval_plan.get_work_order()
-
-            # TODO (#1995): when that issue is fixed, conversion is no longer needed
-            ursula_checksum_address = to_checksum_address(work_order.ursula_address)
-
-            if ursula_checksum_address not in self._learner.known_nodes:
-                continue
-
-            ursula = self._learner.known_nodes[ursula_checksum_address]
-            reencryption_request = ReencryptionRequest(
-                hrac=treasure_map.hrac,
-                capsules=work_order.capsules,
-                encrypted_kfrag=treasure_map.destinations[work_order.ursula_address],
-                bob_verifying_key=bob_verifying_key,
-                publisher_verifying_key=treasure_map.publisher_verifying_key)
-
+        retrieval_worker_orders: Dict[ChecksumAddress, 'RetrievalWorkOrder'] = {}
+        while True:
             try:
-                cfrags = self._request_reencryption(ursula=ursula,
-                                                    reencryption_request=reencryption_request,
-                                                    alice_verifying_key=alice_verifying_key,
-                                                    policy_encrypting_key=treasure_map.policy_encrypting_key,
-                                                    bob_encrypting_key=bob_encrypting_key)
-            except Exception as e:
-                # TODO (#2789): at this point we can separate the exceptions to "acceptable"
-                # (Ursula is not reachable) and "unacceptable" (Ursula provided bad results).
-                self.log.warn(f"Ursula {ursula} failed to reencrypt: {e}")
-                failed_order_list.append(work_order)
-                continue
-
-            success_len += 1
-            retrieval_plan.update(work_order, cfrags)
-
-        # run the pragma here, the cfrags maybe not enough cause by last exception: continue -> on line 297
-        # fix for: Reduce the probability of insufficient cfrags
-        re_failed_order_list = failed_order_list
-        retry_round = 0
-        timeout = retry_round + 5
-
-        while success_len < retrieval_plan._threshold and bool(re_failed_order_list):
-            if retry_round > 5:
+                work_order = retrieval_plan.get_work_order()
+                retrieval_worker_orders[to_checksum_address(work_order.ursula_address)] = work_order
+            except RuntimeError:
                 break
 
-            failed_order_list = re_failed_order_list
-            re_failed_order_list = []
-            retry_round += 1
+        value_factory = RetrievalStrategy(list(retrieval_worker_orders.keys()), treasure_map.threshold)
 
-            while success_len < retrieval_plan._threshold and bool(failed_order_list):
-                # Alternatively we may re-query Ursulas that were offline until the timeout expires.
-                work_order = failed_order_list.pop()
+        def worker_pool_start(target_successes: int, timeout=15) -> Tuple['WorkerPool', Dict[ChecksumAddress, Dict['Capsule', 'VerifiedCapsuleFrag']]]:
 
+            from nulink.utilities.concurrency import WorkerPool
+
+            def worker(address: ChecksumAddress) -> Dict['Capsule', 'VerifiedCapsuleFrag']:
+
+                work_order: 'RetrievalWorkOrder' = retrieval_worker_orders.get(address)
                 # TODO (#1995): when that issue is fixed, conversion is no longer needed
+
+                if not work_order:
+                    raise Exception(f"not find ursula {address} in retrieval_worker_orders")
+
                 ursula_checksum_address = to_checksum_address(work_order.ursula_address)
 
                 if ursula_checksum_address not in self._learner.known_nodes:
-                    continue
+                    raise Exception(f"not find ursula {work_order.ursula_address} in known_nodes")
 
                 ursula = self._learner.known_nodes[ursula_checksum_address]
+
                 reencryption_request = ReencryptionRequest(
                     hrac=treasure_map.hrac,
                     capsules=work_order.capsules,
@@ -336,18 +324,52 @@ class RetrievalClient:
                                                         reencryption_request=reencryption_request,
                                                         alice_verifying_key=alice_verifying_key,
                                                         policy_encrypting_key=treasure_map.policy_encrypting_key,
-                                                        bob_encrypting_key=bob_encrypting_key,
-                                                        timeout=timeout)
+                                                        bob_encrypting_key=bob_encrypting_key)
                 except Exception as e:
                     # TODO (#2789): at this point we can separate the exceptions to "acceptable"
                     # (Ursula is not reachable) and "unacceptable" (Ursula provided bad results).
                     self.log.warn(f"Ursula {ursula} failed to reencrypt: {e}")
-                    # put it at the front
-                    re_failed_order_list.insert(0, work_order)
-                    continue
+                    raise Exception(f"Ursula {ursula} failed to reencrypt: {e}")
 
-                success_len += 1
                 retrieval_plan.update(work_order, cfrags)
+                return cfrags
+
+            worker_pool = WorkerPool(
+                worker=worker,
+                value_factory=value_factory,
+                target_successes=target_successes,
+                timeout=timeout,
+                stagger_timeout=1
+            )
+            worker_pool.start()
+            try:
+                successes = worker_pool.block_until_target_successes()
+            except (WorkerPool.OutOfValues, WorkerPool.TimedOut):
+                # run the pragma here, the cfrags maybe not enough cause by last exception: continue -> on line 306, 327
+                # fix for: Reduce the probability of insufficient cfrags
+                # It's possible to raise some other exceptions here but we will use the logic below.
+                successes = worker_pool.get_successes()
+            finally:
+                worker_pool.cancel()
+                worker_pool.join()
+
+            return worker_pool, successes
+
+        worker_pool, successes = worker_pool_start(treasure_map.threshold, timeout=10)
+
+        if len(successes) < treasure_map.threshold:
+            worker_pool, new_successes = worker_pool_start(treasure_map.threshold - len(successes), timeout=15)
+
+        successes.update(new_successes)
+
+        if len(successes) < treasure_map.threshold:
+            failures = worker_pool.get_failures()
+            accepted_addresses = ", ".join(ursula.checksum_address for ursula in successes.values())
+            rejections = "\n".join(f"{address}: {value}" for address, (type_, value, traceback) in failures.items())
+            message = "Failed to retrieve_cfrags contact enough nodes.\n" \
+                      f"Selected:\n{accepted_addresses}\n" \
+                      f"Unavailable:\n{rejections}"
+            self.log.debug(message)
 
         # run the pragma here, The probability of not having enough cfrags is greatly reduced, But it can happen, It cannot be avoided entirely, except at the cost of time
 
