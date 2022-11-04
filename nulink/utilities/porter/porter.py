@@ -17,7 +17,7 @@
 import json
 from http import HTTPStatus
 from pathlib import Path
-from typing import List, NamedTuple, Optional, Sequence, Dict
+from typing import List, NamedTuple, Optional, Sequence, Dict, Set
 
 from constant_sorrow.constants import NO_BLOCKCHAIN_CONNECTION, NO_CONTROL_PROTOCOL
 from eth_typing import ChecksumAddress
@@ -189,7 +189,7 @@ the Pipe for PRE Application network operations
         return porter_ursula_worker_dict
 
     @classmethod
-    def get_nulink_worker_addresses(cls) -> set[ChecksumAddress]:
+    def get_nulink_worker_addresses(cls) -> Set[ChecksumAddress]:
 
         return set([to_checksum_address(checksum_address) for checksum_address in nulink_workers.keys()])
 

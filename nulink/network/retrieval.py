@@ -152,7 +152,13 @@ class RetrievalStrategy:
     def __call__(self, successes: int) -> Optional[List[ChecksumAddress]]:
         batch = []
         for i in range(self.need_successes - successes):
-            value = self.retrieval_work_order_key_list.pop()
+            try:
+                value = self.retrieval_work_order_key_list.pop()
+            except:
+                # empty list
+                # value = None
+                break
+
             if value is None:
                 break
             batch.append(value)
@@ -299,6 +305,7 @@ class RetrievalClient:
 
             def worker(address: ChecksumAddress) -> Dict['Capsule', 'VerifiedCapsuleFrag']:
 
+                print(f"-------------- worker is start -------------- address: {address}")
                 work_order: 'RetrievalWorkOrder' = retrieval_worker_orders.get(address)
                 # TODO (#1995): when that issue is fixed, conversion is no longer needed
 
@@ -329,9 +336,11 @@ class RetrievalClient:
                     # TODO (#2789): at this point we can separate the exceptions to "acceptable"
                     # (Ursula is not reachable) and "unacceptable" (Ursula provided bad results).
                     self.log.warn(f"Ursula {ursula} failed to reencrypt: {e}")
+                    print(f"-------------- worker is exception -------------- address: {address}")
                     raise Exception(f"Ursula {ursula} failed to reencrypt: {e}")
 
                 retrieval_plan.update(work_order, cfrags)
+                print(f"-------------- worker is finish -------------- address: {address}")
                 return cfrags
 
             worker_pool = WorkerPool(
@@ -355,7 +364,7 @@ class RetrievalClient:
 
             return worker_pool, successes
 
-        worker_pool, successes = worker_pool_start(treasure_map.threshold, timeout=10)
+        worker_pool, successes = worker_pool_start(treasure_map.threshold, timeout=12)
 
         if len(successes) < treasure_map.threshold:
             worker_pool, new_successes = worker_pool_start(treasure_map.threshold - len(successes), timeout=15)

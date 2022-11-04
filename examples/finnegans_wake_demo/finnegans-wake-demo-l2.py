@@ -15,7 +15,6 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import datetime
 import os
 from getpass import getpass
@@ -44,15 +43,15 @@ BOOK_PATH = Path('finnegans-wake-excerpt.txt')
 try:
 
     # Replace with ethereum RPC endpoint
-    L1_PROVIDER = os.environ['DEMO_L1_PROVIDER_URI']
-    L2_PROVIDER = os.environ['DEMO_L2_PROVIDER_URI']
+    L1_PROVIDER = os.environ.get('DEMO_L1_PROVIDER_URI')  # or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+    L2_PROVIDER = os.environ.get('DEMO_L2_PROVIDER_URI')  # or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
 
     # Replace with wallet filepath.
-    WALLET_FILEPATH = os.environ['DEMO_L2_WALLET_FILEPATH']
+    WALLET_FILEPATH = os.environ.get('DEMO_L2_WALLET_FILEPATH')  # or 'D:\\wangyi\\code\\code\\nulink\\keystore'
     SIGNER_URI = f'keystore://{WALLET_FILEPATH}'
 
     # Replace with alice's ethereum address
-    ALICE_ADDRESS = os.environ['DEMO_ALICE_ADDRESS']
+    ALICE_ADDRESS = os.environ.get('DEMO_ALICE_ADDRESS')  # or '0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01'
 
 except KeyError:
     raise RuntimeError('Missing environment variables to run demo.')
@@ -131,7 +130,7 @@ remote_bob = Bob.from_public_keys(
 # These are the policy details.
 expiration = maya.now() + datetime.timedelta(days=1)
 threshold, shares = 2, 3
-price = alice.payment_method.quote(expiration=expiration.epoch, shares=shares).value # payment_method SubscriptionManagerPayment
+price = alice.payment_method.quote(expiration=expiration.epoch, shares=shares).value  # payment_method SubscriptionManagerPayment
 
 # Alice grants access to Bob...
 policy = alice.grant(
@@ -162,7 +161,6 @@ with open(BOOK_PATH, 'rb') as file:
 print("\n************** Encrypt and Retrieve **************\n")
 
 for counter, plaintext in enumerate(finnegans_wake):
-
     # Enrico knows the policy's public key from a side-channel.
     # In this demo a new enrico is being constructed for each line of text.
     # This demonstrates how many individual encryptors may encrypt for a single policy.

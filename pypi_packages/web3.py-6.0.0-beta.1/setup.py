@@ -65,7 +65,7 @@ with open('./README.md') as readme:
 setup(
     name='nulink-web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='1.0.2',
+    version='1.0.3',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description=long_description,

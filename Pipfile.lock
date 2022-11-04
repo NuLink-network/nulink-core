@@ -1432,7 +1432,7 @@
                 "sha256:d7b233e4a02c5780974ec6c51ef977c63632d779efd0ebc3c3259e8b983a9e8b"
             ],
             "index": "pypi",
-            "version": "==1.0.2"
+            "version": "==1.0.3"
         },
         "websockets": {
             "hashes": [
