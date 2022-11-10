@@ -574,7 +574,8 @@ class Learner:
         nodes_we_know_about = self.known_nodes.shuffled()
 
         if not nodes_we_know_about:
-            raise self.NotEnoughTeachers(f"Need some nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node")
+            raise self.NotEnoughTeachers(
+                f"Need some nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node")
 
         self.teacher_nodes.extend(nodes_we_know_about)
 

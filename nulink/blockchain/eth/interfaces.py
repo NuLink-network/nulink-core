@@ -513,8 +513,6 @@ class BlockchainInterface:
                 # as a pending transaction can cause gas estimation to fail, notably in case of worklock refunds.
                 payload['gas'] = contract_function.estimateGas(payload, block_identifier='latest')
             transaction_dict = contract_function.buildTransaction(payload)
-            # to fix web3 under price issue
-            transaction_dict['gasPrice'] = contract_function.web3.eth.gas_price
 
         except (TestTransactionFailed, ValidationError, ValueError) as error:
             # Note: Geth (1.9.15) raises ValueError in the same condition that pyevm raises ValidationError here.
@@ -573,7 +571,7 @@ class BlockchainInterface:
             tx_type = 'EIP-1559'
         except KeyError:
             # pre-london fork "legacy" transactions (Type 0)
-            max_unit_price = transaction_dict['gasPrice']
+            max_unit_price = transaction_dict.get('gasPrice') or self.w3.eth.gas_price  # to fix web3 under price issue
             tx_type = 'Legacy'
 
         max_price_gwei = Web3.fromWei(max_unit_price, 'gwei')
@@ -584,7 +582,14 @@ class BlockchainInterface:
             emitter.message(f'Confirm transaction {transaction_name} on hardware wallet... '
                             f'({max_cost} ETH @ {max_price_gwei} gwei)',
                             color='yellow')
-        signed_raw_transaction = transacting_power.sign_transaction(transaction_dict)
+
+        # to fix invalid sender: transaction_dict can only have ['value', 'nonce', 'from', 'gas', 'to', 'data']
+        to_be_singed_transaction = {_key: _value for _key, _value in transaction_dict.items() if _key in ['value', 'nonce', 'from', 'gas', 'to', 'data']}
+
+        if 'gasPrice' not in transaction_dict:
+            to_be_singed_transaction['gasPrice'] = self.w3.eth.gas_price
+
+        signed_raw_transaction = transacting_power.sign_transaction(to_be_singed_transaction)
 
         #
         # Broadcast

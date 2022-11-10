@@ -23,7 +23,7 @@ from pathlib import Path
 import maya
 
 from nulink.blockchain.eth.signers.base import Signer
-from nulink.characters.lawful import Alice, Bob
+from nulink.characters.lawful import Alice, Bob, Ursula
 from nulink.characters.lawful import Enrico as Enrico
 from nulink.crypto.powers import SigningPower, DecryptingPower
 from nulink.policy.payment import SubscriptionManagerPayment
@@ -43,15 +43,15 @@ BOOK_PATH = Path('finnegans-wake-excerpt.txt')
 try:
 
     # Replace with ethereum RPC endpoint
-    L1_PROVIDER = os.environ.get('DEMO_L1_PROVIDER_URI')  # or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
-    L2_PROVIDER = os.environ.get('DEMO_L2_PROVIDER_URI')  # or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+    L1_PROVIDER = os.environ.get('DEMO_L1_PROVIDER_URI') or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
+    L2_PROVIDER = os.environ.get('DEMO_L2_PROVIDER_URI') or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
 
     # Replace with wallet filepath.
-    WALLET_FILEPATH = os.environ.get('DEMO_L2_WALLET_FILEPATH')  # or 'D:\\wangyi\\code\\code\\nulink\\keystore'
+    WALLET_FILEPATH = os.environ.get('DEMO_L2_WALLET_FILEPATH') or 'D:\\wangyi\\code\\code\\nulink\\keystore'
     SIGNER_URI = f'keystore://{WALLET_FILEPATH}'
 
     # Replace with alice's ethereum address
-    ALICE_ADDRESS = os.environ.get('DEMO_ALICE_ADDRESS')  # or '0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01'
+    ALICE_ADDRESS = os.environ.get('DEMO_ALICE_ADDRESS') or '0xDCf049D1a3770f17a64E622D88BFb67c67Ee0e01'
 
 except KeyError:
     raise RuntimeError('Missing environment variables to run demo.')
@@ -129,12 +129,17 @@ remote_bob = Bob.from_public_keys(
 
 # These are the policy details.
 expiration = maya.now() + datetime.timedelta(days=1)
-threshold, shares = 2, 3
+threshold, shares = 1, 2
 price = alice.payment_method.quote(expiration=expiration.epoch, shares=shares).value  # payment_method SubscriptionManagerPayment
+
+# ursula1 = Ursula.from_seed_and_stake_info(seed_uri="https://ip1:port1", federated_only=False)
+# ursula2 = Ursula.from_seed_and_stake_info(seed_uri="https://ip2:port2", federated_only=False)
+# ursula3 = Ursula.from_seed_and_stake_info(seed_uri="https://ip3:port3", federated_only=False)
 
 # Alice grants access to Bob...
 policy = alice.grant(
     remote_bob, label,
+    # ursulas={ursula2, ursula3},
     threshold=threshold,
     shares=shares,
     value=price,

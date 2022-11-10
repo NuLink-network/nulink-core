@@ -368,8 +368,7 @@ class RetrievalClient:
 
         if len(successes) < treasure_map.threshold:
             worker_pool, new_successes = worker_pool_start(treasure_map.threshold - len(successes), timeout=15)
-
-        successes.update(new_successes)
+            successes.update(new_successes)
 
         if len(successes) < treasure_map.threshold:
             failures = worker_pool.get_failures()

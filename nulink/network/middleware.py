@@ -313,7 +313,7 @@ class RestMiddleware:
         return response
 
     def ping(self, node):
-        response = self.client.get(node_or_sprout=node, path="ping", timeout=10)
+        response = self.client.get(node_or_sprout=node, path="ping", timeout=15)
 
         if not str(response.status_code).startswith('2'):
             return response
@@ -327,7 +327,7 @@ class RestMiddleware:
                 raise VersionMismatchError(
                     f"the teacher {ping_response.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
 
-            return ping_response.get('requester_ip')
+            return response
         except JSONDecodeError:
             # old version content-type is text/html
             raise VersionMismatchError(f"the teacher {node.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")

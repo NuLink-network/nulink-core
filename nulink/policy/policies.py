@@ -145,7 +145,7 @@ class Policy(ABC):
     def _sample(self,
                 network_middleware: RestMiddleware,
                 ursulas: Optional[Iterable['Ursula']] = None,
-                timeout: int = 10,
+                timeout: int = 15,
                 ) -> List['Ursula']:
         """Send concurrent requests to the /ping HTTP endpoint of nodes drawn from the reservoir."""
 
