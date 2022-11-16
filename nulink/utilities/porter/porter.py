@@ -30,6 +30,7 @@ from nulink.blockchain.eth.agents import ContractAgency, PREApplicationAgent
 from nulink.blockchain.eth.interfaces import BlockchainInterfaceFactory
 from nulink.blockchain.eth.registry import BaseContractRegistry, InMemoryContractRegistry
 from nulink.characters.lawful import Ursula
+from nulink.cli.utils import random_dic
 from nulink.control.controllers import JSONRPCController, WebController
 from nulink.crypto.powers import DecryptingPower
 from nulink.network.nodes import Learner
@@ -186,6 +187,8 @@ the Pipe for PRE Application network operations
                                                                                                                                             bytes.fromhex(ursula_info["encrypting_key"])))
                                                                                for checksum_address, ursula_info in nulink_workers.items()}
 
+        porter_ursula_worker_dict = random_dic(porter_ursula_worker_dict)
+
         return porter_ursula_worker_dict
 
     @classmethod
@@ -212,10 +215,30 @@ the Pipe for PRE Application network operations
 
         return enough_success_workers
 
+    def get_enough_ursulas_from_nulink_worker(self, quantity: int) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
+
+        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers()
+
+        len_enough_success_workers = len(_nulink_workers)
+
+        if quantity > len_enough_success_workers:
+            return {}
+
+        while len_enough_success_workers > quantity:
+            _nulink_workers.popitem()
+            len_enough_success_workers -= 1
+
+        return _nulink_workers
+
     def get_ursulas(self,
                     quantity: int,
                     exclude_ursulas: Optional[Sequence[ChecksumAddress]] = None,
                     include_ursulas: Optional[Sequence[ChecksumAddress]] = None) -> List[UrsulaInfo]:
+
+        # workers = self.get_enough_ursulas_from_nulink_worker(quantity)
+        # ursulas_info = workers.values()
+        # return list(ursulas_info)
+
         reservoir = self._make_reservoir(quantity, exclude_ursulas, include_ursulas)
         value_factory = PrefetchStrategy(reservoir, quantity)
 

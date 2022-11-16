@@ -58,6 +58,7 @@ from nulink.cli.literature import (
 )
 from nulink.config.constants import DEFAULT_CONFIG_ROOT
 from nulink.utilities.events import write_events_to_csv_file
+import random
 
 
 def setup_emitter(general_config, banner: str = None) -> StdoutEmitter:
@@ -302,10 +303,19 @@ def ursula_run_origin_params_save(func):
 
     @wraps(func)
     def decorator(*args, **kwargs):
-
         wrapper_args = list(args)
         wrapper_args[0].extend(['--origin-args', args])
 
         return func(*wrapper_args, **kwargs)
 
     return decorator
+
+
+def random_dic(dicts):
+    dict_key_ls = list(dicts.keys())
+    random.shuffle(dict_key_ls)
+    new_dic = {}
+    for key in dict_key_ls:
+        new_dic[key] = dicts.get(key)
+    return new_dic
+
