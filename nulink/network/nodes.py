@@ -67,10 +67,10 @@ TEACHER_NODES = {
         'https://to/be/supplied',  # ursula address
         # 'https://closest-seed.nulink.network:9151',
     ),
-    NetworksInventory.HECO_TESTNET: ("https://to/be/supplied",),
+    NetworksInventory.HECO_TESTNET: ("https://47.245.98.245:9151",),
     NetworksInventory.HECO: ("https://to/be/supplied",),
-    NetworksInventory.BSC_TESTNET: ("https://8.219.188.70:9152",),
-    NetworksInventory.HORUS: ("https://8.219.188.70:9152",),
+    NetworksInventory.BSC_TESTNET: ("https://47.245.98.245:9151",),
+    NetworksInventory.HORUS: (), #("https://47.245.98.245:9151",),
     NetworksInventory.BSC: ("https://to/be/supplied",),
 }
 

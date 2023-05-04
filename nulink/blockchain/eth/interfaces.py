@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
-
+import json
 import math
 import os
 import pprint
@@ -585,8 +585,9 @@ class BlockchainInterface:
 
         # to fix invalid sender: transaction_dict can only have ['value', 'nonce', 'from', 'gas', 'to', 'data']
         to_be_singed_transaction = {_key: _value for _key, _value in transaction_dict.items() if _key in ['value', 'nonce', 'from', 'gas', 'to', 'data']}
-
-        if 'gasPrice' not in transaction_dict:
+        print(f"---------------------- transaction_dict: {json.dumps(transaction_dict)}-------------")
+        print(f"---------------------- to_be_singed_transaction: {json.dumps(to_be_singed_transaction)}-------------")
+        if 'gasPrice' not in to_be_singed_transaction:
             to_be_singed_transaction['gasPrice'] = self.w3.eth.gas_price
 
         signed_raw_transaction = transacting_power.sign_transaction(to_be_singed_transaction)

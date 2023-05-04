@@ -29,7 +29,9 @@ from nulink.utilities.networking import LOOPBACK_ADDRESS
 
 FLEET_POPULATION = 12
 DEMO_NODE_STARTING_PORT = 11500
-USER_CACHE = Path(APP_DIR.user_cache_dir)
+USER_CACHE = Path(  # APP_DIR.user_cache_dir
+    'D:\\nulink_data\\Cache'
+)
 
 ursula_maker = partial(Ursula, rest_host=LOOPBACK_ADDRESS,
                        federated_only=True,

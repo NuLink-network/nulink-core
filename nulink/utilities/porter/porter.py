@@ -48,60 +48,20 @@ from nulink.utilities.porter.control.interfaces import PorterInterface
 
 nulink_workers: Dict = \
     {
-        "0x8D0d076635F627Aa62e5D422e7B66D1fe6fbc534": {
-            "checksum_address": "0x8D0d076635F627Aa62e5D422e7B66D1fe6fbc534",
-            "uri": "https://8.219.184.153:9154",
-            "encrypting_key": "03758a1209d2d12b7c24624cafc6663915d40b13b376fb72050a3dac44e5e22a53"
+        "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe": {
+            "checksum_address": "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe",
+            "uri": "https://47.245.98.245:9151",
+            "encrypting_key": "02291364b1e41f92a6968749cc0996fa57e3d824467a59a3339e26b7f33aba9d89"
         },
-        "0x1e50814CA9367EC537324078999CECe44db1380D": {
-            "checksum_address": "0x1e50814CA9367EC537324078999CECe44db1380D",
-            "uri": "https://8.219.60.76:9153",
-            "encrypting_key": "022317a079aab3845362e3dbe2f4f4f23487bc7eb56d7e118492c33f48b44151b6"
+        "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48": {
+            "checksum_address": "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48",
+            "uri": "https://8.219.125.93:9151",
+            "encrypting_key": "026431a8389811defafdc32473bdfec972f6b1709f5bb64db0de68e71c988304da"
         },
-        "0xa7Cda2C05D20E513180A1F1b38440397f41cBfb4": {
-            "checksum_address": "0xa7Cda2C05D20E513180A1F1b38440397f41cBfb4",
-            "uri": "https://8.219.179.45:9153",
-            "encrypting_key": "029938370973935a419228ec45e82c29343eb3117d5234fe3aae008127bd890dbb"
-        },
-        "0x368479d9C56eE8DA9273C76128f942E8645c6D2F": {
-            "checksum_address": "0x368479d9C56eE8DA9273C76128f942E8645c6D2F",
-            "uri": "https://8.219.179.45:9154",
-            "encrypting_key": "02da73a870ed83780c8d9ac1597a8b45b90df07138a498e27c98420d77c1142895"
-        },
-        "0x5397D10DFBD04B295DC17182D2e3dF60dE8144f6": {
-            "checksum_address": "0x5397D10DFBD04B295DC17182D2e3dF60dE8144f6",
-            "uri": "https://8.219.186.125:9153",
-            "encrypting_key": "03f06e81d91538048c8c8f30b7410b2ac1f1f5173f3f8fd12d4ca857e4ab39ad70"
-        },
-        "0x2aBD4B01520c10498F61Bb0bA91CDA8cF01b59C9": {
-            "checksum_address": "0x2aBD4B01520c10498F61Bb0bA91CDA8cF01b59C9",
-            "uri": "https://8.219.61.245:9154",
-            "encrypting_key": "03c43f5032dcf857bb64791b056285c90b073c13f06a6597506c70efe34901abc0"
-        },
-        "0x93B0Ee5a18764D268F60B52de3897cCda5E4e927": {
-            "checksum_address": "0x93B0Ee5a18764D268F60B52de3897cCda5E4e927",
-            "uri": "https://8.219.184.153:9153",
-            "encrypting_key": "0280b02e9653e44daa14fbb8b9617523cdb045c20887c3ecaf5d31d7a20c54d873"
-        },
-        "0x25452b51f2AEfe460c3a907132d48e44259Cdf2b": {
-            "checksum_address": "0x25452b51f2AEfe460c3a907132d48e44259Cdf2b",
-            "uri": "https://8.219.186.125:9154",
-            "encrypting_key": "0337e42f1487cdfdec1f234e4a106d3eba282a30284da3201a48c91e242252e932"
-        },
-        "0x39feFe0F21e3d32c9A3bF7967464633054EC235e": {
-            "checksum_address": "0x39feFe0F21e3d32c9A3bF7967464633054EC235e",
-            "uri": "https://8.219.60.76:9154",
-            "encrypting_key": "036ca456702b8630e27e24ba082d1b9b026be65bb4682c86bbd49329691cb1cb04"
-        },
-        "0x6E62c6EF94132aef98a7E9bB0a048B9C12e57512": {
-            "checksum_address": "0x6E62c6EF94132aef98a7E9bB0a048B9C12e57512",
-            "uri": "https://8.219.61.245:9153",
-            "encrypting_key": "02c43fd02d4ecb42f3ddf92fd730e4a41f1286eb60007fe6fdd97fd3b899fdbaab"
-        },
-        "0xfcdcf37aF546FD5362a5B9E0C447D1BDb38820Ac": {
-            "checksum_address": "0xfcdcf37aF546FD5362a5B9E0C447D1BDb38820Ac",
-            "uri": "https://8.219.188.70:9152",
-            "encrypting_key": "022aa1df6ad42eda762635e388fd415598a763e69ebe648177b500a4028cbd3d81"
+        "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c": {
+            "checksum_address": "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c",
+            "uri": "https://47.245.109.34:9151",
+            "encrypting_key": "03514cd050db82f7e5271afa07562cdb89c6e8d75d85f131582bbc3c2a7fb8d4df"
         }
     }
 
