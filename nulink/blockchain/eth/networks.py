@@ -34,6 +34,9 @@ class NetworksInventory:  # TODO: See #1564
     BSC = 'bsc'
     BSC_TESTNET = 'bsc_testnet'
 
+    CONFLUX_ESCAPE = 'conflux_escape'
+    CONFLUX_ESCAPE_TESTNET = 'conflux_escape_testnet'
+
     HORUS = 'horus'  # bsc testnet
 
     UNKNOWN = 'unknown'  # TODO: Is there a better way to signal an unknown network?
@@ -63,12 +66,18 @@ class NetworksInventory:  # TODO: See #1564
         HORUS: 97,
     }
 
+    __to_chain_id_conflux_escape = {
+        CONFLUX_ESCAPE: 1030,
+        CONFLUX_ESCAPE_TESTNET: 71,
+    }
+
     ETH_NETWORKS = tuple(__to_chain_id_eth.keys())
     POLY_NETWORKS = tuple(__to_chain_id_polygon.keys())
     HECO_NETWORKS = tuple(__to_chain_id_heco.keys())
     BSC_NETWORKS = tuple(__to_chain_id_bsc.keys())
+    CONFLUX_ESCAPE_NETWORKS = tuple(__to_chain_id_conflux_escape.keys())
 
-    NETWORKS = ETH_NETWORKS + POLY_NETWORKS + HECO_NETWORKS + BSC_NETWORKS
+    NETWORKS = ETH_NETWORKS + POLY_NETWORKS + HECO_NETWORKS + BSC_NETWORKS + CONFLUX_ESCAPE_NETWORKS
 
     class UnrecognizedNetwork(RuntimeError):
         pass
@@ -76,7 +85,9 @@ class NetworksInventory:  # TODO: See #1564
     @classmethod
     def get_ethereum_chain_id(cls, network):  # TODO: Use this (where?) to make sure we're in the right chain
         try:
-            return cls.__to_ethereum_chain_id[network]
+            return cls.__to_chain_id_eth.get(network,
+                                             cls.__to_chain_id_polygon.get(network, cls.__to_chain_id_bsc.get(network, cls.__to_chain_id_conflux_escape.get(network, cls.__to_chain_id_heco[network]))))
+            # return cls.__to_ethereum_chain_id[network]
         except KeyError:
             return 1337  # TODO: what about chain id when testing?
 

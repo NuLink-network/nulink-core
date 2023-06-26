@@ -50,17 +50,17 @@ nulink_workers: Dict = \
     {
         "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48": {
             "checksum_address": "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48",
-            "uri": "https://172.16.85.241:9151",  # "https://8.219.11.39:9153",
+            "uri": "https://8.219.11.39:9153",
             "encrypting_key": "026431a8389811defafdc32473bdfec972f6b1709f5bb64db0de68e71c988304da"
         },
         "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe": {
             "checksum_address": "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe",
-            "uri": "https:/172.16.85.242:9151",  # "https://8.219.11.39:9151",
+            "uri": "https://8.219.11.39:9151",
             "encrypting_key": "02291364b1e41f92a6968749cc0996fa57e3d824467a59a3339e26b7f33aba9d89"
         },
         "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c": {
             "checksum_address": "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c",
-            "uri": "https://172.16.85.243:9151",  # "https://8.219.11.39:9152",
+            "uri": "https://8.219.11.39:9152",
             "encrypting_key": "03514cd050db82f7e5271afa07562cdb89c6e8d75d85f131582bbc3c2a7fb8d4df"
         }
     }

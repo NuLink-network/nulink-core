@@ -1773,7 +1773,7 @@
   [
     "SubscriptionManager",
     "v0.0.0",
-    "0x10563266442A0dD0810f8010270820Da4d3C9c7D",
+    "0x0CDf9DE73c2DD0FB31c2058852bbEd2BE6DCC767",
     [
       {
         "anonymous": false,
@@ -1792,6 +1792,19 @@
           }
         ],
         "name": "FeeRateUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
         "type": "event"
       },
       {
@@ -2041,7 +2054,7 @@
                 "type": "address"
               }
             ],
-            "internalType": "struct SubscriptionManager.Policy",
+            "internalType": "struct SubscriptionManagerMulti.Policy",
             "name": "",
             "type": "tuple"
           }
@@ -2145,6 +2158,16 @@
             "internalType": "uint256",
             "name": "_feeRate",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_nlk",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
           }
         ],
         "name": "initialize",
@@ -2250,6 +2273,125 @@
         "name": "sweep",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes16[]",
+            "name": "_policyId",
+            "type": "bytes16[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "_policyOwner",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "_size",
+            "type": "uint16[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_startTimestamp",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_endTimestamp",
+            "type": "uint32[]"
+          }
+        ],
+        "name": "createPolicyMulti",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
+          }
+        ],
+        "name": "setFeeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_nlk",
+            "type": "address"
+          }
+        ],
+        "name": "setNLK",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "feeTo",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint16[]",
+            "name": "_size",
+            "type": "uint16[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_startTimestamp",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_endTimestamp",
+            "type": "uint32[]"
+          }
+        ],
+        "name": "getPolicyCostMulti",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalFee",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "nlk",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ]

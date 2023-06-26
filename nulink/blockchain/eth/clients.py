@@ -70,6 +70,8 @@ PUBLIC_CHAINS = {
     256: "Heco/Testnet",
     56: "Bsc",
     97: "Bsc/Testnet",  # "horus"
+    1030: "Conflux Escape",
+    71: "Conflux Escape/Testnet",
 }
 
 LOCAL_CHAINS = {
