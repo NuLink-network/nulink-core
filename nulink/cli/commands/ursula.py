@@ -528,39 +528,54 @@ if __name__ == '__main__':
     # os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
     # Only Windows supports paths. All other systems must start with the network path /, which together is keystore:///
-
+    #
     # init([
     #     '--config-root', 'D:\\nulink_data\\',
-    #     '--rest-host', '192.168.3.20',
+    #     '--rest-host', '192.168.3.25',
     #     '--rest-port', '9151',
     #     '--force',
-    #     # '--debug',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
+    #     '--debug',
+    #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\conflux-worker-1-0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
-    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-    #     #  '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-    #     '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
-    #     '--network', 'horus',
-    #     '--payment-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
-    #     '--payment-network', 'bsc_testnet',
-    #     '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
+    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\conflux_espace_testnet\\contract_registry.json',
+    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\conflux_espace_testnet\\contract_registry.json',
+    #     # '--eth-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+    #     '--eth-provider', 'https://evmtestnet.confluxrpc.com',
+    #     # '--network', 'horus',
+    #     '--network', 'conflux_espace_testnet',
+    #     # '--payment-provider', 'https://data-seed-prebsc-2-s2.binance.org:8545',
+    #     '--payment-provider', 'https://evmtestnet.confluxrpc.com',
+    #     # '--payment-network', 'bsc_testnet',
+    #     '--payment-network', 'conflux_espace_testnet',
+    #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
+    #     '--operator-address', '0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48',
     #     '--max-gas-price', '2000000000000'])
 
+    import os
+    #
+    # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"
+    # os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"
+
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "12345678"
+    os.environ['NULINK_KEYSTORE_PASSWORD'] = "12345678"
     run([
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nucypher_all\\nulink_0_1_0\\nulink\\nulink\\blockchain\\eth\\contract_registry\\heco_testnet\\contract_registry.json',
-        #     '--rest-host', '192.168.3.20',
-        #     '--rest-port', '9151',
+        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\conflux_espace_testnet\\contract_registry.json',
+        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\conflux_espace_testnet\\contract_registry.json',
+        # '--rest-host', '192.168.3.25',
+        '--rest-port', '9151',
         # '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', 'D:\\nulink_data\\ursula-0377c6a9.json',
+        '--config-file', 'D:\\nulink_data\\ursula-03aad049.json',
+        # '--config-file', "D:\\nulink_data\\ursula-02983e2b.json",
         '--db-filepath', 'D:\\nulink_data',
-        # '--debug',
+        '--debug',
         # '--force',
         '--no-ip-checkup',
         '--no-block-until-ready',
         '--console-logs',
         '--file-logs',
     ])
+
 
     """
     nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs

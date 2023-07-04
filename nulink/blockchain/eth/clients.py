@@ -70,8 +70,8 @@ PUBLIC_CHAINS = {
     256: "Heco/Testnet",
     56: "Bsc",
     97: "Bsc/Testnet",  # "horus"
-    1030: "Conflux Escape",
-    71: "Conflux Escape/Testnet",
+    1030: "Conflux Espace",
+    71: "Conflux Espace/Testnet",
 }
 
 LOCAL_CHAINS = {
@@ -99,6 +99,7 @@ class EthereumClient:
     PARITY = 'Parity'
     ALT_PARITY = 'Parity-Ethereum'
     GANACHE = 'EthereumJS TestRPC'
+    CONFLUX = 'conflux-rust'
 
     ETHEREUM_TESTER = 'EthereumTester'  # (PyEVM)
     CLEF = 'Clef'  # Signer-only
@@ -180,6 +181,7 @@ class EthereumClient:
             # Geth
             cls.GETH: GethClient,
             cls.BOR: BorClient,
+            cls.CONFLUX: GethClient,
 
             # Parity
             cls.PARITY: ParityClient,
