@@ -69,8 +69,8 @@ TEACHER_NODES = {
     ),
 
     NetworksInventory.CONFLUX_ESPACE: ("https://to/be/supplied",),
-    # NetworksInventory.CONFLUX_ESPACE_TESTNET: ("https://8.222.136.88:9151",),  # conflux_espace_testnet
-    NetworksInventory.CONFLUX_ESPACE_TESTNET: ("https://127.0.0.1:9151","https://127.0.0.1:9152"),  # conflux_espace_testnet
+    NetworksInventory.CONFLUX_ESPACE_TESTNET: ("https://8.222.136.88:9151",),  # conflux_espace_testnet
+    # NetworksInventory.CONFLUX_ESPACE_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152"),  # conflux_espace_testnet
     NetworksInventory.BSC_TESTNET: ("https://8.219.11.39:9151",),  # dev server
     NetworksInventory.HORUS: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
