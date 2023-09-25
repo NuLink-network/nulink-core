@@ -176,12 +176,12 @@ if __name__ == '__main__':
 
     run([
         '--http-port', '9155',
-        '--teacher', '54.241.67.36:9151',
+        # '--teacher', '54.241.67.36:9151',
         # '--teacher', '192.168.3.20:9151',
-        # '--teacher', '127.0.0.1:9151',  # '192.168.3.20:9151',  # '127.0.0.1:9151',
+        '--teacher', '127.0.0.1:9151',  # '192.168.3.25:9151',  # '127.0.0.1:9151',
         '--network', 'horus',
-        '--eth-provider', 'https://data-seed-prebsc-1-s3.binance.org:8545',
-        '--allow-origins',
+        '--eth-provider', 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+        '--allow-origins', "*",
         '--debug',
         '--console-logs',
         # '--file-logs',

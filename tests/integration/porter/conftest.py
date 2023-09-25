@@ -25,21 +25,25 @@ from nulink.crypto.powers import DecryptingPower
 
 @pytest.fixture(scope='module')
 def random_federated_treasure_map_data(federated_alice, federated_bob, federated_ursulas):
-
     label = b'policy label'
     threshold = 2
     shares = threshold + 1
     policy_key, kfrags = federated_alice.generate_kfrags(bob=federated_bob, label=label, threshold=threshold, shares=shares)
-    hrac = HRAC(publisher_verifying_key=federated_alice.stamp.as_umbral_pubkey(),
-                bob_verifying_key=federated_bob.stamp.as_umbral_pubkey(),
-                label=label)
+
+    from nulink.blockchain.eth.networks import NetworksInventory
+    chain_id = NetworksInventory.get_ethereum_chain_id(federated_alice.domain)
+
+    from nulink.policy.crosschain import CrossChainHRAC
+    hrac = CrossChainHRAC(HRAC(publisher_verifying_key=federated_alice.stamp.as_umbral_pubkey(),
+                               bob_verifying_key=federated_bob.stamp.as_umbral_pubkey(),
+                               label=label), chain_id=chain_id)
 
     assigned_kfrags = {
         ursula.canonical_address: (ursula.public_keys(DecryptingPower), vkfrag)
         for ursula, vkfrag in zip(list(federated_ursulas)[:shares], kfrags)}
 
     random_treasure_map = TreasureMap(signer=federated_alice.stamp.as_umbral_signer(),
-                                      hrac=hrac,
+                                      hrac=hrac.hrac,  # TreasureMap does not include chainId, otherwise there are too many changes
                                       policy_encrypting_key=policy_key,
                                       assigned_kfrags=assigned_kfrags,
                                       threshold=threshold)

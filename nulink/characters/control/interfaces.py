@@ -105,7 +105,14 @@ class AliceInterface(CharacterPublicInterface):
     def revoke(self, label: bytes, bob_verifying_key: PublicKey) -> dict:
 
         # TODO: Move deeper into characters
-        policy_hrac = HRAC(self.implementer.stamp.as_umbral_pubkey(), bob_verifying_key, label)
+
+        from nulink.blockchain.eth.networks import NetworksInventory
+        chain_id = NetworksInventory.get_ethereum_chain_id(self.implementer.domain)
+
+        # Note that the HRAC of the main chain Bsc is also chainid
+        from nulink.policy.crosschain import CrossChainHRAC
+        policy_hrac = CrossChainHRAC(HRAC(self.implementer.stamp.as_umbral_pubkey(), bob_verifying_key, label), chain_id=chain_id)
+
         policy = self.implementer.active_policies[policy_hrac]
 
         receipt, failed_revocations = self.implementer.revoke(policy)

@@ -22,10 +22,12 @@ import maya
 from eth_typing.evm import ChecksumAddress
 from nucypher_core import HRAC, TreasureMap
 from nucypher_core.umbral import PublicKey, VerifiedKeyFrag
+from nulink.blockchain.eth.interfaces import BlockchainInterfaceFactory
 
 from nulink.blockchain.eth.utils import calculate_period_duration
 from nulink.crypto.powers import DecryptingPower
 from nulink.network.middleware import RestMiddleware
+from nulink.policy.crosschain import CrossChainHRAC
 from nulink.policy.reservoir import (
     make_federated_staker_reservoir,
     MergedReservoir,
@@ -82,9 +84,15 @@ class Policy(ABC):
         self.nodes = None  # set by publication
 
         self.publisher = publisher
-        self.hrac = HRAC(publisher_verifying_key=self.publisher.stamp.as_umbral_pubkey(),
-                         bob_verifying_key=self.bob.stamp.as_umbral_pubkey(),
-                         label=self.label)
+
+        from nulink.blockchain.eth.networks import NetworksInventory
+        chain_id = NetworksInventory.get_ethereum_chain_id(publisher.domain)  # BlockchainInterfaceFactory.get_interface(publisher.eth_provider_uri).w3.eth.chainId
+
+        _hrac = HRAC(publisher_verifying_key=self.publisher.stamp.as_umbral_pubkey(),
+                     bob_verifying_key=self.bob.stamp.as_umbral_pubkey(),
+                     label=self.label)
+        self.hrac = CrossChainHRAC(_hrac, chain_id=chain_id)
+
         self.payment_method = payment_method
         self.payment_method.validate_price(shares=self.shares, value=value, duration=duration)
 
@@ -203,7 +211,7 @@ class Policy(ABC):
         }
 
         treasure_map = TreasureMap(signer=self.publisher.stamp.as_umbral_signer(),
-                                   hrac=self.hrac,
+                                   hrac=self.hrac.hrac,
                                    policy_encrypting_key=self.public_key,
                                    assigned_kfrags=assigned_kfrags,
                                    threshold=self.threshold)
@@ -247,7 +255,7 @@ class BlockchainPolicy(Policy):
 class EnactedPolicy:
 
     def __init__(self,
-                 hrac: HRAC,
+                 hrac: CrossChainHRAC,
                  label: bytes,
                  public_key: PublicKey,
                  threshold: int,

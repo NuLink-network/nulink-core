@@ -28,10 +28,14 @@ def test_alice_creates_policy_with_correct_hrac(federated_alice, federated_bob, 
     """
     Alice creates a Policy.  It has the proper HRAC, unique per her, Bob, and the label
     """
+    from nulink.blockchain.eth.networks import NetworksInventory
+    chain_id = NetworksInventory.get_ethereum_chain_id(federated_alice.domain)
+
     # TODO: what are we actually testing here?
-    assert idle_federated_policy.hrac == HRAC(federated_alice.stamp.as_umbral_pubkey(),
-                                              federated_bob.stamp.as_umbral_pubkey(),
-                                              idle_federated_policy.label)
+    from nulink.policy.crosschain import CrossChainHRAC
+    assert idle_federated_policy.hrac == CrossChainHRAC(HRAC(federated_alice.stamp.as_umbral_pubkey(),
+                                                             federated_bob.stamp.as_umbral_pubkey(),
+                                                             idle_federated_policy.label), chain_id=chain_id)
 
 
 def test_alice_does_not_update_with_old_ursula_info(federated_alice, federated_ursulas):

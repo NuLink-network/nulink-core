@@ -2,7 +2,7 @@
   [
     "NuLinkToken",
     "v0.0.0",
-    "0x7f7A7Ad714d205E8ee2488991Ce9948eD9f3037B",
+    "0xCD8Fd341B93dEa0666a294980e26CA16E842af02",
     [
       {
         "inputs": [],
@@ -487,7 +487,7 @@
   [
     "NuLinkStakingPool",
     "v0.0.0",
-    "0x4220e306386B182FF9ecF0847F02DF8A484ACBa7",
+    "0x5F35a0f8D55e2e7E4c53B21e02cB01fb83A3714D",
     [
       {
         "inputs": [
@@ -1773,7 +1773,7 @@
   [
     "SubscriptionManager",
     "v0.0.0",
-    "0x0CDf9DE73c2DD0FB31c2058852bbEd2BE6DCC767",
+    "0xe274AB90F98847ba3f425642a677745D8CEFf166",
     [
       {
         "anonymous": false,
@@ -1792,6 +1792,19 @@
           }
         ],
         "name": "FeeRateUpdated",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
         "type": "event"
       },
       {
@@ -2041,7 +2054,7 @@
                 "type": "address"
               }
             ],
-            "internalType": "struct SubscriptionManager.Policy",
+            "internalType": "struct SubscriptionManagerMulti.Policy",
             "name": "",
             "type": "tuple"
           }
@@ -2145,6 +2158,16 @@
             "internalType": "uint256",
             "name": "_feeRate",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_nlk",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
           }
         ],
         "name": "initialize",
@@ -2251,13 +2274,132 @@
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bytes16[]",
+            "name": "_policyId",
+            "type": "bytes16[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "_policyOwner",
+            "type": "address[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "_size",
+            "type": "uint16[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_startTimestamp",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_endTimestamp",
+            "type": "uint32[]"
+          }
+        ],
+        "name": "createPolicyMulti",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
+          }
+        ],
+        "name": "setFeeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_nlk",
+            "type": "address"
+          }
+        ],
+        "name": "setNLK",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "feeTo",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint16[]",
+            "name": "_size",
+            "type": "uint16[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_startTimestamp",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "_endTimestamp",
+            "type": "uint32[]"
+          }
+        ],
+        "name": "getPolicyCostMulti",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalFee",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "nlk",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
       }
     ]
   ],
   [
     "SimplePREApplication",
     "v0.0.0",
-    "0x36E542fE2B8B75B93eff28A7CB69fDC228c53E64",
+    "0x622Ca679533eDb7fECAf9d944e4D1e549B1861D1",
     [
       {
         "inputs": [
@@ -2587,154 +2729,6 @@
             "internalType": "address",
             "name": "",
             "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      }
-    ]
-  ],
-  [
-    "NLKFaucet",
-    "v0.0.0",
-    "0xbDd6Bc3D424b5F3e8ae217C3FBe7e6B067f1E031",
-    [
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "previousOwner",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-      },
-      {
-        "inputs": [],
-        "name": "getTestNLLK",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_amount",
-            "type": "uint256"
-          }
-        ],
-        "name": "setMaxAmount",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "contract INulLinkToken",
-            "name": "_nlk",
-            "type": "address"
-          }
-        ],
-        "name": "setTestNLK",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "contract INulLinkToken",
-            "name": "_nlk",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-      },
-      {
-        "inputs": [],
-        "name": "maxAmount",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "nlk",
-        "outputs": [
-          {
-            "internalType": "contract INulLinkToken",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "owner",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "userAmount",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
           }
         ],
         "stateMutability": "view",
