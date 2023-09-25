@@ -85,8 +85,17 @@ class NetworksInventory:  # TODO: See #1564
     @classmethod
     def get_ethereum_chain_id(cls, network):  # TODO: Use this (where?) to make sure we're in the right chain
         try:
-            return cls.__to_chain_id_eth.get(network,
-                                             cls.__to_chain_id_polygon.get(network, cls.__to_chain_id_bsc.get(network, cls.__to_chain_id_conflux_espace.get(network, cls.__to_chain_id_heco[network]))))
+            chain_id = cls.__to_chain_id_eth.get(network, None)
+            if not chain_id:
+                chain_id = cls.__to_chain_id_polygon.get(network, None)
+                if not chain_id:
+                    chain_id = cls.__to_chain_id_bsc.get(network, None)
+                    if not chain_id:
+                        chain_id = cls.__to_chain_id_conflux_espace.get(network, None)
+                        if not chain_id:
+                            # chain_id = cls.__to_chain_id_heco.get(network, None)
+                            chain_id = cls.__to_chain_id_heco[network]
+            return chain_id
             # return cls.__to_ethereum_chain_id[network]
         except KeyError:
             return 1337  # TODO: what about chain id when testing?

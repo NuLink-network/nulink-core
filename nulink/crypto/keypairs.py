@@ -109,6 +109,7 @@ class DecryptingKeypair(Keypair):
             raise self.DecryptionFailed() from e
 
     def decrypt_kfrag(self, ekfrag: EncryptedKeyFrag, hrac: HRAC, publisher_verifying_key: PublicKey) -> VerifiedKeyFrag:
+        # hrac => treasure_map.hrac => HRAC
         return ekfrag.decrypt(self._privkey, hrac, publisher_verifying_key)
 
     def decrypt_treasure_map(self, etmap: EncryptedTreasureMap, publisher_verifying_key: PublicKey) -> TreasureMap:
