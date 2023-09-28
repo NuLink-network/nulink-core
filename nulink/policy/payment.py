@@ -25,6 +25,7 @@ from web3.types import Wei, Timestamp, TxReceipt, ChecksumAddress
 
 from nulink.blockchain.eth.agents import SubscriptionManagerAgent
 from nulink.blockchain.eth.registry import InMemoryContractRegistry, BaseContractRegistry
+from nulink.policy.crosschain import CrossChainReencryptionRequest
 from nulink.policy.policies import BlockchainPolicy, Policy
 
 
@@ -35,7 +36,7 @@ class ReencryptionPrerequisite(ABC):
     NAME = NotImplemented
 
     @abstractmethod
-    def verify(self, payee: ChecksumAddress, request: ReencryptionRequest) -> bool:
+    def verify(self, payee: ChecksumAddress, request: CrossChainReencryptionRequest) -> bool:
         """returns True if reencryption is permitted by the payee (ursula) for the given reencryption request."""
         raise NotImplemented
 
@@ -121,7 +122,7 @@ class FreeReencryptions(PaymentMethod):
     ONCHAIN = False
     NAME = 'Free'
 
-    def verify(self, payee: ChecksumAddress, request: ReencryptionRequest) -> bool:
+    def verify(self, payee: ChecksumAddress, request: CrossChainReencryptionRequest) -> bool:
         return True
 
     def pay(self, policy: Policy) -> Dict:
@@ -158,7 +159,7 @@ class SubscriptionManagerPayment(ContractPayment):
     _AGENT = SubscriptionManagerAgent
     NAME = 'SubscriptionManager'
 
-    def verify(self, payee: ChecksumAddress, request: ReencryptionRequest) -> bool:
+    def verify(self, payee: ChecksumAddress, request: CrossChainReencryptionRequest) -> bool:
         """Verify policy payment by reading the SubscriptionManager contract"""
         result = self.agent.is_policy_active(policy_id=bytes(request.hrac))
         return result

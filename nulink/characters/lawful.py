@@ -94,7 +94,7 @@ from nulink.policy.payment import PaymentMethod, FreeReencryptions
 from nulink.policy.policies import Policy, BlockchainPolicy, FederatedPolicy
 from nulink.utilities.logging import Logger
 from nulink.utilities.networking import validate_operator_ip
-
+from nulink.policy.crosschain import CrossChainHRAC
 
 class Alice(Character, BlockchainPolicyAuthor):
     banner = ALICE_BANNER
@@ -561,6 +561,7 @@ class Bob(Character):
             message_kits: Sequence[Union[MessageKit, PolicyMessageKit]],
             alice_verifying_key: PublicKey,  # KeyFrag signer's key
             encrypted_treasure_map: EncryptedTreasureMap,
+            cross_chain_hrac: CrossChainHRAC,
             publisher_verifying_key: Optional[PublicKey] = None,
     ) -> List[PolicyMessageKit]:
         """
@@ -608,7 +609,8 @@ class Bob(Character):
             retrieval_kits=retrieval_kits,
             alice_verifying_key=alice_verifying_key,
             bob_encrypting_key=self.public_keys(DecryptingPower),
-            bob_verifying_key=self.stamp.as_umbral_pubkey())
+            bob_verifying_key=self.stamp.as_umbral_pubkey(),
+            cross_chain_hrac=cross_chain_hrac)
 
         # Refill message kits with newly retrieved capsule frags
         results = []
@@ -1248,7 +1250,7 @@ class Ursula(Teacher, Character, Operator):
     # Re-Encryption
     #
 
-    def _decrypt_kfrag(self, encrypted_kfrag: EncryptedKeyFrag, hrac: HRAC, # hrac => treasure_map.hrac => HRAC
+    def _decrypt_kfrag(self, encrypted_kfrag: EncryptedKeyFrag, hrac: HRAC,  # hrac => treasure_map.hrac => HRAC
                        publisher_verifying_key: PublicKey) -> VerifiedKeyFrag:
         decrypting_power = self._crypto_power.power_ups(DecryptingPower)
         return decrypting_power.decrypt_kfrag(encrypted_kfrag, hrac, publisher_verifying_key)

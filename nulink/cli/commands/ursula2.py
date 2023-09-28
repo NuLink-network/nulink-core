@@ -536,7 +536,7 @@ if __name__ == '__main__':
     #     '--force',
     #     '--debug',
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-37e134573ae74c212aa47941c95b58265d437998-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
     #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
@@ -549,13 +549,13 @@ if __name__ == '__main__':
     #     '--payment-network', 'bsc_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
     #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-    #     '--operator-address', '0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c',
+    #     '--operator-address', '0x37e134573ae74c212aa47941c95b58265d437998',
     #     '--max-gas-price', '5000000'])
 
     import os
     #
 
-    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "12345678"
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"
     os.environ['NULINK_KEYSTORE_PASSWORD'] = "12345678"
     run([
         '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
@@ -563,7 +563,7 @@ if __name__ == '__main__':
         # '--rest-host', '192.168.3.25',
         '--rest-port', '9152',
         # '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', 'D:\\nulink_data\\ursula-02354fad.json',
+        '--config-file', 'D:\\nulink_data\\ursula-0265fc79.json',
         # '--config-file', "D:\\nulink_data\\ursula-02983e2b.json",
         '--db-filepath', 'D:\\nulink_data',
         '--debug',

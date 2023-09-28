@@ -386,7 +386,10 @@ class EthereumClient:
         return self.w3.eth.sendTransaction(transaction_dict)
 
     def send_raw_transaction(self, transaction_bytes: bytes) -> str:
-        return self.w3.eth.sendRawTransaction(transaction_bytes)
+        txhash = self.w3.eth.sendRawTransaction(transaction_bytes)
+        if txhash:
+            self.w3.eth.waitForTransactionReceipt(txhash)
+        return txhash
 
     def sign_message(self, account: str, message: bytes) -> str:
         """

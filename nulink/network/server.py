@@ -209,14 +209,25 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         # TODO: Cache & Optimize
 
-        reenc_request = ReencryptionRequest.from_bytes(request.data)
-        hrac = reenc_request.hrac # => treasure_map.hrac => HRAC
+        # reenc_request = ReencryptionRequest.from_bytes(request.data)
+
+        from nulink.policy.crosschain import CrossChainReencryptionRequest
+        try:
+            cross_chain_reenc_request = CrossChainReencryptionRequest.from_bytes(request.data)
+        except Exception as e:
+            print(f"------------ request.data ----------------- ex: {e}")
+
+        reenc_request = cross_chain_reenc_request.reencryption_request
+
+        # hrac = reenc_request.hrac  # => treasure_map.hrac => HRAC
+        cross_chain_hrac = cross_chain_reenc_request.hrac  # CrossChainHRAC
+        hrac = cross_chain_hrac.hrac
         bob = Bob.from_public_keys(verifying_key=reenc_request.bob_verifying_key)
-        log.info(f"Reencryption request from {bob} for policy {hrac}")
+        log.info(f"Reencryption request from {bob} for policy {cross_chain_hrac}")
 
         # Right off the bat, if this HRAC is already known to be revoked, reject the order.
-        if hrac in this_node.revoked_policies:
-            return Response(response=f"Policy with {hrac} has been revoked.", status=HTTPStatus.UNAUTHORIZED)
+        if cross_chain_hrac in this_node.revoked_policies:
+            return Response(response=f"Policy with {cross_chain_hrac} has been revoked.", status=HTTPStatus.UNAUTHORIZED)
 
         publisher_verifying_key = reenc_request.publisher_verifying_key
 
@@ -245,9 +256,10 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         # Enforce Policy Payment
         # TODO: Accept multiple payment methods
         # TODO: Evaluate multiple reencryption prerequisites & enforce policy expiration
-        paid = this_node.payment_method.verify(payee=this_node.checksum_address, request=reenc_request)
+        # this_node.payment_method: SubscriptionManagerPayment
+        paid = this_node.payment_method.verify(payee=this_node.checksum_address, request=cross_chain_reenc_request)
         if not paid:
-            message = f"{bob_identity_message} Policy {bytes(hrac)} is unpaid."
+            message = f"{bob_identity_message} Policy {bytes(cross_chain_hrac)} is unpaid."
             return Response(message, status=HTTPStatus.PAYMENT_REQUIRED)
 
         # Re-encrypt

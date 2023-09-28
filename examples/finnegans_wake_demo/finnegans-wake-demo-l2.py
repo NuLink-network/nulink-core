@@ -47,7 +47,7 @@ try:
     L2_PROVIDER = os.environ.get('DEMO_L2_PROVIDER_URI') or 'https://data-seed-prebsc-1-s1.binance.org:8545/'
 
     # Replace with wallet filepath.
-    WALLET_FILEPATH = os.environ.get('DEMO_L2_WALLET_FILEPATH') or 'D:\\wangyi\\code\\code\\nulink\\keystore'
+    WALLET_FILEPATH = os.environ.get('DEMO_L2_WALLET_FILEPATH') or 'D:\\wangyi\\code\\code\\nulink\\keystore-0xdcf049d1a3770f17a64e622d88bfb67c67ee0e01'
     SIGNER_URI = f'keystore://{WALLET_FILEPATH}'
 
     # Replace with alice's ethereum address
@@ -90,7 +90,7 @@ connect_web3_provider(eth_provider_uri=L2_PROVIDER)
 # WARNING: Never give your mainnet password or mnemonic phrase to anyone.
 # Do not use mainnet keys, create a dedicated software wallet to use for this demo.
 wallet = Signer.from_signer_uri(SIGNER_URI)
-password = os.environ.get('DEMO_ALICE_PASSWORD') or getpass(f"Enter password to unlock Alice's wallet ({ALICE_ADDRESS[:8]}): ")
+password = 'qazwsxedc'  # os.environ.get('DEMO_ALICE_PASSWORD') or getpass(f"Enter password to unlock Alice's wallet ({ALICE_ADDRESS[:8]}): ")
 wallet.unlock_account(account=ALICE_ADDRESS, password=password)
 
 # This is Alice's payment method.
@@ -186,7 +186,8 @@ for counter, plaintext in enumerate(finnegans_wake):
     # Now Bob can retrieve the original message by requesting re-encryption from nodes.
     cleartexts = bob.retrieve_and_decrypt([message_kit],
                                           alice_verifying_key=alice_verifying_key,
-                                          encrypted_treasure_map=policy.treasure_map)
+                                          encrypted_treasure_map=policy.treasure_map,
+                                          cross_chain_hrac=policy.hrac)
 
     # We show that indeed this is the passage originally encrypted by Enrico.
     assert plaintext == cleartexts[0]

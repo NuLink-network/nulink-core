@@ -41,7 +41,7 @@ def generate_random_label() -> bytes:
     return bytes(random_label, encoding='utf-8')
 
 
-def retrieval_request_setup(enacted_policy, bob, alice,  original_message: bytes = None, encode_for_rest: bool = False) -> Tuple[Dict, MessageKit]:
+def retrieval_request_setup(enacted_policy, bob, alice, original_message: bytes = None, encode_for_rest: bool = False) -> Tuple[Dict, MessageKit]:
     treasure_map = bob._decrypt_treasure_map(enacted_policy.treasure_map,
                                              enacted_policy.publisher_verifying_key)
 
@@ -60,14 +60,18 @@ def retrieval_request_setup(enacted_policy, bob, alice,  original_message: bytes
                  retrieval_kits=[encode_bytes(RetrievalKitField, RetrievalKit.from_message_kit(message_kit))],
                  alice_verifying_key=encode_bytes(Key, alice.stamp.as_umbral_pubkey()),
                  bob_encrypting_key=encode_bytes(Key, bob.public_keys(DecryptingPower)),
-                 bob_verifying_key=encode_bytes(Key, bob.stamp.as_umbral_pubkey())),
+                 bob_verifying_key=encode_bytes(Key, bob.stamp.as_umbral_pubkey(), ),
+                 cross_chain_hrac=enacted_policy.hrac),
             message_kit)
 
 
 def retrieval_params_decode_from_rest(retrieval_params: Dict) -> Dict:
     decode_bytes = (lambda field, data: field()._deserialize(value=data, attr=None, data=None))
+
+    from nulink.policy.crosschain import CrossChainHRAC
     return dict(treasure_map=decode_bytes(TreasureMap, retrieval_params['treasure_map']),
                 retrieval_kits=[decode_bytes(RetrievalKitField, kit) for kit in retrieval_params['retrieval_kits']],
                 alice_verifying_key=decode_bytes(Key, retrieval_params['alice_verifying_key']),
                 bob_encrypting_key=decode_bytes(Key, retrieval_params['bob_encrypting_key']),
-                bob_verifying_key=decode_bytes(Key, retrieval_params['bob_verifying_key']))
+                bob_verifying_key=decode_bytes(Key, retrieval_params['bob_verifying_key']),
+                cross_chain_hrac=decode_bytes(CrossChainHRAC, retrieval_params['cross_chain_hrac']))

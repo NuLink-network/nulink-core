@@ -39,7 +39,9 @@ from nucypher_core.umbral import (
 from nulink.crypto.signing import InvalidSignature
 from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.network.nodes import Learner
+from nulink.policy.crosschain import CrossChainHRAC, CrossChainReencryptionRequest
 from nulink.policy.kits import RetrievalResult
+import traceback
 
 
 class RetrievalPlan:
@@ -213,11 +215,12 @@ class RetrievalClient:
 
     def _request_reencryption(self,
                               ursula: 'Ursula',
-                              reencryption_request: ReencryptionRequest,
+                              cross_reencryption_request: CrossChainReencryptionRequest,  # ReencryptionRequest,
                               alice_verifying_key: PublicKey,
                               policy_encrypting_key: PublicKey,
                               bob_encrypting_key: PublicKey,
-                              timeout=2
+                              timeout=3
+                              # timeout=115  # for test
                               ) -> Dict['Capsule', 'VerifiedCapsuleFrag']:
         """
         Sends a reencryption request to a single Ursula and processes the results.
@@ -227,8 +230,10 @@ class RetrievalClient:
 
         middleware = self._learner.network_middleware
 
+        reencryption_request: ReencryptionRequest = cross_reencryption_request.reencryption_request
+
         try:
-            response = middleware.reencrypt(ursula, bytes(reencryption_request), timeout)
+            response = middleware.reencrypt(ursula, bytes(cross_reencryption_request), timeout)
         except NodeSeemsToBeDown as e:
             # TODO: What to do here?  Ursula isn't supposed to be down.  NRN
             message = (f"Ursula ({ursula}) seems to be down "
@@ -243,7 +248,9 @@ class RetrievalClient:
                        f"Has access been revoked?")
             self.log.warn(message)
             raise RuntimeError(message) from e
-        except middleware.UnexpectedResponse:
+        except middleware.UnexpectedResponse as e:
+            message = (f"Ursula ({ursula}) reencrypt UnexpectedResponse e {e} stack: {traceback.format_exc()}")
+            self.log.info(message)
             raise  # TODO: Handle this
 
         try:
@@ -284,6 +291,7 @@ class RetrievalClient:
             alice_verifying_key: PublicKey,  # KeyFrag signer's key
             bob_encrypting_key: PublicKey,  # User's public key (reencryption target)
             bob_verifying_key: PublicKey,
+            cross_chain_hrac: CrossChainHRAC,
     ) -> List[RetrievalResult]:
 
         self._ensure_ursula_availability(treasure_map)
@@ -326,9 +334,11 @@ class RetrievalClient:
                     bob_verifying_key=bob_verifying_key,
                     publisher_verifying_key=treasure_map.publisher_verifying_key)
 
+                cross_chain_reencryption_request = CrossChainReencryptionRequest(reencryption_request, cross_chain_hrac)
+
                 try:
                     cfrags = self._request_reencryption(ursula=ursula,
-                                                        reencryption_request=reencryption_request,
+                                                        cross_reencryption_request=cross_chain_reencryption_request,  # reencryption_request,
                                                         alice_verifying_key=alice_verifying_key,
                                                         policy_encrypting_key=treasure_map.policy_encrypting_key,
                                                         bob_encrypting_key=bob_encrypting_key)

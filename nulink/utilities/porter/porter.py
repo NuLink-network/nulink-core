@@ -35,6 +35,7 @@ from nulink.control.controllers import JSONRPCController, WebController
 from nulink.crypto.powers import DecryptingPower
 from nulink.network.nodes import Learner
 from nulink.network.retrieval import RetrievalClient
+from nulink.policy.crosschain import CrossChainHRAC
 from nulink.policy.kits import RetrievalResult
 from nulink.policy.reservoir import (
     make_federated_staker_reservoir,
@@ -48,39 +49,21 @@ from nulink.utilities.porter.control.interfaces import PorterInterface
 
 nulink_workers: Dict = \
     {
-        # "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe": {
-        #     "checksum_address": "0xb8744F129682D28CbF00B2E815Efddd0DC867Dfe",
-        #     "uri": "https://47.245.98.245:9151",
-        #     "encrypting_key": "02291364b1e41f92a6968749cc0996fa57e3d824467a59a3339e26b7f33aba9d89"
+        # "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945": {
+        #     "checksum_address": "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945",
+        #     "uri": "https://8.222.155.168:9161",
+        #     "encrypting_key": "02ef211f67b0b2642fff17115dd2c4d486db6c09f3ff429c6860cdc6d011d84174"
         # },
-        # "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48": {
-        #     "checksum_address": "0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48",
-        #     "uri": "https://8.219.125.93:9151",
-        #     "encrypting_key": "026431a8389811defafdc32473bdfec972f6b1709f5bb64db0de68e71c988304da"
+        # "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18": {
+        #     "checksum_address": "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18",
+        #     "uri": "https://8.222.131.226:9161",
+        #     "encrypting_key": "02c9d6533a76ac97aadfcc23f0c7ac6bc4e4ab1040ed84f2b19ecf8d004338f13d"
         # },
-        # "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c": {
-        #     "checksum_address": "0xE9Dbe1B2D0207FB542C76a10c9686A67fb619F4c",
-        #     "uri": "https://47.245.109.34:9151",
-        #     "encrypting_key": "03514cd050db82f7e5271afa07562cdb89c6e8d75d85f131582bbc3c2a7fb8d4df"
+        # "0x37e134573AE74C212Aa47941C95b58265D437998": {
+        #     "checksum_address": "0x37e134573AE74C212Aa47941C95b58265D437998",
+        #     "uri": "https://8.222.146.98:9161",
+        #     "encrypting_key": "02ab3cb86393caec0b51f38bb2199d82ee21a26d510ee562ac85a815c2b6b96fa4"
         # }
-
-
-        "0x8a4471142f0d635D29BFd2634E1cD8f439677072": {
-                "checksum_address": "0x8a4471142f0d635D29BFd2634E1cD8f439677072",
-                "uri": "https://8.222.131.226:9151",
-                "encrypting_key": "037f6e0bb9456a0f7093ac1ca3a46365baf401c9d77807a34ccfc3b21862b89d9b"
-            },
-        "0x5058339Ca16a2ef04aFE34aaE507209A67B0c067":  {
-                "checksum_address": "0x5058339Ca16a2ef04aFE34aaE507209A67B0c067",
-                "uri": "https://8.222.146.98:9151",
-                "encrypting_key": "023dde62beba5e8cceed29b4e96fb1b9d67da06ff53ad0d3ae3e19eb4c5b5c86ae"
-            },
-        "0xC5FD9Ca4Ce6C8BBf0dA3355D8941E411638786C4":    {
-                "checksum_address": "0xC5FD9Ca4Ce6C8BBf0dA3355D8941E411638786C4",
-                "uri": "https://8.222.155.168:9151",
-                "encrypting_key": "02d76fa2b7058f6d8e69cd767c54694493ed6c77ebc9a301741045450834763cbf"
-            }
-
     }
 
 
@@ -280,10 +263,11 @@ the Pipe for PRE Application network operations
                         alice_verifying_key: PublicKey,
                         bob_encrypting_key: PublicKey,
                         bob_verifying_key: PublicKey,
+                        cross_chain_hrac: CrossChainHRAC,
                         ) -> List[RetrievalResult]:
         client = RetrievalClient(self)
         return client.retrieve_cfrags(treasure_map, retrieval_kits,
-                                      alice_verifying_key, bob_encrypting_key, bob_verifying_key)
+                                      alice_verifying_key, bob_encrypting_key, bob_verifying_key, cross_chain_hrac)
 
     def _make_reservoir(self,
                         quantity: int,

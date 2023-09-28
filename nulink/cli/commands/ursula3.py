@@ -536,7 +536,7 @@ if __name__ == '__main__':
     #     '--force',
     #     '--debug',
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-c95c2ba4234b2a3e1aa91d167ee1cb5f951a5945-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
     #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
@@ -549,13 +549,13 @@ if __name__ == '__main__':
     #     '--payment-network', 'bsc_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
     #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-    #     '--operator-address', '0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48',
+    #     '--operator-address', '0xc95c2ba4234b2a3e1aa91d167ee1cb5f951a5945',
     #     '--max-gas-price', '5000000'])
 
     import os
     #
 
-    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "12345678"
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"
     os.environ['NULINK_KEYSTORE_PASSWORD'] = "12345678"
     run([
         '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
@@ -564,7 +564,7 @@ if __name__ == '__main__':
         '--rest-port', '9153',
         # '--teacher', 'https://8.219.188.70:9151',
         # '--config-file', 'D:\\nulink_data\\ursula-02167957.json',
-        '--config-file', "D:\\nulink_data\\ursula-023f6adb.json",
+        '--config-file', "D:\\nulink_data\\ursula-0227c786.json",
         '--db-filepath', 'D:\\nulink_data',
         '--debug',
         # '--force',

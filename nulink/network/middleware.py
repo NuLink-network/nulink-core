@@ -118,6 +118,9 @@ class NulinkMiddlewareClient:
         if not kwargs.get("timeout"):
             if self.timeout:
                 kwargs["timeout"] = self.timeout
+        # if kwargs:  # for test
+        #     kwargs["verify"] = False
+
         response = method(url, *args, **kwargs)
         return response
 

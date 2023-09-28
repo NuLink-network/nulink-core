@@ -22,6 +22,7 @@ from nucypher_core import TreasureMap, RetrievalKit
 from nucypher_core.umbral import PublicKey
 
 from nulink.control.interfaces import ControlInterface, attach_schema
+from nulink.policy.crosschain import CrossChainHRAC
 from nulink.utilities.porter.control.specifications import porter_schema
 
 
@@ -76,12 +77,14 @@ class PorterInterface(ControlInterface):
                         alice_verifying_key: PublicKey,
                         bob_encrypting_key: PublicKey,
                         bob_verifying_key: PublicKey,
+                        cross_chain_hrac: CrossChainHRAC,
                         ) -> dict:
         retrieval_results = self.implementer.retrieve_cfrags(treasure_map=treasure_map,
                                                              retrieval_kits=retrieval_kits,
                                                              alice_verifying_key=alice_verifying_key,
                                                              bob_encrypting_key=bob_encrypting_key,
-                                                             bob_verifying_key=bob_verifying_key)
+                                                             bob_verifying_key=bob_verifying_key,
+                                                             cross_chain_hrac=cross_chain_hrac)
         results = retrieval_results  # list of RetrievalResult objects
         response_data = {'retrieval_results': results}
         return response_data
