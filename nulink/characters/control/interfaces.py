@@ -27,6 +27,7 @@ from nulink.characters.control.specifications import alice, bob, enrico
 from nulink.control.interfaces import attach_schema, ControlInterface
 from nulink.crypto.powers import DecryptingPower, SigningPower
 from nulink.network.middleware import RestMiddleware
+from nulink.policy.crosschain import CrossChainHRAC
 
 
 class CharacterPublicInterface(ControlInterface):
@@ -156,13 +157,15 @@ class BobInterface(CharacterPublicInterface):
     def retrieve_and_decrypt(self,
                              alice_verifying_key: PublicKey,
                              message_kits: List[MessageKit],
-                             encrypted_treasure_map: EncryptedTreasureMap) -> dict:
+                             encrypted_treasure_map: EncryptedTreasureMap,
+                             cross_chain_hrac: CrossChainHRAC) -> dict:
         """
         Character control endpoint for re-encrypting and decrypting policy data.
         """
         plaintexts = self.implementer.retrieve_and_decrypt(message_kits,
                                                            alice_verifying_key=alice_verifying_key,
-                                                           encrypted_treasure_map=encrypted_treasure_map)
+                                                           encrypted_treasure_map=encrypted_treasure_map,
+                                                           cross_chain_hrac=cross_chain_hrac)
 
         response_data = {'cleartexts': plaintexts}
         return response_data

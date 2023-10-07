@@ -32,6 +32,7 @@ def _policy_info_kwargs(enacted_policy):
     return dict(
         encrypted_treasure_map=enacted_policy.treasure_map,
         alice_verifying_key=enacted_policy.publisher_verifying_key,
+        cross_chain_hrac=enacted_policy.hrac,
         )
 
 

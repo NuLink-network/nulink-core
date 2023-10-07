@@ -84,7 +84,8 @@ for message_kit in message_kits:
     retrieved_plaintexts = doctor.retrieve_and_decrypt(
         [message_kit],
         alice_verifying_key=alices_sig_pubkey,
-        encrypted_treasure_map=treasure_map
+        encrypted_treasure_map=treasure_map,
+        cross_chain_hrac=policy_data["hrac"]
     )
     end = timer()
 

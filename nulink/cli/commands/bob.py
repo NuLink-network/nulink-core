@@ -408,7 +408,8 @@ def retrieve_and_decrypt(general_config,
     bob_request_data = {
         'alice_verifying_key': alice_verifying_key,
         'message_kits': message_kits,
-        'encrypted_treasure_map': treasure_map
+        'encrypted_treasure_map': treasure_map,
+        # 'cross_chain_hrac': policy.hrac # TODO: add hrac
     }
 
     response = BOB.controller.retrieve_and_decrypt(request=bob_request_data)

@@ -48,7 +48,8 @@ def test_federated_bob_full_retrieve_flow(federated_ursulas,
 
     delivered_cleartexts = federated_bob.retrieve_and_decrypt([the_message_kit],
                                                               alice_verifying_key=alices_verifying_key,
-                                                              encrypted_treasure_map=enacted_federated_policy.treasure_map)
+                                                              encrypted_treasure_map=enacted_federated_policy.treasure_map,
+                                                              cross_chain_hrac=enacted_federated_policy.hrac)
 
     # We show that indeed this is the passage originally encrypted by the Enrico.
     assert b"Welcome to flippering number 1." == delivered_cleartexts[0]
@@ -99,13 +100,15 @@ def test_bob_retrieves(federated_alice,
     # Bob takes the message_kit and retrieves the message within
     delivered_cleartexts = bob.retrieve_and_decrypt([message_kit],
                                                     alice_verifying_key=alices_verifying_key,
-                                                    encrypted_treasure_map=policy.treasure_map)
+                                                    encrypted_treasure_map=policy.treasure_map,
+                                                    cross_chain_hrac=policy.hrac)
 
     assert plaintext == delivered_cleartexts[0]
 
     cleartexts_delivered_a_second_time = bob.retrieve_and_decrypt([message_kit],
                                                                   alice_verifying_key=alices_verifying_key,
-                                                                  encrypted_treasure_map=policy.treasure_map)
+                                                                  encrypted_treasure_map=policy.treasure_map,
+                                                                  cross_chain_hrac=policy.hrac)
 
     # Indeed, they're the same cleartexts.
     assert delivered_cleartexts == cleartexts_delivered_a_second_time
@@ -118,7 +121,8 @@ def test_bob_retrieves(federated_alice,
     # even though this Policy has been revoked.  #892
     _cleartexts = bob.retrieve_and_decrypt([message_kit],
                                            alice_verifying_key=alices_verifying_key,
-                                           encrypted_treasure_map=policy.treasure_map)
+                                           encrypted_treasure_map=policy.treasure_map,
+                                           cross_chain_hrac=policy.hrac)
     assert _cleartexts == delivered_cleartexts  # TODO: 892
 
     bob.disenchant()
@@ -140,7 +144,8 @@ def test_bob_retrieves_with_treasure_map(
     text1 = federated_bob.retrieve_and_decrypt(
         [message_kit],
         alice_verifying_key=alice_verifying_key,
-        encrypted_treasure_map=treasure_map)
+        encrypted_treasure_map=treasure_map,
+        cross_chain_hrac=enacted_federated_policy.hrac)
 
     assert text1 == [b'Welcome to flippering number 2.']
 
@@ -165,5 +170,6 @@ def test_bob_retrieves_too_late(federated_bob,
     federated_bob.retrieve_and_decrypt(
         [message_kit],
         alice_verifying_key=alice_verifying_key,
-        encrypted_treasure_map=treasure_map
+        encrypted_treasure_map=treasure_map,
+        cross_chain_hrac=enacted_federated_policy.hrac
     )

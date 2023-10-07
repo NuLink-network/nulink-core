@@ -53,4 +53,5 @@ def test_try_to_post_free_service_by_hacking_enact(blockchain_ursulas,
     with pytest.raises(Ursula.NotEnoughUrsulas):  # Return a more descriptive request error?
         blockchain_bob.retrieve_and_decrypt([message_kit],
                                             alice_verifying_key=amonia.stamp.as_umbral_pubkey(),
-                                            encrypted_treasure_map=bupkiss_policy.treasure_map)
+                                            encrypted_treasure_map=bupkiss_policy.treasure_map,
+                                            cross_chain_hrac=bupkiss_policy.hrac)

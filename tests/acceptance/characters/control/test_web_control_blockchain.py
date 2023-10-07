@@ -329,7 +329,8 @@ def test_web_character_control_lifecycle(alice_web_controller_test_client,
     bob_request_data = {
         'alice_verifying_key': alice_verifying_key_hex,
         'message_kits': [encoded_message_kit],
-        'encrypted_treasure_map': alice_response_data['result']['treasure_map']
+        'encrypted_treasure_map': alice_response_data['result']['treasure_map'],
+        'cross_chain_hrac': alice_response_data['result']['hrac'],
     }
 
     # Give bob a node to remember
