@@ -52,17 +52,17 @@ nulink_workers: Dict = \
         # "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945": {
         #     "checksum_address": "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945",
         #     "uri": "https://8.222.155.168:9161",
-        #     "encrypting_key": "02ef211f67b0b2642fff17115dd2c4d486db6c09f3ff429c6860cdc6d011d84174"
+        #     "encrypting_key": "032aa6db627b3a4b527d4bbe74b8b82801fa287dddc30665b6d8d45292c60640ee"
         # },
         # "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18": {
         #     "checksum_address": "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18",
         #     "uri": "https://8.222.131.226:9161",
-        #     "encrypting_key": "02c9d6533a76ac97aadfcc23f0c7ac6bc4e4ab1040ed84f2b19ecf8d004338f13d"
+        #     "encrypting_key": "0317ea59b97b7114a4954229a6798ac1565c64f19ac66364fbba205c8ba008e948"
         # },
         # "0x37e134573AE74C212Aa47941C95b58265D437998": {
         #     "checksum_address": "0x37e134573AE74C212Aa47941C95b58265D437998",
         #     "uri": "https://8.222.146.98:9161",
-        #     "encrypting_key": "02ab3cb86393caec0b51f38bb2199d82ee21a26d510ee562ac85a815c2b6b96fa4"
+        #     "encrypting_key": "031addb934b01b8a373a8db2947156e664fe8ee2f6d723231cf972fa7cf6bb2059"
         # }
     }
 
