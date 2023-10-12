@@ -200,7 +200,7 @@ class Alice(Character, BlockchainPolicyAuthor):
         card = Card.from_character(self)
         return card
 
-    def add_active_policy(self, active_policy):
+    def add_active_policy(self, active_policy: 'EnactedPolicy'):
         """
         Adds a Policy object that is active on the NuLink network to Alice's
         `active_policies` dictionary by the policy ID.
@@ -1248,7 +1248,7 @@ class Ursula(Teacher, Character, Operator):
     # Re-Encryption
     #
 
-    def _decrypt_kfrag(self, encrypted_kfrag: EncryptedKeyFrag, hrac: HRAC,
+    def _decrypt_kfrag(self, encrypted_kfrag: EncryptedKeyFrag, hrac: HRAC, # hrac => treasure_map.hrac => HRAC
                        publisher_verifying_key: PublicKey) -> VerifiedKeyFrag:
         decrypting_power = self._crypto_power.power_ups(DecryptingPower)
         return decrypting_power.decrypt_kfrag(encrypted_kfrag, hrac, publisher_verifying_key)
