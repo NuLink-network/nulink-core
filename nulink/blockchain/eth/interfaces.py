@@ -584,7 +584,7 @@ class BlockchainInterface:
                             color='yellow')
 
         # to fix invalid sender: transaction_dict can only have ['value', 'nonce', 'from', 'gas', 'to', 'data']
-        to_be_singed_transaction = {_key: _value for _key, _value in transaction_dict.items() if _key in ['value', 'nonce', 'from', 'gas', 'to', 'data']}
+        to_be_singed_transaction = {_key: _value for _key, _value in transaction_dict.items() if _key in ['value', 'nonce', 'from', 'gas', 'to', 'data', 'chainId']}
         print(f"---------------------- transaction_dict: {json.dumps(transaction_dict)}-------------")
         print(f"---------------------- to_be_singed_transaction: {json.dumps(to_be_singed_transaction)}-------------")
         if 'gasPrice' not in to_be_singed_transaction:
