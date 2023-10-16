@@ -296,6 +296,9 @@ class RetrievalClient:
 
         self._ensure_ursula_availability(treasure_map)
 
+        if isinstance(cross_chain_hrac, str):
+            cross_chain_hrac = CrossChainHRAC.from_bytes(bytes.fromhex(cross_chain_hrac))
+
         retrieval_plan = RetrievalPlan(treasure_map=treasure_map, retrieval_kits=retrieval_kits)
         retrieval_worker_orders: Dict[ChecksumAddress, 'RetrievalWorkOrder'] = {}
         while True:

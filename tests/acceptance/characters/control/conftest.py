@@ -127,7 +127,7 @@ def retrieve_control_request(blockchain_alice, blockchain_bob, enacted_blockchai
         'alice_verifying_key': bytes(enacted_blockchain_policy.publisher_verifying_key).hex(),
         'message_kits': [b64encode(bytes(message_kit)).decode()],
         'encrypted_treasure_map': b64encode(bytes(enacted_blockchain_policy.treasure_map)).decode(),
-        'cross_chain_hrac': b64encode(bytes(enacted_blockchain_policy.hrac)).decode(),
+        'cross_chain_hrac': bytes(enacted_blockchain_policy.hrac).hex(),
     }
     return method_name, params
 
