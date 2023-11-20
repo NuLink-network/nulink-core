@@ -115,8 +115,6 @@ def bond(registry_filepath, eth_provider_uri, signer_uri, operator_address, stak
     # Checks
     #
 
-    # TODO: 让合约封装一个整体的方法, 就调用一个方法: 判断是否可以绑定，如果可以bond我这边就bond就行了
-    # 合约的这个方法判断所有东西(包括is_authorized，is_bonded，get_beneficiary所有逻辑)，这样子以后合约想改后台不用动
     # Check for authorization
     is_authorized(emitter=emitter, agent=agent, staking_provider=staking_provider)
 
