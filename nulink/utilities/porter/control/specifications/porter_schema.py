@@ -165,6 +165,7 @@ class BobRetrieveCFrags(BaseSchema):
 #
 # Staker Endpoints
 #
+
 class StakerGetUrsulasTotal(BaseSchema):
     # input
     return_list = base_fields.fields.Boolean(
@@ -176,6 +177,32 @@ class StakerGetUrsulasTotal(BaseSchema):
             '-l',
             help="whether to return the node list",
             type=click.BOOL, required=True))
+    # output
+    total = marshmallow_fields.Integer()
+    list = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSimpleSchema), dump_only=True)
+
+class StakerGetUrsulasPaging(BaseSchema):
+    # input
+    page_index = base_fields.fields.Int(
+        required=False,
+        load_only=True,
+        default=1,
+        click=click.option(
+            '--page_index',
+            '-i',
+            help="page_index: Starting from 1, page numbers, default: 1",
+            type=click.INT, required=True))
+
+    page_size = base_fields.fields.Int(
+        required=False,
+        load_only=True,
+        default=10,
+        click=click.option(
+            '--page_size',
+            '-s',
+            help="page_index: Number of entries per page, default: 10",
+            type=click.INT, required=True))
+
     # output
     total = marshmallow_fields.Integer()
     list = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSimpleSchema), dump_only=True)

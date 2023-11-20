@@ -249,9 +249,24 @@ the Pipe for PRE Application network operations
     def get_ursulas_total(self, return_list=False):
 
         if return_list:
-            return len(self.known_nodes), [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.uri} for node in self.known_nodes]
+            return len(self.known_nodes), [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in self.known_nodes]
         else:
             return len(self.known_nodes)
+
+    def get_ursula_paging_data(self, start_index: int = 0, end_index: int = 0):
+
+        if start_index > end_index:
+            start_index, end_index = end_index, start_index
+
+        date_len = len(self.known_nodes)
+        if start_index > date_len - 1:
+            return date_len, []
+        # sorted(list(self.known_nodes.addresses()))
+        node_list = [node for node in self.known_nodes]
+        if end_index < 0 or end_index >= date_len - 1:
+            return date_len, [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in node_list[start_index:]]
+        else:
+            return date_len, [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in node_list[start_index: end_index]]
 
     def get_current_version(self):
         from nulink import __version__
@@ -349,6 +364,12 @@ the Pipe for PRE Application network operations
         def get_ursulas_total() -> Response:
             """Porter control endpoint for get Ursulas total count."""
             response = controller(method_name='get_ursulas_total', control_request=request)
+            return response
+
+        @porter_flask_control.route('/ursulas/info', methods=['GET'])
+        def get_ursula_paging_data() -> Response:
+            """Porter control endpoint for get Ursulas total count."""
+            response = controller(method_name='get_ursula_paging_data', control_request=request)
             return response
 
         @porter_flask_control.route("/revoke", methods=['POST'])

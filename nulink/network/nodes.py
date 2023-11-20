@@ -830,9 +830,9 @@ class Learner:
             return RELAX
 
         try:
-            # announce_nodes: teacher node (current Ursula Node ) => class Ursula(Teacher, Character, Operator)
+            # announce_nodes: teacher node (current Ursula Node ) or children teacher node => class Ursula(Teacher, Character, Operator)
             # post /node_metadata  to teacher node, return the current_teacher's  all known nodes
-            response = self.network_middleware.get_nodes_via_rest(node=current_teacher,
+            response = self.network_middleware.get_nodes_via_rest(node=current_teacher,  # current_teacher is parent teacher node
                                                                   announce_nodes=announce_nodes,
                                                                   fleet_state_checksum=self.known_nodes.checksum)
         # These except clauses apply to the current_teacher itself, not the learned-about nodes.
@@ -910,6 +910,8 @@ class Learner:
 
             return FLEET_STATES_MATCH
 
+        # andi comment: announce_nodes is teacher node. Therefore, the configured ip address must be a public ip address
+        # andi comment: Here records the other teacher nodes obtained from the current teacher
         sprouts = [NodeSprout(node) for node in metadata_payload.announce_nodes]
 
         for sprout in sprouts:

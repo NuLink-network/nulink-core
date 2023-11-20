@@ -56,6 +56,20 @@ class PorterInterface(ControlInterface):
 
         return response_data
 
+    @attach_schema(porter_schema.StakerGetUrsulasPaging)
+    def get_ursula_paging_data(self, page_index: int = 1, page_size: int = 10) -> dict:
+        # "page_index", value = "Starting from 1, page numbers"
+        # "page_size", value = "Number of entries per page, default: 10"
+
+        page_index = 1 if page_index < 1 else page_index
+        page_size = 10 if page_size < 1 else page_size
+
+        start_index = (page_index - 1) * page_size
+        end_index = start_index + page_size
+        ret = self.implementer.get_ursula_paging_data(start_index, end_index)
+
+        return {"total": ret[0], 'list': ret[1]}
+
     @attach_schema(porter_schema.GetCurrentVersion)
     def get_current_version(self) -> dict:
         version = self.implementer.get_current_version()

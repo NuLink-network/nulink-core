@@ -1187,6 +1187,7 @@ class Ursula(Teacher, Character, Operator):
             e.args += (f"While trying to load seednode {seed_uri}",)
             e.crash_right_now = True
             raise
+
         real_host = certificate.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
 
         cls.log.info(f"try to get public node information from teacher {real_host}:{port} ...")
