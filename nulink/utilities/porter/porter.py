@@ -263,7 +263,7 @@ the Pipe for PRE Application network operations
             return date_len, []
         # sorted(list(self.known_nodes.addresses()))
         node_list = [node for node in self.known_nodes]
-        if end_index < 0 or end_index >= date_len - 1:
+        if end_index < 0 or end_index > date_len - 1:
             return date_len, [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in node_list[start_index:]]
         else:
             return date_len, [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in node_list[start_index: end_index]]
@@ -366,7 +366,7 @@ the Pipe for PRE Application network operations
             response = controller(method_name='get_ursulas_total', control_request=request)
             return response
 
-        @porter_flask_control.route('/ursulas/info', methods=['GET'])
+        @porter_flask_control.route('/ursulas/info', methods=['POST'])
         def get_ursula_paging_data() -> Response:
             """Porter control endpoint for get Ursulas total count."""
             response = controller(method_name='get_ursula_paging_data', control_request=request)
