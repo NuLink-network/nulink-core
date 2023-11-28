@@ -55,3 +55,11 @@ class UrsulaInfoSimpleSchema(BaseSchema):
     # maintain field declaration ordering
     class Meta:
         ordered = True
+
+
+class UrsulaUriSchema(BaseSchema):
+    """Schema for the result of sampling of Ursulas."""
+    uri = fields.URL()
+    # maintain field declaration ordering
+    class Meta:
+        ordered = True

@@ -253,6 +253,23 @@ the Pipe for PRE Application network operations
         else:
             return len(self.known_nodes)
 
+    def get_include_ursulas(self, include_ursulas=None):
+
+        if include_ursulas is None:
+            include_ursulas = []
+
+        date_len = len(self.known_nodes)
+        ret_list = []
+        for ursula_address in include_ursulas:
+            _ursula_address = to_checksum_address(ursula_address)
+            if _ursula_address not in self.known_nodes:
+                ret_list.append("")
+            else:
+                node = self.known_nodes[_ursula_address]
+                ret_list.append(node.rest_interface.formal_uri)
+
+        return date_len, ret_list
+
     def get_ursula_paging_data(self, start_index: int = 0, end_index: int = 0):
 
         if start_index > end_index:
@@ -360,7 +377,7 @@ the Pipe for PRE Application network operations
             response = controller(method_name='get_ursulas', control_request=request)
             return response
 
-        @porter_flask_control.route('/get_ursulas_total', methods=['GET'])
+        @porter_flask_control.route('/ursulas/total', methods=['GET'])
         def get_ursulas_total() -> Response:
             """Porter control endpoint for get Ursulas total count."""
             response = controller(method_name='get_ursulas_total', control_request=request)
@@ -370,6 +387,12 @@ the Pipe for PRE Application network operations
         def get_ursula_paging_data() -> Response:
             """Porter control endpoint for get Ursulas total count."""
             response = controller(method_name='get_ursula_paging_data', control_request=request)
+            return response
+
+        @porter_flask_control.route('/include/ursulas', methods=['POST'])
+        def get_include_ursulas() -> Response:
+            """Porter control endpoint for get Ursulas total count."""
+            response = controller(method_name='get_include_ursulas', control_request=request)
             return response
 
         @porter_flask_control.route("/revoke", methods=['POST'])

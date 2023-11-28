@@ -207,6 +207,27 @@ class StakerGetUrsulasPaging(BaseSchema):
     total = marshmallow_fields.Integer()
     list = marshmallow_fields.List(marshmallow_fields.Nested(fields.UrsulaInfoSimpleSchema), dump_only=True)
 
+class StakerGetUrsulas(BaseSchema):
+    # input
+    include_ursulas = base_fields.StringList(
+        fields.UrsulaChecksumAddress(),
+        click=click.option(
+            '--include-ursula',
+            '-i',
+            help="Ursula checksum address to include in sample",
+            multiple=True,
+            type=types.EIP55_CHECKSUM_ADDRESS,
+            required=False,
+            default=[]),
+        required=False,
+        load_only=True)
+
+
+    # output
+    total = marshmallow_fields.Integer()
+    list = marshmallow_fields.List(marshmallow_fields.String, dump_only=True)
+
+
 
 class GetCurrentVersion(BaseSchema):
     # output

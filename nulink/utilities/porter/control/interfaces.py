@@ -70,6 +70,14 @@ class PorterInterface(ControlInterface):
 
         return {"total": ret[0], 'list': ret[1]}
 
+    @attach_schema(porter_schema.StakerGetUrsulas)
+    def get_include_ursulas(self, include_ursulas=None) -> dict:
+        if include_ursulas is None:
+            include_ursulas = []
+        ret = self.implementer.get_include_ursulas(include_ursulas)
+        return {"total": ret[0], 'list': ret[1]}
+
+
     @attach_schema(porter_schema.GetCurrentVersion)
     def get_current_version(self) -> dict:
         version = self.implementer.get_current_version()
