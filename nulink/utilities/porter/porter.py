@@ -142,11 +142,11 @@ the Pipe for PRE Application network operations
         #                   uri=f"{ursula.rest_interface.formal_uri}",
         #                   encrypting_key=ursula.public_keys(DecryptingPower))
 
-        porter_ursula_worker_dict: Dict[ChecksumAddress, Porter.UrsulaInfo] = {to_checksum_address(checksum_address): Porter.UrsulaInfo(checksum_address=to_checksum_address(checksum_address),
+        porter_ursula_worker_dict: Dict[ChecksumAddress, Porter.UrsulaInfo] = {to_checksum_address(ursula_address): Porter.UrsulaInfo(checksum_address=to_checksum_address(ursula_address),
                                                                                                                                         uri=ursula_info["uri"],
                                                                                                                                         encrypting_key=PublicKey.from_bytes(
                                                                                                                                             bytes.fromhex(ursula_info["encrypting_key"])))
-                                                                               for checksum_address, ursula_info in nulink_workers.items()}
+                                                                               for ursula_address, ursula_info in nulink_workers.items()}
 
         porter_ursula_worker_dict = random_dic(porter_ursula_worker_dict)
 
@@ -155,7 +155,7 @@ the Pipe for PRE Application network operations
     @classmethod
     def get_nulink_worker_addresses(cls) -> Set[ChecksumAddress]:
 
-        return set([to_checksum_address(checksum_address) for checksum_address in nulink_workers.keys()])
+        return set([to_checksum_address(ursula_address) for ursula_address in nulink_workers.keys()])
 
     def get_enough_ursulas(self, worker_pool: WorkerPool) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
 
