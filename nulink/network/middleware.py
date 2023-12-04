@@ -308,8 +308,9 @@ class RestMiddleware:
         return response
 
     def check_availability(self, initiator, responder):
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
         response = self.client.post(node_or_sprout=responder,
-                                    data=bytes(initiator.metatada()),
+                                    data=bytes(initiator.metadata()) + split_symbol + bytes(__version__, 'utf-8'),
                                     path="check_availability",
                                     timeout=15,  # Two round trips are expected
                                     )

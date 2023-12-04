@@ -290,8 +290,29 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     @rest_app.route("/check_availability", methods=['POST'])
     def check_availability():
         """Asks this node: Can you access my public information endpoint?"""
+
+
+        split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+        # bytes(request) + split_symbol + bytes(__version__, 'utf-8')
+
+        bytes_list = request.data.split(split_symbol)
+        len_bytes_list = len(bytes_list)
+        if len_bytes_list == 1:
+            # Note The version of the requesting end is relatively early, return an empty node list, Indicates that we do not support the old version
+            return Response({'error': f'Invalid Ursula: Version mismatch, please upgrade your node version to {__version__}'}, status=HTTPStatus.BAD_REQUEST)
+        else:
+            # current len_bytes_list must be 2
+            assert len_bytes_list == 2
+            ursula_metadata_bytes, version_bytes = bytes_list
+            version_str = version_bytes.decode('utf-8')
+
+            if not check_version(version_str):
+                # Note The version of the requesting end is different from the current node version, return an empty node list, Indicates that we do not support the old version
+                return Response({'error': f'Invalid Ursula: Version {version_str} mismatch, please upgrade your node version to {__version__}'}, status=HTTPStatus.BAD_REQUEST)
+
+
         try:
-            requesting_ursula = Ursula.from_metadata_bytes(request.data)
+            requesting_ursula = Ursula.from_metadata_bytes(ursula_metadata_bytes)  # request.data)
             requesting_ursula.mature()
         except ValueError:
             return Response({'error': 'Invalid Ursula'}, status=HTTPStatus.BAD_REQUEST)

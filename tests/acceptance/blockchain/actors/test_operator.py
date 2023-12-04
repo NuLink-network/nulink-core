@@ -50,7 +50,7 @@ def test_work_tracker(mocker,
                       application_economics,
                       ursula_decentralized_test_config):
 
-    staker.initialize_stake(amount=NLK(application_economics.min_authorization, 'NlkUNit'),
+    staker.initialize_stake(amount=NLK(application_economics.min_authorization, 'NLKWei'),
                             lock_periods=int(application_economics.min_operator_seconds))
 
     # Get an unused address and create a new worker

@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import json
 import time
 from decimal import Decimal
@@ -26,8 +25,11 @@ import maya
 from constant_sorrow.constants import FULL
 from eth_typing import ChecksumAddress
 from hexbytes import HexBytes
+from nulink.blockchain.eth.signers.base import Signer
+
+from nulink.characters.banners import STAKEHOLDER_BANNER
 from web3 import Web3
-from web3.types import TxReceipt
+from web3.types import TxReceipt, Wei
 
 from nulink.acumen.nicknames import Nickname
 from nulink.blockchain.economics import Economics
@@ -35,10 +37,10 @@ from nulink.blockchain.eth.agents import (
     AdjudicatorAgent,
     ContractAgency,
     NulinkTokenAgent,
-    PREApplicationAgent
+    PREApplicationAgent, StakingPoolAgent
 )
 from nulink.blockchain.eth.constants import NULL_ADDRESS
-from nulink.blockchain.eth.decorators import save_receipt, validate_checksum_address
+from nulink.blockchain.eth.decorators import save_receipt, validate_checksum_address, only_me
 from nulink.blockchain.eth.deployers import (
     BaseContractDeployer,
     NuLinkTokenDeployer,
@@ -51,6 +53,7 @@ from nulink.blockchain.eth.token import NLK, WorkTracker
 from nulink.config.constants import DEFAULT_CONFIG_ROOT
 from nulink.control.emitters import StdoutEmitter
 from nulink.crypto.powers import TransactingPower
+from nulink.types import NLKWei
 from nulink.utilities.logging import Logger
 
 
@@ -137,8 +140,17 @@ class NulinkTokenActor(BaseActor):
     def token_balance(self) -> NLK:
         """Return this actor's current token balance"""
         balance = int(self.token_agent.get_balance(address=self.checksum_address))
-        nu_balance = NLK(balance, 'NlkUNits')
+        nu_balance = NLK(balance, 'NLKWei')
         return nu_balance
+
+    def get_allowance(self, spender: ChecksumAddress, owner: ChecksumAddress = None) -> NLKWei:
+        return self.token_agent.get_allowance(owner or self.checksum_address, spender)
+
+    @only_me
+    @save_receipt
+    def approve(self, amount: Wei, spender_address: ChecksumAddress) -> TxReceipt:
+        receipt = self.token_agent.approve_transfer(NLKWei(amount), spender_address, transacting_power=self.transacting_power)
+        return receipt
 
 
 class ContractAdministrator(BaseActor):
@@ -295,7 +307,6 @@ class ContractAdministrator(BaseActor):
 
 
 class Operator(BaseActor):
-
     READY_TIMEOUT = None  # (None or 0) == indefinite
     READY_POLL_RATE = 10
 
@@ -371,7 +382,7 @@ class Operator(BaseActor):
                 bonded = True
                 emitter.message(f"✓ Operator {self.operator_address} is bonded to staking provider {self.staking_provider_address}", color='green')
             else:
-                emitter.message(f"! Operator {self.operator_address } is not bonded to a staking provider", color='yellow')
+                emitter.message(f"! Operator {self.operator_address} is not bonded to a staking provider", color='yellow')
 
             time.sleep(poll_rate)
 
@@ -379,7 +390,99 @@ class Operator(BaseActor):
         def func(self):
             # we have not confirmed yet
             return not self.is_confirmed
+
         return func
+
+
+class Staker(NulinkTokenActor):
+    """
+    Baseclass for staking-related operations on the blockchain.
+    """
+
+    class StakerError(NulinkTokenActor.ActorError):
+        pass
+
+    class InsufficientTokens(StakerError):
+        pass
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.log = Logger("staker")
+        self.is_me = bool(self.transacting_power)
+        self._worker_address = None
+
+        # Blockchain
+        self.staking_agent = ContractAgency.get_agent(StakingPoolAgent, registry=self.registry)
+        self.application_agent = ContractAgency.get_agent(PREApplicationAgent, registry=self.registry)
+
+    def to_dict(self) -> dict:
+        worker_address = self.worker_address or NULL_ADDRESS
+        staker_funds = {'ETH': int(self.eth_balance), 'NLK': int(self.token_balance)}
+        staker_payload = {'staker': self.checksum_address,
+                          'balances': staker_funds,
+                          'worker': worker_address,
+                          }
+        return staker_payload
+
+    @only_me
+    @save_receipt
+    def approve_if_need(self, amount: NLKWei, owner: ChecksumAddress = None) -> TxReceipt or bool:
+        spender: ChecksumAddress = self.staking_agent.contract_address
+        allowance: NLKWei = self.get_allowance(spender, owner or self.checksum_address)
+
+        if allowance >= amount:
+            return True
+
+        receipt: TxReceipt = self.approve(amount, spender)
+        return receipt
+
+    @only_me
+    @save_receipt
+    def stake(self, stake_address: ChecksumAddress, value: Wei, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.stake(stake_address, value=value, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
+    @only_me
+    @save_receipt
+    def unstake_all(self, value: Wei, stake_address: ChecksumAddress = None) -> TxReceipt:
+        receipt = self.staking_agent.unstake_all(stake_address or self.checksum_address, transacting_power=self.transacting_power)
+        return receipt
+
+    def stakes(self, stake_address: ChecksumAddress = None) -> int:
+        return self.staking_agent.stakes(stake_address or self.checksum_address)
+
+    def get_min_stake_amount(self) -> Wei:
+        return self.staking_agent.min_stake_amount()
+
+    def get_max_stake_amount(self) -> Wei:
+        return self.staking_agent.max_stake_amount()
+
+    #
+    # Bonding with Worker
+    #
+    @only_me
+    @save_receipt
+    @validate_checksum_address
+    def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress = None) -> TxReceipt:
+        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, worker_address, transacting_power=self.transacting_power)
+        self._worker_address = worker_address
+        return receipt
+
+    @only_me
+    @save_receipt
+    def unbond_worker(self, stake_address: ChecksumAddress = None) -> TxReceipt:
+        receipt = self.application_agent.unbond_operator(stake_address or self.checksum_address, transacting_power=self.transacting_power)
+        self._worker_address = NULL_ADDRESS
+        return receipt
+
+    @property
+    def worker_address(self) -> str:
+        if not self._worker_address:
+            # TODO: This is broken for StakeHolder with different stakers - See #1358
+            worker_address = self.application_agent.get_operator_from_staking_provider(staker_address=self.checksum_address)
+            self._worker_address = worker_address
+
+        return self._worker_address
 
 
 class BlockchainPolicyAuthor(NulinkTokenActor):
@@ -419,3 +522,57 @@ class Investigator(NulinkTokenActor):
     def was_this_evidence_evaluated(self, evidence) -> bool:
         result = self.adjudicator_agent.was_this_evidence_evaluated(evidence=evidence)
         return result
+
+
+class StakeHolder:
+    banner = STAKEHOLDER_BANNER
+
+    class UnknownAccount(KeyError):
+        pass
+
+    def __init__(self,
+                 signer: Signer,
+                 registry: BaseContractRegistry,
+                 domain: str,
+                 initial_address: str = None,
+                 worker_data: dict = None):
+
+        self.worker_data = worker_data
+        self.log = Logger(f"stakeholder")
+        self.checksum_address = initial_address
+        self.registry = registry
+        self.domain = domain
+        self.staker = None
+        self.signer = signer
+
+        if initial_address:
+            # If an initial address was passed,
+            # it is safe to understand that it has already been used at a higher level.
+            if initial_address not in self.signer.accounts:
+                message = f"Account {initial_address} is not known by this Ethereum client. Is it a HW account? " \
+                          f"If so, make sure that your device is plugged in and you use the --hw-wallet flag."
+                raise self.UnknownAccount(message)
+            self.assimilate(checksum_address=initial_address)
+
+    @validate_checksum_address
+    def assimilate(self, checksum_address: ChecksumAddress, password: str = None) -> None:
+        original_form = self.checksum_address
+        staking_address = checksum_address
+        self.checksum_address = staking_address
+        self.staker = self.get_staker(checksum_address=staking_address)
+
+        if password:
+            self.signer.unlock_account(account=checksum_address, password=password)
+        new_form = self.checksum_address
+        self.log.info(f"Setting Staker from {original_form} to {new_form}.")
+
+    @validate_checksum_address
+    def get_staker(self, checksum_address: ChecksumAddress):
+        if checksum_address not in self.signer.accounts:
+            raise ValueError(f"{checksum_address} is not a known client account.")
+        transacting_power = TransactingPower(account=checksum_address, signer=self.signer)
+        staker = Staker(transacting_power=transacting_power,
+                        domain=self.domain,
+                        registry=self.registry)
+
+        return staker

@@ -17,12 +17,13 @@
 
 import os
 from pathlib import Path
-from typing import Optional, Type
+from typing import Optional, Type, Tuple
 
 import nuclick as click
 from tabulate import tabulate
 from web3.main import Web3
 
+from nulink.blockchain.eth.actors import StakeHolder, Staker
 from nulink.blockchain.eth.agents import ContractAgency, NulinkTokenAgent
 from nulink.blockchain.eth.interfaces import BlockchainInterfaceFactory
 from nulink.blockchain.eth.networks import NetworksInventory
@@ -37,7 +38,7 @@ from nulink.cli.literature import (
     SELECT_NETWORK,
     SELECTED_ACCOUNT,
     IGNORE_OLD_CONFIGURATION,
-    DEFAULT_TO_LONE_CONFIG_FILE
+    DEFAULT_TO_LONE_CONFIG_FILE, SELECT_STAKING_ACCOUNT_INDEX
 )
 from nulink.cli.painting.policies import paint_cards
 from nulink.config.base import CharacterConfiguration
@@ -113,8 +114,8 @@ def select_client_account(emitter,
         row = [account]
         if show_staking:
             staker = Staker(domain=network, checksum_address=account, registry=registry)
-            staker.refresh_stakes()
-            is_staking = 'Yes' if bool(staker.stakes) else 'No'
+
+            is_staking = 'Yes' if bool(staker.stakes()) else 'No'
             row.append(is_staking)
         if show_eth_balance:
             ether_balance = Web3.fromWei(blockchain.client.get_balance(account), 'ether')
@@ -135,6 +136,31 @@ def select_client_account(emitter,
     emitter.echo(SELECTED_ACCOUNT.format(choice=choice, chosen_account=chosen_account), color='blue')
     return chosen_account
 
+def select_client_account_for_staking(emitter: StdoutEmitter,
+                                      stakeholder: StakeHolder,
+                                      staking_address: Optional[str],
+                                      ) -> Tuple[str, str]:
+    """
+    Manages client account selection for stake-related operations.
+    It always returns a tuple of addresses: the first is the local client account and the second is the staking address.
+
+    When this is not a preallocation staker (which is the normal use case), both addresses are the same.
+    Otherwise, when the staker is a contract managed by a beneficiary account,
+    then the local client account is the beneficiary, and the staking address is the address of the staking contract.
+    """
+
+    if staking_address:
+        client_account = staking_address
+    else:
+        client_account = select_client_account(prompt=SELECT_STAKING_ACCOUNT_INDEX,
+                                               emitter=emitter,
+                                               registry=stakeholder.registry,
+                                               network=stakeholder.domain,
+                                               signer=stakeholder.signer)
+        staking_address = client_account
+    stakeholder.assimilate(client_account)
+
+    return client_account, staking_address
 
 def select_network(emitter: StdoutEmitter, network_type: str, message: Optional[str] = None) -> str:
     """Interactively select a network from nucypher networks inventory list"""

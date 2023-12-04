@@ -52,7 +52,7 @@ option_gas_price = click.option('--gas-price', help="Set a static gas price (in 
 option_gas_strategy = click.option('--gas-strategy', help="Operate with a specified gas price strategy", type=click.STRING)  # TODO: GAS_STRATEGY_CHOICES
 option_key_material = click.option('--key-material', help="A pre-secured hex-encoded secret to use for private key derivations", type=click.STRING)
 option_max_gas_price = click.option('--max-gas-price', help="Maximum acceptable gas price (in GWEI)", type=GWEI)
-option_hw_wallet = click.option('--hw-wallet/--no-hw-wallet')
+option_hw_wallet = click.option('--hw-wallet/--no-hw-wallet', default=False)
 option_light = click.option('--light', help="Indicate that node is light", is_flag=True, default=None)
 option_lonely = click.option('--lonely', help="Do not connect to seednodes", is_flag=True)
 option_min_stake = click.option('--min-stake', help="The minimum stake the teacher must have to be locally accepted.", type=STAKED_TOKENS_RANGE, default=MIN_AUTHORIZATION)
@@ -68,6 +68,7 @@ option_policy_registry_filepath = click.option('--policy-registry-filepath', hel
 option_shares = click.option('--shares', '-n', help="N-Total shares", type=click.INT)
 option_signer_uri = click.option('--signer', 'signer_uri', '-S', default=None, type=str)
 option_staking_provider = click.option('--staking-provider', help="Staking provider ethereum address", type=EIP55_CHECKSUM_ADDRESS, required=True)
+option_staking_address = click.option('--staking-address', help="Address of a NuCypher staker", type=EIP55_CHECKSUM_ADDRESS)
 option_teacher_uri = click.option('--teacher', 'teacher_uri', help="An Ursula URI to start learning from (seednode)", type=click.STRING)
 option_threshold = click.option('--threshold', '-m', help="M-Threshold KFrags", type=click.INT)
 option_treasure_map = click.option('--treasure-map', 'treasure_map', help="Encrypted treasure map as base64 for retrieval", type=click.STRING, required=True)
@@ -151,6 +152,15 @@ def option_policy_encrypting_key(required: bool = False):
         type=click.STRING,
         required=required)
 
+
+def option_provider_uri(default=None, required: bool = False):
+    return click.option(
+        '--provider', 'provider_uri',
+        help="Blockchain provider's URI i.e. 'file:///path/to/geth.ipc'",
+        type=click.STRING,
+        required=required,
+        default=default
+    )
 
 def option_eth_provider_uri(default=None, required: bool = False):
     return click.option(

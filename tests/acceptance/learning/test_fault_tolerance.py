@@ -148,7 +148,7 @@ def test_invalid_operators_tolerance(testerchain,
         testerchain.time_travel(periods=1)
 
     # The stake period has ended, and the staker wants her tokens back ("when lambo?").
-    # She withdraws up to the last penny (well, last NlkUNit, actually).
+    # She withdraws up to the last penny (well, last NLKWei, actually).
 
     idle_staker.mint()
     testerchain.time_travel(periods=1)

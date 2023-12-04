@@ -44,6 +44,8 @@ class ChecksumAddress(click.ParamType):
         else:
             return value
 
+    __name__ = 'checksum_address'
+
 
 class IPv4Address(click.ParamType):
     name = 'ipv4_address'
@@ -80,7 +82,7 @@ class DecimalType(click.ParamType):
 
 
 class DecimalRange(DecimalType):
-    name = 'decimal_range'
+    __name__ = name = 'decimal_range'
 
     def __init__(self, min=None, max=None, clamp=False):
         self.min = min

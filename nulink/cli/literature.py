@@ -30,6 +30,13 @@ DEVELOPMENT_MODE_WARNING = "WARNING: Running in Development mode"
 
 CONFIRM_SELECTED_ACCOUNT = "Selected {address} - Continue?"
 
+#
+# Staking
+#
+
+INSUFFICIENT_BALANCE_TO_CREATE = "Insufficient NLK for stake creation."
+
+STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE = "stake value {value} greater than NLK {balance} for stake creation."
 
 #
 # Blockchain
@@ -45,12 +52,13 @@ FEDERATED_WARNING = "WARNING: Running in Federated mode"
 
 PERIOD_ADVANCED_WARNING = "Current period advanced before the action could be completed. Please try again."
 
+SELECT_STAKING_ACCOUNT_INDEX = "Select index of staking account"
+
 #
 # Events
 #
 
 CONFIRM_OVERWRITE_EVENTS_CSV_FILE = "Overwrite existing CSV events file - {csv_file}?"
-
 
 #
 # Bonding
@@ -148,13 +156,13 @@ SUCCESSFUL_NEW_STAKEHOLDER_CONFIG = """
 Configured new stakeholder!
 Wrote JSON configuration to {filepath}
 
-* Review configuration     -> nulink stake config
-* View connected accounts  -> nulink stake accounts
-* Create a new stake       -> nulink stake create
+* Review configuration     -> nulink stake init
+* Stake NLK tokens         -> nulink stake create
 * Bond a worker            -> nulink stake bond-worker
-* List active stakes       -> nulink stake list
 
 """
+
+PROMPT_STAKE_CREATE_VALUE = "Enter stake value in NLK ({lower_limit} - {upper_limit})"
 
 IGNORE_OLD_CONFIGURATION = "Ignoring configuration file '{config_file}' - version is too old"
 

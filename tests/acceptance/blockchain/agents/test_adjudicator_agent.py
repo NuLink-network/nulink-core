@@ -76,7 +76,7 @@ def test_adjudicator_slashes(agency,
                     registry=test_registry,
                     transacting_power=tpower)
 
-    staker.initialize_stake(amount=NLK(locked_tokens, 'NlkUNit'),
+    staker.initialize_stake(amount=NLK(locked_tokens, 'NLKWei'),
                             lock_periods=application_economics.min_operator_seconds)
     assert staker.locked_tokens(periods=1) == locked_tokens
 

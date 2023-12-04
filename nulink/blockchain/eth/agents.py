@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import os
 import random
 import sys
@@ -40,7 +39,8 @@ from nulink.blockchain.eth.constants import (
     NULINK_TOKEN_CONTRACT_NAME,
     NULL_ADDRESS,
     SUBSCRIPTION_MANAGER_CONTRACT_NAME,
-    PRE_APPLICATION_CONTRACT_NAME
+    PRE_APPLICATION_CONTRACT_NAME,
+    STAKING_POOL_CONTRACT_NAME
 )
 from nulink.blockchain.eth.decorators import contract_api
 from nulink.blockchain.eth.events import ContractEvents
@@ -54,7 +54,7 @@ from nulink.crypto.powers import TransactingPower
 from nulink.crypto.utils import sha256_digest
 from nulink.types import (
     Agent,
-    NlkUNits,
+    NLKWei,
     StakingProviderInfo,
 )
 from nulink.utilities.logging import Logger  # type: ignore
@@ -143,25 +143,24 @@ class EthereumContractAgent:
 
 
 class NulinkTokenAgent(EthereumContractAgent):
-
     contract_name: str = NULINK_TOKEN_CONTRACT_NAME
 
-    def get_balance(self, address: ChecksumAddress) -> NlkUNits:
+    def get_balance(self, address: ChecksumAddress) -> NLKWei:
         """Get the NLK balance (in NLKNits) of a token holder address, or of this contract address"""
         balance: int = self.contract.functions.balanceOf(address).call()
-        return NlkUNits(balance)
+        return NLKWei(balance)
 
     @contract_api(CONTRACT_CALL)
-    def get_allowance(self, owner: ChecksumAddress, spender: ChecksumAddress) -> NlkUNits:
+    def get_allowance(self, owner: ChecksumAddress, spender: ChecksumAddress) -> NLKWei:
         """Check the amount of tokens that an owner allowed to a spender"""
         allowance: int = self.contract.functions.allowance(owner, spender).call()
-        return NlkUNits(allowance)
+        return NLKWei(allowance)
 
     @contract_api(TRANSACTION)
     def increase_allowance(self,
                            transacting_power: TransactingPower,
                            spender_address: ChecksumAddress,
-                           increase: NlkUNits
+                           increase: NLKWei
                            ) -> TxReceipt:
         """Increase the allowance of a spender address funded by a sender address"""
         contract_function: ContractFunction = self.contract.functions.increaseAllowance(spender_address, increase)
@@ -173,7 +172,7 @@ class NulinkTokenAgent(EthereumContractAgent):
     def decrease_allowance(self,
                            transacting_power: TransactingPower,
                            spender_address: ChecksumAddress,
-                           decrease: NlkUNits
+                           decrease: NLKWei
                            ) -> TxReceipt:
         """Decrease the allowance of a spender address funded by a sender address"""
         contract_function: ContractFunction = self.contract.functions.decreaseAllowance(spender_address, decrease)
@@ -183,14 +182,14 @@ class NulinkTokenAgent(EthereumContractAgent):
 
     @contract_api(TRANSACTION)
     def approve_transfer(self,
-                         amount: NlkUNits,
+                         amount: NLKWei,
                          spender_address: ChecksumAddress,
                          transacting_power: TransactingPower
                          ) -> TxReceipt:
         """Approve the spender address to transfer an amount of tokens on behalf of the sender address"""
         self._validate_zero_allowance(amount, spender_address, transacting_power)
 
-        payload: TxParams = {'gas': Wei(500_000)}  # TODO #842: gas needed for use with geth! <<<< Is this still open?
+        payload: TxParams = {'gas': Wei(500_000)}  # gas is gas_limit  # TODO #842: gas needed for use with geth! <<<< Is this still open?
         contract_function: ContractFunction = self.contract.functions.approve(spender_address, amount)
         receipt: TxReceipt = self.blockchain.send_transaction(contract_function=contract_function,
                                                               payload=payload,
@@ -198,7 +197,7 @@ class NulinkTokenAgent(EthereumContractAgent):
         return receipt
 
     @contract_api(TRANSACTION)
-    def transfer(self, amount: NlkUNits, target_address: ChecksumAddress, transacting_power: TransactingPower) -> TxReceipt:
+    def transfer(self, amount: NLKWei, target_address: ChecksumAddress, transacting_power: TransactingPower) -> TxReceipt:
         """Transfer an amount of tokens from the sender address to the target address."""
         contract_function: ContractFunction = self.contract.functions.transfer(target_address, amount)
         receipt: TxReceipt = self.blockchain.send_transaction(contract_function=contract_function,
@@ -207,7 +206,7 @@ class NulinkTokenAgent(EthereumContractAgent):
 
     @contract_api(TRANSACTION)
     def approve_and_call(self,
-                         amount: NlkUNits,
+                         amount: NLKWei,
                          target_address: ChecksumAddress,
                          transacting_power: TransactingPower,
                          call_data: bytes = b'',
@@ -233,8 +232,8 @@ class NulinkTokenAgent(EthereumContractAgent):
 
 
 class SubscriptionManagerAgent(EthereumContractAgent):
-
     contract_name: str = SUBSCRIPTION_MANAGER_CONTRACT_NAME
+
     # TODO: A future deployment of SubscriptionManager may have a proxy.
     #  _proxy_name: str = DISPATCHER_CONTRACT_NAME
 
@@ -303,7 +302,6 @@ class SubscriptionManagerAgent(EthereumContractAgent):
 
 
 class AdjudicatorAgent(EthereumContractAgent):
-
     contract_name: str = ADJUDICATOR_CONTRACT_NAME
     _proxy_name: str = DISPATCHER_CONTRACT_NAME
 
@@ -354,17 +352,17 @@ class AdjudicatorAgent(EthereumContractAgent):
         return self.contract.functions.rewardCoefficient().call()
 
     @contract_api(CONTRACT_CALL)
-    def penalty_history(self, staker_address: str) -> int:
-        return self.contract.functions.penaltyHistory(staker_address).call()
+    def penalty_history(self, stake_address: str) -> int:
+        return self.contract.functions.penaltyHistory(stake_address).call()
 
     @contract_api(CONTRACT_CALL)
     def slashing_parameters(self) -> Tuple[int, ...]:
         parameter_signatures = (
-            'hashAlgorithm',                    # Hashing algorithm
-            'basePenalty',                      # Base for the penalty calculation
-            'penaltyHistoryCoefficient',        # Coefficient for calculating the penalty depending on the history
-            'percentagePenaltyCoefficient',     # Coefficient for calculating the percentage penalty
-            'rewardCoefficient',                # Coefficient for calculating the reward
+            'hashAlgorithm',  # Hashing algorithm
+            'basePenalty',  # Base for the penalty calculation
+            'penaltyHistoryCoefficient',  # Coefficient for calculating the penalty depending on the history
+            'percentagePenaltyCoefficient',  # Coefficient for calculating the percentage penalty
+            'rewardCoefficient',  # Coefficient for calculating the reward
         )
 
         def _call_function_by_name(name: str) -> int:
@@ -375,7 +373,6 @@ class AdjudicatorAgent(EthereumContractAgent):
 
 
 class PREApplicationAgent(EthereumContractAgent):
-
     contract_name: str = PRE_APPLICATION_CONTRACT_NAME
 
     DEFAULT_PROVIDERS_PAGINATION_SIZE_LIGHT_NODE = int(os.environ.get(NULINK_ENVVAR_STAKING_PROVIDERS_PAGINATION_SIZE_LIGHT_NODE, default=30))
@@ -459,7 +456,7 @@ class PREApplicationAgent(EthereumContractAgent):
             yield address
 
     @contract_api(CONTRACT_CALL)
-    def get_all_active_staking_providers(self, pagination_size: Optional[int] = None) -> Tuple[NlkUNits, Dict[ChecksumAddress, NlkUNits]]:
+    def get_all_active_staking_providers(self, pagination_size: Optional[int] = None) -> Tuple[NLKWei, Dict[ChecksumAddress, NLKWei]]:
 
         if pagination_size is None:
             pagination_size = self.DEFAULT_PROVIDERS_PAGINATION_SIZE_LIGHT_NODE if self.blockchain.is_light else self.DEFAULT_PROVIDERS_PAGINATION_SIZE
@@ -506,10 +503,10 @@ class PREApplicationAgent(EthereumContractAgent):
         def checksum_address(address: int) -> ChecksumAddress:
             return ChecksumAddress(to_checksum_address(address.to_bytes(ETH_ADDRESS_BYTE_LENGTH, 'big')))
 
-        typed_staking_providers = {checksum_address(address): NlkUNits(authorized_tokens)
+        typed_staking_providers = {checksum_address(address): NLKWei(authorized_tokens)
                                    for address, authorized_tokens in staking_providers.items()}
 
-        return NlkUNits(n_tokens), typed_staking_providers
+        return NLKWei(n_tokens), typed_staking_providers
 
     def get_staking_provider_reservoir(self,
                                        without: Iterable[ChecksumAddress] = None,
@@ -558,6 +555,121 @@ class PREApplicationAgent(EthereumContractAgent):
                                                    transacting_power=transacting_power)
         return receipt
 
+    @contract_api(TRANSACTION)
+    def unbond_operator(self, staking_provider: ChecksumAddress, transacting_power: TransactingPower) -> TxReceipt:
+        """For use by threshold operator accounts only."""
+
+        return self.bond_operator(staking_provider, to_checksum_address('0x0000000000000000000000000000000000000000'), transacting_power)
+
+
+class StakingPoolAgent(EthereumContractAgent):
+    contract_name: str = STAKING_POOL_CONTRACT_NAME
+
+    # TODO: A future deployment of SubscriptionManager may have a proxy.
+    #  _proxy_name: str = DISPATCHER_CONTRACT_NAME
+
+    #
+    # Calls
+    #
+
+    # Get the amount of money staked
+    @contract_api(CONTRACT_CALL)
+    def stakes(self, stake_address: ChecksumAddress) -> Wei:
+        result = self.contract.functions.stakes(stake_address).call()
+        return Wei(result)
+
+    # Get the amount of money staked
+    @contract_api(CONTRACT_CALL)
+    def min_stake_amount(self) -> Wei:
+        result = self.contract.functions.minStakingAmount().call()
+        return Wei(result)
+
+    @contract_api(CONTRACT_CALL)
+    def max_stake_amount(self) -> Wei:
+        result = self.contract.functions.maxStakingAmount().call()
+        return Wei(result)
+
+    #
+    # Transactions
+    #
+    @contract_api(TRANSACTION)
+    def stake(self,
+              stake_address: ChecksumAddress,
+              value: Wei,
+              transacting_power: TransactingPower,
+              beneficiary_address: Optional[ChecksumAddress] = None,
+              authorizer_address: Optional[ChecksumAddress] = None,
+              gas_price: Wei = None) -> TxReceipt:
+        beneficiary_address = beneficiary_address or stake_address or transacting_power.account
+        authorizer_address = authorizer_address or stake_address or transacting_power.account
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.stake(
+            stake_address,
+            beneficiary_address,
+            authorizer_address,
+            int(value)
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def unstake_all(self,
+                    stake_address: ChecksumAddress,
+                    transacting_power: TransactingPower,
+                    ) -> TxReceipt:
+        payload: TxParams = {}
+        contract_function: ContractFunction = self.contract.functions.unstakeAll(
+            stake_address,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def claim(self,
+              stake_address: ChecksumAddress,
+              transacting_power: TransactingPower,
+              ) -> TxReceipt:
+        payload: TxParams = {}
+        contract_function: ContractFunction = self.contract.functions.claim(
+            stake_address,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def claim_reward(self,
+                     stake_address: ChecksumAddress,
+                     transacting_power: TransactingPower,
+                     ) -> TxReceipt:
+        payload: TxParams = {}
+        contract_function: ContractFunction = self.contract.functions.claimReward(
+            stake_address,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
 
 class ContractAgency:
     """Where agents live and die."""
@@ -598,6 +710,9 @@ class ContractAgency:
             name = "NuLinkToken"
         if name == PRE_APPLICATION_CONTRACT_NAME:
             name = "PREApplication"  # TODO not needed once full PRE Application is used
+        if name == STAKING_POOL_CONTRACT_NAME:
+            name = "StakingPool"  # TODO not needed once full PRE Application is used
+
         agent_name = f"{name}Agent"
         return agent_name
 

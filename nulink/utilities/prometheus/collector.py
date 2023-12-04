@@ -175,7 +175,7 @@ class StakerMetricsCollector(BaseMetricsCollector):
         self.metrics = {
             "current_period_gauge": Gauge(f'{metrics_prefix}_current_period', 'Current period', registry=registry),
             "eth_balance_gauge": Gauge(f'{metrics_prefix}_staker_eth_balance', 'Ethereum balance', registry=registry),
-            "token_balance_gauge": Gauge(f'{metrics_prefix}_staker_token_balance', 'NlkUNit balance', registry=registry),
+            "token_balance_gauge": Gauge(f'{metrics_prefix}_staker_token_balance', 'NLKWei balance', registry=registry),
             "substakes_count_gauge": Gauge(f'{metrics_prefix}_substakes_count', 'Substakes count', registry=registry),
             "active_stake_gauge": Gauge(f'{metrics_prefix}_active_stake', 'Active stake', registry=registry),
             "unlocked_tokens_gauge": Gauge(f'{metrics_prefix}_unlocked_tokens',
@@ -227,7 +227,7 @@ class OperatorMetricsCollector(BaseMetricsCollector):
                                               'Operator Ethereum balance',
                                               registry=registry),
             "worker_token_balance_gauge": Gauge(f'{metrics_prefix}_worker_token_balance',
-                                                'Operator NlkUNit balance',
+                                                'Operator NLKWei balance',
                                                 registry=registry),
         }
 

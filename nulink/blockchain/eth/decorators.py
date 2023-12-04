@@ -30,6 +30,8 @@ from typing import Callable, Optional, Union
 
 from nulink.types import ContractReturnValue
 from nulink.utilities.logging import Logger
+from web3.datastructures import AttributeDict
+
 
 ContractInterfaces = Union[
     CONTRACT_CALL,
@@ -37,7 +39,6 @@ ContractInterfaces = Union[
     CONTRACT_ATTRIBUTE,
     UNKNOWN_CONTRACT_INTERFACE
 ]
-
 
 __VERIFIED_ADDRESSES = set()
 
@@ -109,21 +110,27 @@ def validate_checksum_address(func: Callable) -> Callable:
 
 def only_me(func: Callable) -> Callable:
     """Decorator to enforce invocation of permissioned actor methods"""
+
     @functools.wraps(func)
     def wrapped(actor=None, *args, **kwargs):
         if not actor.is_me:
             raise actor.ActorError("You are not {}".format(actor.__class.__.__name__))
         return func(actor, *args, **kwargs)
+
     return wrapped
 
 
 def save_receipt(actor_method) -> Callable:  # TODO: rename to "save_result"?
     """Decorator to save the result of a function with a timestamp"""
+
     @functools.wraps(actor_method)
     def wrapped(self, *args, **kwargs) -> dict:
         receipt_or_txhash = actor_method(self, *args, **kwargs)
-        self._saved_receipts.append((datetime.utcnow(), receipt_or_txhash))
+        if isinstance(receipt_or_txhash, (dict, AttributeDict)):  # (dict, TxReceipt) TypeError: TypedDict does not support instance and class checks
+            self._saved_receipts.append((datetime.utcnow(), receipt_or_txhash))
+
         return receipt_or_txhash
+
     return wrapped
 
 

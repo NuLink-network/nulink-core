@@ -22,7 +22,7 @@ from eth_typing.evm import ChecksumAddress
 from web3.types import Wei, TxReceipt
 
 ERC20UNits = NewType("ERC20UNits", int)
-NlkUNits = NewType("NlkNits", ERC20UNits)
+NLKWei = NewType("NLKWei", ERC20UNits)
 
 Work = NewType("Work", int)
 Agent = TypeVar('Agent', bound='EthereumContractAgent')

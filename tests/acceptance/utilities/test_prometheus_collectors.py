@@ -147,8 +147,8 @@ def test_worker_metrics_collector(test_registry, blockchain_ursulas):
     worker_eth = collector_registry.get_sample_value(f'{prefix}_worker_eth_balance')
     assert worker_eth == float(ursula.eth_balance)
 
-    worker_nlkunits = collector_registry.get_sample_value(f'{prefix}_worker_token_balance')
-    assert worker_nlkunits == float(int(ursula.token_balance))
+    worker_nlkwei = collector_registry.get_sample_value(f'{prefix}_worker_token_balance')
+    assert worker_nlkwei == float(int(ursula.token_balance))
 
 
 @pytest.mark.skip()

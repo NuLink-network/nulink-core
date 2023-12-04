@@ -66,7 +66,7 @@ from nulink.blockchain.eth.agents import ContractAgency, PREApplicationAgent
 from nulink.blockchain.eth.interfaces import BlockchainInterfaceFactory
 from nulink.blockchain.eth.registry import BaseContractRegistry
 from nulink.blockchain.eth.signers.software import Web3Signer
-from nulink.characters.banners import ALICE_BANNER, BOB_BANNER, ENRICO_BANNER, URSULA_BANNER
+from nulink.characters.banners import ALICE_BANNER, BOB_BANNER, ENRICO_BANNER, URSULA_BANNER, STAKEHOLDER_BANNER
 from nulink.characters.base import Character, Learner
 from nulink.characters.control.interfaces import AliceInterface, BobInterface, EnricoInterface
 from nulink.cli.processes import UrsulaCommandProtocol
@@ -95,6 +95,7 @@ from nulink.policy.policies import Policy, BlockchainPolicy, FederatedPolicy
 from nulink.utilities.logging import Logger
 from nulink.utilities.networking import validate_operator_ip
 from nulink.policy.crosschain import CrossChainHRAC
+
 
 class Alice(Character, BlockchainPolicyAuthor):
     banner = ALICE_BANNER
@@ -1426,3 +1427,45 @@ class Enrico(Character):
             return Response(json.dumps(response_data), status=HTTPStatus.OK)
 
         return controller
+
+
+class Staker(Character):
+    """A Character that represents a Data Source that encrypts data for some policy's public key"""
+
+    banner = STAKEHOLDER_BANNER
+    _default_crypto_powerups = [TransactingPower]
+
+    def __init__(self,
+                 *args, **kwargs):
+
+        # Enrico never uses the blockchain (hence federated_only)
+        kwargs['federated_only'] = True
+        kwargs['known_node_class'] = None
+        super().__init__(*args, **kwargs)
+
+
+
+        self.log = Logger(f'{self.__class__.__name__}-{bytes(self.public_keys(SigningPower)).hex()[:6]}')
+
+
+    def encrypt_message(self, plaintext: bytes) -> MessageKit:
+        # TODO: #2107 Rename to "encrypt"
+        message_kit = MessageKit(policy_encrypting_key=self.policy_pubkey,
+                                 plaintext=plaintext)
+        return message_kit
+
+    @classmethod
+    def from_alice(cls, alice: Alice, label: bytes):
+        """
+        :param alice: Not a stranger.  This is your Alice who will derive the policy keypair, leaving Enrico with the public part.
+        :param label: The label with which to derive the key.
+        :return:
+        """
+        policy_pubkey_enc = alice.get_policy_encrypting_key_from_label(label)
+        return cls(policy_encrypting_key=policy_pubkey_enc)
+
+    @property
+    def policy_pubkey(self):
+        if not self._policy_pubkey:
+            raise TypeError("This Enrico doesn't know which policy encrypting key he used.  Oh well.")
+        return self._policy_pubkey

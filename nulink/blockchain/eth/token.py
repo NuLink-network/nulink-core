@@ -31,7 +31,7 @@ from twisted.internet import reactor, task
 from web3.exceptions import TransactionNotFound
 
 from nulink.blockchain.eth.constants import AVERAGE_BLOCK_TIME_IN_SECONDS, NULL_ADDRESS
-from nulink.types import ERC20UNits, NlkUNits
+from nulink.types import ERC20UNits, NLKWei, NLKWei
 from nulink.utilities.gas_strategies import EXPECTED_CONFIRMATION_TIME_IN_SECONDS
 from nulink.utilities.logging import Logger
 
@@ -44,7 +44,7 @@ class ERC20:
     The easiest way to use ERC20, is to pass an int, Decimal, or str, and denomination string:
 
     Int:    nlk = NLK(100, 'NLK')
-    Int:    nlk = NLK(15000000000000000000000, 'NlkUNits')
+    Int:    nlk = NLK(15000000000000000000000, 'NLKWei')
 
     Decimal:  nlk = NLK(Decimal('15042.445'), 'NLK')
     String: nlk = NLK('10002.302', 'NLK')
@@ -161,9 +161,9 @@ class ERC20:
 
 class NLK(ERC20):
     _symbol = 'NLK'
-    _denominations = {'NlkNit': 'wei', 'NLK': 'ether'}
-    _unit_name = 'NlkNit'
-    _unit = NlkUNits
+    _denominations = {'NLKWei': 'wei', 'NLK': 'ether'}
+    _unit_name = 'NLKWei'
+    _unit = NLKWei
 
 
 class WorkTrackerBase:

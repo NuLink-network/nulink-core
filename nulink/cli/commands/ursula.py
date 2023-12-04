@@ -535,6 +535,7 @@ if __name__ == '__main__':
     #     '--rest-port', '9151',
     #     '--force',
     #     '--debug',
+    #     # '--availability-check', # don't open, ursula is stopped if the current ursula availability check does not pass
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
     #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-4f09ea918210dc8422299bd0e94eefe78c30ec18-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,

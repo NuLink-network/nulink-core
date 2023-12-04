@@ -2,7 +2,7 @@
   [
     "NuLinkToken",
     "v0.0.0",
-    "0xddb5fBCb240691a43c01ed58bec1aa9B13eBa3e6",
+    "0xf1e07Fa27Fd56D642c498954c51a777872D7d7e4",
     [
       {
         "inputs": [],
@@ -487,33 +487,49 @@
   [
     "NuLinkStakingPool",
     "v0.0.0",
-    "0x35169869d89A3844D8872474E0D395D26f647eE7",
+    "0xA3C0323E421cC64e64d5eF50e2C5587A6461Be53",
     [
       {
         "inputs": [
           {
-            "internalType": "contract INulLinkToken",
-            "name": "_nlk",
+            "internalType": "contract IAddressController",
+            "name": "_addrCtrl",
             "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_PerBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_startBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_decayRatio",
-            "type": "uint256"
           }
         ],
         "stateMutability": "nonpayable",
         "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "_user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
+          }
+        ],
+        "name": "Claim",
+        "type": "event"
       },
       {
         "anonymous": false,
@@ -535,59 +551,15 @@
             "internalType": "uint256",
             "name": "time",
             "type": "uint256"
-          }
-        ],
-        "name": "Claim",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "uint256",
-            "name": "pid",
-            "type": "uint256"
           },
           {
             "indexed": false,
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "_lastEpoch",
+            "type": "uint16"
           }
         ],
-        "name": "Deposit",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "uint256",
-            "name": "pid",
-            "type": "uint256"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "name": "EmergencyWithdraw",
+        "name": "ClaimReward",
         "type": "event"
       },
       {
@@ -681,6 +653,12 @@
             "internalType": "uint256",
             "name": "time",
             "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
           }
         ],
         "name": "Stake",
@@ -706,42 +684,23 @@
             "internalType": "uint256",
             "name": "time",
             "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
           }
         ],
         "name": "UnstakeAll",
         "type": "event"
       },
       {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "uint256",
-            "name": "pid",
-            "type": "uint256"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "name": "Withdraw",
-        "type": "event"
-      },
-      {
         "inputs": [],
-        "name": "HOSTTOKEN",
+        "name": "addrCtrl",
         "outputs": [
           {
-            "internalType": "address",
+            "internalType": "contract IAddressController",
             "name": "",
             "type": "address"
           }
@@ -753,85 +712,11 @@
         "inputs": [
           {
             "internalType": "address",
-            "name": "",
+            "name": "_stakingProvider",
             "type": "address"
           }
         ],
-        "name": "LpOfPid",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "PerBlock",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_allocPoint",
-            "type": "uint256"
-          },
-          {
-            "internalType": "contract IERC20",
-            "name": "_lpToken",
-            "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "_withUpdate",
-            "type": "bool"
-          }
-        ],
-        "name": "add",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "spareCount",
-            "type": "uint256"
-          }
-        ],
-        "name": "batchPrepareRewardTable",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "stakingProvider",
-            "type": "address"
-          }
-        ],
-        "name": "bondDeposit",
+        "name": "calcUserReward",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -840,95 +725,24 @@
         "inputs": [
           {
             "internalType": "address",
-            "name": "stakingProvider",
+            "name": "_stakingProvider",
             "type": "address"
           }
         ],
-        "name": "bondWithdraw",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "caller",
-        "outputs": [
-          {
-            "internalType": "bool",
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
         "name": "claim",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
       },
       {
-        "inputs": [],
-        "name": "decayPeriod",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "decayRatio",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [
           {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
+            "internalType": "address",
+            "name": "_stakingProvider",
+            "type": "address"
           }
         ],
-        "name": "decayTable",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_pid",
-            "type": "uint256"
-          }
-        ],
-        "name": "emergencyWithdraw",
+        "name": "claimReward",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -936,55 +750,77 @@
       {
         "inputs": [
           {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "name": "epochInfo",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "totalUser",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalEpochAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalValidStakingAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "finishSetLiveRatio",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCurrentEpoch",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_time",
+            "type": "uint256"
+          }
+        ],
+        "name": "getEpoch",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getSTKAddress",
+        "outputs": [
+          {
             "internalType": "address",
-            "name": "_user",
+            "name": "",
             "type": "address"
-          }
-        ],
-        "name": "getLockReward",
-        "outputs": [
-          {
-            "internalType": "uint96",
-            "name": "",
-            "type": "uint96"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_lastRewardBlock",
-            "type": "uint256"
-          }
-        ],
-        "name": "getNLKBlockRewardV",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_pid",
-            "type": "uint256"
-          }
-        ],
-        "name": "getPoolTotalSupply",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "lpSupply",
-            "type": "uint256"
           }
         ],
         "stateMutability": "view",
@@ -1010,14 +846,8 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "name": "lockRewardPercentage",
+        "inputs": [],
+        "name": "getTime",
         "outputs": [
           {
             "internalType": "uint256",
@@ -1031,12 +861,50 @@
       {
         "inputs": [
           {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
+            "internalType": "address",
+            "name": "_stakingProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
           }
         ],
-        "name": "lockTime",
+        "name": "getUserEpochInfo",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "epochUnstakeAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "epochAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liveRatio",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "validStakingAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "calcRewardFlag",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "maxStakeAmount",
         "outputs": [
           {
             "internalType": "uint256",
@@ -1049,14 +917,20 @@
       },
       {
         "inputs": [],
-        "name": "massUpdatePools",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "name": "maxStakingAmount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       },
       {
         "inputs": [],
-        "name": "minStakeAmount",
+        "name": "minStakingAmount",
         "outputs": [
           {
             "internalType": "uint256",
@@ -1081,8 +955,31 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
+          },
+          {
+            "internalType": "address",
+            "name": "_stakingProvider",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "_liveRatio",
+            "type": "uint16"
+          }
+        ],
+        "name": "modifyLiveRatio",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
         "inputs": [],
-        "name": "nlk",
+        "name": "nlktoken",
         "outputs": [
           {
             "internalType": "contract INulLinkToken",
@@ -1122,159 +1019,16 @@
       {
         "inputs": [
           {
-            "internalType": "uint256",
-            "name": "_pid",
-            "type": "uint256"
-          },
-          {
             "internalType": "address",
-            "name": "_user",
+            "name": "_stakingProvider",
             "type": "address"
           }
         ],
-        "name": "pending",
+        "name": "pendingUserReward",
         "outputs": [
           {
             "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "_user",
-            "type": "address"
-          }
-        ],
-        "name": "pendingReward",
-        "outputs": [
-          {
-            "internalType": "uint96",
-            "name": "",
-            "type": "uint96"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "stakingProvider",
-            "type": "address"
-          }
-        ],
-        "name": "pendingWorkTimeLenght",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          }
-        ],
-        "name": "phase",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "contract IERC20",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "poolExistence",
-        "outputs": [
-          {
-            "internalType": "bool",
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "name": "poolInfo",
-        "outputs": [
-          {
-            "internalType": "contract IERC20",
-            "name": "lpToken",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "allocPoint",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "lastRewardBlock",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "accNLKPerShare",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "accMultLpPerShare",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "totalStakingAmount",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "poolLength",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
+            "name": "_pendingReward",
             "type": "uint256"
           }
         ],
@@ -1286,38 +1040,6 @@
         "name": "renounceOwnership",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "rewardDefaultLockTime",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "blockNumber",
-            "type": "uint256"
-          }
-        ],
-        "name": "rewardV",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
         "type": "function"
       },
       {
@@ -1352,85 +1074,27 @@
       {
         "inputs": [
           {
-            "internalType": "uint256",
-            "name": "_lastRewardBlock",
-            "type": "uint256"
-          }
-        ],
-        "name": "safeGetNLKBlockReward",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_pid",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_allocPoint",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
           },
           {
             "internalType": "bool",
-            "name": "_withUpdate",
+            "name": "_isfinished",
             "type": "bool"
-          }
-        ],
-        "name": "set",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "_caller",
-            "type": "address"
           },
           {
-            "internalType": "bool",
-            "name": "_isAdd",
-            "type": "bool"
-          }
-        ],
-        "name": "setCaller",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
+            "internalType": "address[]",
+            "name": "_stakingProviders",
+            "type": "address[]"
+          },
           {
-            "internalType": "uint256",
-            "name": "_blocknum",
-            "type": "uint256"
+            "internalType": "uint16[]",
+            "name": "_liveRatios",
+            "type": "uint16[]"
           }
         ],
-        "name": "setDecayPeriod",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_ratio",
-            "type": "uint256"
-          }
-        ],
-        "name": "setDecayRatio",
+        "name": "setLiveRatio",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1439,7 +1103,20 @@
         "inputs": [
           {
             "internalType": "uint96",
-            "name": "amount",
+            "name": "_maxAmount",
+            "type": "uint96"
+          }
+        ],
+        "name": "setMaxStakeAmount",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint96",
+            "name": "_minAmount",
             "type": "uint96"
           }
         ],
@@ -1449,75 +1126,10 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_newPerBlock",
-            "type": "uint256"
-          }
-        ],
-        "name": "setNLKPerBlock",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "setPause",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_time",
-            "type": "uint256"
-          }
-        ],
-        "name": "setRewardLockTime",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "contract ISimplePREApplication",
-            "name": "_simplePRE",
-            "type": "address"
-          }
-        ],
-        "name": "setSimplePRE",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_lockTime",
-            "type": "uint256"
-          }
-        ],
-        "name": "setStakingLockTIme",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "simplePRE",
-        "outputs": [
-          {
-            "internalType": "contract ISimplePREApplication",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
         "type": "function"
       },
       {
@@ -1579,77 +1191,7 @@
       },
       {
         "inputs": [],
-        "name": "stakingLockTime",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "startBlock",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "stakingProvider",
-            "type": "address"
-          },
-          {
-            "internalType": "uint96",
-            "name": "amount",
-            "type": "uint96"
-          }
-        ],
-        "name": "topUp",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "totalAllocPoint",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "totalLockAmount",
-        "outputs": [
-          {
-            "internalType": "uint96",
-            "name": "",
-            "type": "uint96"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "totalMiningNLK",
+        "name": "totalStakingAmount",
         "outputs": [
           {
             "internalType": "uint256",
@@ -1689,24 +1231,6 @@
       {
         "inputs": [
           {
-            "internalType": "uint256",
-            "name": "_pid",
-            "type": "uint256"
-          }
-        ],
-        "name": "updatePool",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          },
-          {
             "internalType": "address",
             "name": "",
             "type": "address"
@@ -1716,17 +1240,12 @@
         "outputs": [
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "totalAmount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "stakingAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "rewardDebt",
+            "name": "futureAmount",
             "type": "uint256"
           },
           {
@@ -1736,23 +1255,28 @@
           },
           {
             "internalType": "uint256",
-            "name": "stakingTime",
+            "name": "unStakingAmount",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "totalStakingTimeLenght",
+            "name": "stakingStartTime",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "rewardTimeLength",
+            "name": "unStakingTime",
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
-            "name": "lockRewardTime",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "lastRewardEpoch",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "claimunstakeEpoch",
+            "type": "uint16"
           },
           {
             "internalType": "address",
@@ -1773,16 +1297,16 @@
   [
     "SubscriptionManager",
     "v0.0.0",
-    "0x085548f0D73C718EeD7ae600ef4f5dBb8298c9a6",
+    "0x4A0d136A7694018F5bEa8229c6fabf32b9B39530",
     [
       {
         "anonymous": false,
         "inputs": [
           {
             "indexed": false,
-            "internalType": "bytes32",
+            "internalType": "bytes",
             "name": "_policyId",
-            "type": "bytes32"
+            "type": "bytes"
           },
           {
             "indexed": false,
@@ -1798,12 +1322,49 @@
           },
           {
             "indexed": false,
+            "internalType": "bytes32",
+            "name": "_txHahs",
+            "type": "bytes32"
+          },
+          {
+            "indexed": false,
             "internalType": "bytes",
             "name": "_crossBytes",
             "type": "bytes"
           }
         ],
         "name": "CreatePolicyCross",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_chainID",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_targChainId",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_evenID",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "bytes",
+            "name": "_crossBytes",
+            "type": "bytes"
+          }
+        ],
+        "name": "CrossEvent",
         "type": "event"
       },
       {
@@ -1843,9 +1404,28 @@
         "inputs": [
           {
             "indexed": true,
-            "internalType": "bytes32",
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "bytes",
             "name": "policyId",
-            "type": "bytes32"
+            "type": "bytes"
           },
           {
             "indexed": false,
@@ -1900,81 +1480,6 @@
         "type": "event"
       },
       {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "previousAdminRole",
-            "type": "bytes32"
-          },
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "newAdminRole",
-            "type": "bytes32"
-          }
-        ],
-        "name": "RoleAdminChanged",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          }
-        ],
-        "name": "RoleGranted",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "sender",
-            "type": "address"
-          }
-        ],
-        "name": "RoleRevoked",
-        "type": "event"
-      },
-      {
         "inputs": [],
         "name": "ChainID",
         "outputs": [
@@ -1982,45 +1487,6 @@
             "internalType": "uint256",
             "name": "",
             "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "DEFAULT_ADMIN_ROLE",
-        "outputs": [
-          {
-            "internalType": "bytes32",
-            "name": "",
-            "type": "bytes32"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "SET_RATE_ROLE",
-        "outputs": [
-          {
-            "internalType": "bytes32",
-            "name": "",
-            "type": "bytes32"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "WITHDRAW_ROLE",
-        "outputs": [
-          {
-            "internalType": "bytes32",
-            "name": "",
-            "type": "bytes32"
           }
         ],
         "stateMutability": "view",
@@ -2061,9 +1527,9 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32",
+            "internalType": "bytes",
             "name": "_policyId",
-            "type": "bytes32"
+            "type": "bytes"
           },
           {
             "internalType": "address",
@@ -2094,9 +1560,9 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32",
+            "internalType": "bytes",
             "name": "_policyId",
-            "type": "bytes32"
+            "type": "bytes"
           },
           {
             "internalType": "address",
@@ -2107,6 +1573,11 @@
             "internalType": "uint256",
             "name": "_chainID",
             "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "_txHash",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes",
@@ -2122,9 +1593,9 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32[]",
+            "internalType": "bytes[]",
             "name": "_policyId",
-            "type": "bytes32[]"
+            "type": "bytes[]"
           },
           {
             "internalType": "address[]",
@@ -2150,6 +1621,34 @@
         "name": "createPolicyMulti",
         "outputs": [],
         "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_chainID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_targChainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_eventID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_crossBytes",
+            "type": "bytes"
+          }
+        ],
+        "name": "crossEvent",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -2194,9 +1693,9 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32",
+            "internalType": "bytes",
             "name": "_policyID",
-            "type": "bytes32"
+            "type": "bytes"
           }
         ],
         "name": "getPolicy",
@@ -2303,67 +1802,6 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          }
-        ],
-        "name": "getRoleAdmin",
-        "outputs": [
-          {
-            "internalType": "bytes32",
-            "name": "",
-            "type": "bytes32"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          }
-        ],
-        "name": "grantRole",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          }
-        ],
-        "name": "hasRole",
-        "outputs": [
-          {
-            "internalType": "bool",
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
             "internalType": "contract IAddressController",
             "name": "_addrCtrl",
             "type": "address"
@@ -2397,9 +1835,9 @@
       {
         "inputs": [
           {
-            "internalType": "bytes32",
+            "internalType": "bytes",
             "name": "_policyID",
-            "type": "bytes32"
+            "type": "bytes"
           }
         ],
         "name": "isPolicyActive",
@@ -2427,37 +1865,21 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
           {
             "internalType": "address",
-            "name": "account",
+            "name": "",
             "type": "address"
           }
         ],
-        "name": "renounceRole",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "view",
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "role",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "address",
-            "name": "account",
-            "type": "address"
-          }
-        ],
-        "name": "revokeRole",
+        "inputs": [],
+        "name": "renounceOwnership",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -2517,25 +1939,6 @@
       {
         "inputs": [
           {
-            "internalType": "bytes4",
-            "name": "interfaceId",
-            "type": "bytes4"
-          }
-        ],
-        "name": "supportsInterface",
-        "outputs": [
-          {
-            "internalType": "bool",
-            "name": "",
-            "type": "bool"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
             "internalType": "address payable",
             "name": "recipient",
             "type": "address"
@@ -2558,13 +1961,26 @@
         ],
         "stateMutability": "view",
         "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
       }
     ]
   ],
   [
     "SimplePREApplication",
     "v0.0.0",
-    "0x78e5f7C8e3AF856d378CA53F184C16f81AdEC64A",
+    "0x5467160E568E038DDA21019200B4a492E4230Bff",
     [
       {
         "inputs": [

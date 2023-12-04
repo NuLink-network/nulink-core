@@ -24,7 +24,7 @@ from nulink.blockchain.eth.token import NLK
 def test_NLK(application_economics):
 
     # Starting Small
-    min_allowed_locked = NLK(application_economics.min_authorization, 'NlkUNit')
+    min_allowed_locked = NLK(application_economics.min_authorization, 'NLKWei')
     assert application_economics.min_authorization == int(min_allowed_locked.to_units())
 
     min_NLK_locked = int(str(application_economics.min_authorization)[0:-18])
@@ -50,8 +50,8 @@ def test_NLK(application_economics):
     three_hundred_nu = NLK(300, 'NLK')
 
     # Nits
-    one_nu_wei = NLK(1, 'NlkUNit')
-    three_nu_wei = NLK(3, 'NlkUNit')
+    one_nu_wei = NLK(1, 'NLKWei')
+    three_nu_wei = NLK(3, 'NLKWei')
     assert three_nu_wei.to_tokens() == Decimal('3E-18')
     assert one_nu_wei.to_tokens() == Decimal('1E-18')
 
@@ -72,32 +72,32 @@ def test_NLK(application_economics):
     expected = 0.999999999999999999
     assert actual == expected
 
-    # 3.14 NLK is 3_140_000_000_000_000_000 NlkUNit
+    # 3.14 NLK is 3_140_000_000_000_000_000 NLKWei
     pi_nuweis = NLK(3.14, 'NLK')
-    assert NLK('3.14', 'NLK') == pi_nuweis.to_units() == NLK(3_140_000_000_000_000_000, 'NlkUNit')
+    assert NLK('3.14', 'NLK') == pi_nuweis.to_units() == NLK(3_140_000_000_000_000_000, 'NLKWei')
 
     # Mixed type operations
     difference = NLK('3.14159265', 'NLK') - NLK(1.1, 'NLK')
     assert difference == NLK('2.04159265', 'NLK')
 
     result = difference + one_nu_wei
-    assert result == NLK(2041592650000000001, 'NlkUNit')
+    assert result == NLK(2041592650000000001, 'NLKWei')
 
     # Similar to stake read + metadata operations in Staker
     collection = [one_hundred_nu, two_hundred_nu, three_hundred_nu]
-    assert sum(collection) == NLK('600', 'NLK') == NLK(600, 'NLK') == NLK(600.0, 'NLK') == NLK(600e+18, 'NlkUNit')
+    assert sum(collection) == NLK('600', 'NLK') == NLK(600, 'NLK') == NLK(600.0, 'NLK') == NLK(600e+18, 'NLKWei')
 
     #
     # Fractional Inputs
     #
 
-    # A decimal amount of NlkUNit (i.e., a fraction of a NlkUNit)
-    pi_nuweis = NLK('3.14', 'NlkUNit')
+    # A decimal amount of NLK (i.e., a fraction of a NLK)
+    pi_nuweis = NLK('3.14', 'NLKWei')
     assert pi_nuweis == three_nu_wei  # Floor
 
-    # A decimal amount of NLK, which amounts to NlkUNit with decimals
+    # A decimal amount of NLK, which amounts to NLK with decimals
     pi_nus = NLK('3.14159265358979323846', 'NLK')
-    assert pi_nus == NLK(3141592653589793238, 'NlkUNit')  # Floor
+    assert pi_nus == NLK(3141592653589793238, 'NLKWei')  # Floor
 
     # Positive Infinity
     with pytest.raises(NLK.InvalidAmount):

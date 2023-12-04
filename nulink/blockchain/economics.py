@@ -30,7 +30,7 @@ from nulink.blockchain.eth.token import NLK
 
 class Economics:
 
-    _default_min_authorization = NLK(40_000, 'NLK').to_units()
+    _default_min_authorization = NLK(1, 'NLK').to_units() # NLK(40_000, 'NLK').to_units()
     _default_min_operator_seconds = 60 * 60 * 24  # one day in seconds
     _default_fee_rate = Wei(Web3.toWei(1, 'gwei'))
 

@@ -128,8 +128,8 @@ class OperatorBondedTracker(SimpleTask):
 class AvailabilityTracker:
     """
         andi comment:
-        从Ursulas样本或从已知节点自动测量自可用性。
-        处理示例中不可到达或无效远程节点的可能性。
+        Automatically measure self-availability from Ursulas samples or from known nodes.
+        Handles the possibility of unreachable or invalid remote nodes in the example.
     """
 
     FAST_INTERVAL = 15  # Seconds

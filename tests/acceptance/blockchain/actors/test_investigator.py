@@ -72,7 +72,7 @@ def test_investigator_requests_slashing(testerchain,
                     domain=TEMPORARY_DOMAIN,
                     registry=test_registry)
 
-    staker.initialize_stake(amount=NLK(locked_tokens, 'NlkUNit'),
+    staker.initialize_stake(amount=NLK(locked_tokens, 'NLKWei'),
                             lock_periods=application_economics.min_operator_seconds)
     assert staker.locked_tokens(periods=1) == locked_tokens
 

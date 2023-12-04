@@ -31,7 +31,7 @@ __url__ = "https://github.com/NuLink-network/nulink-core"
 
 __summary__ = 'A proxy re-encryption network to empower privacy in decentralized systems.'
 
-__version__ = "0.2.0"
+__version__ = "0.5.0"
 
 __author__ = "NuLink"
 

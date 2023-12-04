@@ -42,7 +42,7 @@ Glossary
       The Legacy NuLink token used by nodes for staking.
 
     NlkUNit
-      1 NLK = 10\ :sup:`18` NlkUNits.
+      1 NLK = 10\ :sup:`18` NLKWei.
 
     PKE
       Public-key encryption.
