@@ -29,6 +29,7 @@ from constant_sorrow.constants import (  # type: ignore
 )
 from eth_typing import ChecksumAddress
 from eth_utils.address import to_checksum_address
+from web3.constants import ADDRESS_ZERO
 from web3.contract import Contract, ContractFunction
 from web3.types import Wei, Timestamp, TxReceipt, TxParams
 
@@ -565,7 +566,7 @@ class PREApplicationAgent(EthereumContractAgent):
                         gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        return self.bond_operator(staking_provider, to_checksum_address('0x0000000000000000000000000000000000000000'), transacting_power,gas_price=gas_price)
+        return self.bond_operator(staking_provider, to_checksum_address(ADDRESS_ZERO), transacting_power,gas_price=gas_price)
 
 
 class StakingPoolAgent(EthereumContractAgent):

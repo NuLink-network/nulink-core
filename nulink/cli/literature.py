@@ -64,23 +64,24 @@ CONFIRM_OVERWRITE_EVENTS_CSV_FILE = "Overwrite existing CSV events file - {csv_f
 # Bonding
 #
 
+
 PROMPT_OPERATOR_ADDRESS = "Enter operator address"
 
 CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL = """
 
 {address}
-The operator address provided is the same as the staking provider.
-Continue using the same account for operator and staking provider?"""
+The operator address provided is the same as the staker.
+It is *highly recommended* to use a different accounts for staker and operator roles.
 
-SUCCESSFUL_OPERATOR_BONDING = "\nOperator {operator_address} successfully bonded to staking provider {staking_provider_address}"
+Continue using the same account for operator and staker?"""
+
+SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking provider {staking_provider_address}"
 
 BONDING_DETAILS = "Bonded at {bonded_date}"
 
 BONDING_RELEASE_INFO = "This operator can be replaced or detached after {release_date}"
 
-SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {operator_address} from staking provider {staking_provider_address}"
-
-DETACH_DETAILS = "Unbonded at {bonded_date}"
+SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from staking provider {staking_provider_address}"
 
 
 #

@@ -18,6 +18,8 @@ from decimal import Decimal
 from pathlib import Path
 
 import click
+from eth.constants import ZERO_ADDRESS
+from eth_utils import to_checksum_address
 from web3 import Web3
 from web3.datastructures import AttributeDict
 
@@ -33,14 +35,12 @@ from nulink.cli.actions.select import select_client_account_for_staking
 
 from nulink.cli.config import group_general_config, GroupGeneralConfig
 from nulink.cli.literature import (
-    BONDING_DETAILS,
-    BONDING_RELEASE_INFO,
     COLLECTING_ETH_FEE,
     COLLECTING_TOKEN_REWARD,
-    DETACH_DETAILS,
     SUCCESSFUL_NEW_STAKEHOLDER_CONFIG,
     NO_TOKENS_TO_WITHDRAW,
-    NO_FEE_TO_WITHDRAW, PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE,
+    NO_FEE_TO_WITHDRAW, PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
+    CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR,
 )
 from nulink.cli.options import (
     group_options,
@@ -396,13 +396,14 @@ def get_stake_tokens(general_config: GroupGeneralConfig,
 @option_config_file
 @option_force
 @group_general_config
-# @option_worker_address
+@option_worker_address
 def bond_worker(general_config: GroupGeneralConfig,
                 transacting_staker_options: TransactingStakerOptions,
                 config_file, force, worker_address):
     """Bond a worker to a staker."""
 
     emitter = setup_emitter(general_config)
+    # stakholder is StakeHolder
     STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
     blockchain = transacting_staker_options.get_blockchain()
 
@@ -411,48 +412,47 @@ def bond_worker(general_config: GroupGeneralConfig,
         stakeholder=STAKEHOLDER,
         staking_address=transacting_staker_options.staker_options.staking_address)
 
+    # Authenticate
     password = get_password(stakeholder=STAKEHOLDER,
                             blockchain=blockchain,
                             client_account=client_account,
                             hw_wallet=transacting_staker_options.hw_wallet)
-    STAKEHOLDER.assimilate(checksum_address=client_account, password=password)
-    economics = STAKEHOLDER.staker.economics
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
+
+    #
+    # Stage Stake
+    #
+
+    token_balance = STAKEHOLDER.staker.token_balance
+
+    if token_balance <= 0:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        raise click.Abort
 
     if not worker_address:
-        worker_address = click.prompt(PROMPT_WORKER_ADDRESS, type=EIP55_CHECKSUM_ADDRESS)
+        worker_address = click.prompt(PROMPT_OPERATOR_ADDRESS, type=EIP55_CHECKSUM_ADDRESS)
 
     if (worker_address == staking_address) and not force:
-        click.confirm(CONFIRM_WORKER_AND_STAKER_ADDRESSES_ARE_EQUAL.format(address=worker_address), abort=True)
-
-    # TODO: Check preconditions (e.g., minWorkerPeriods, already in use, etc)
-
-    # TODO: Double-check dates
-    # Calculate release datetime
-    current_period = STAKEHOLDER.staker.staking_agent.get_current_period()
-    bonded_date = datetime_at_period(period=current_period, seconds_per_period=economics.seconds_per_period)
-    min_worker_periods = STAKEHOLDER.staker.economics.minimum_worker_periods
-
-    release_period = current_period + min_worker_periods
-    release_date = datetime_at_period(period=release_period,
-                                      seconds_per_period=economics.seconds_per_period,
-                                      start_of_period=True)
+        click.confirm(CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL.format(address=worker_address), abort=True)
 
     if not force:
         click.confirm(f"Commit to bonding "
-                      f"worker {worker_address} to staker {staking_address} "
-                      f"for a minimum of {STAKEHOLDER.staker.economics.minimum_worker_periods} periods?", abort=True)
+                      f"operator {worker_address} to staker {staking_address} ?", abort=True)
 
+    #
+    # Review and Publish
+    #
+
+    # Execute
     receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
-    message = SUCCESSFUL_WORKER_BONDING.format(worker_address=worker_address, staking_address=staking_address)
+    message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
     emitter.echo(message, color='green')
     paint_receipt_summary(emitter=emitter,
                           receipt=receipt,
                           chain_name=blockchain.client.chain_name,
                           transaction_type='bond_worker')
-    emitter.echo(BONDING_DETAILS.format(current_period=current_period, bonded_date=bonded_date), color='green')
-    emitter.echo(BONDING_RELEASE_INFO.format(release_period=release_period, release_date=release_date), color='green')
 
 
 @stake.command('unbond-worker')
@@ -468,6 +468,7 @@ def unbond_worker(general_config: GroupGeneralConfig,
     """
     emitter = setup_emitter(general_config)
 
+    # stakholder is StakeHolder
     STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
     blockchain = transacting_staker_options.get_blockchain()
 
@@ -476,32 +477,49 @@ def unbond_worker(general_config: GroupGeneralConfig,
         stakeholder=STAKEHOLDER,
         staking_address=transacting_staker_options.staker_options.staking_address)
 
-    # TODO: Check preconditions (e.g., minWorkerPeriods)
-    worker_address = STAKEHOLDER.staker.staking_agent.get_worker_from_staker(staking_address)
-
+    # Authenticate
     password = get_password(stakeholder=STAKEHOLDER,
                             blockchain=blockchain,
                             client_account=client_account,
                             hw_wallet=transacting_staker_options.hw_wallet)
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
 
+    #
+    # Stage Stake
+    #
+
+    token_balance = STAKEHOLDER.staker.token_balance
+
+    if token_balance <= 0:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        raise click.Abort
+
+    worker_address = STAKEHOLDER.staker.get_operator_from_staking_provider(staking_address)
+
+    if to_checksum_address(worker_address) == f"0x{ZERO_ADDRESS.hex()}":
+        emitter.echo("\nStake unbound was successful.", color='green')
+        emitter.echo(f"operator address is zero address, no need unbound", color='green')
+        return
     if not force:
         click.confirm("Are you sure you want to unbond your worker?", abort=True)
 
-    STAKEHOLDER.assimilate(checksum_address=client_account, password=password)
-    economics = STAKEHOLDER.staker.economics
+    #
+    # Review and Publish
+    #
+
+    # Execute
     receipt = STAKEHOLDER.staker.unbond_worker(gas_price=int(transacting_staker_options.gas_price))
 
-    # TODO: Double-check dates
-    current_period = STAKEHOLDER.staker.staking_agent.get_current_period()
-    bonded_date = datetime_at_period(period=current_period, seconds_per_period=economics.seconds_per_period)
+    # Report Success
+    message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
+    emitter.echo(message, color='green')
+    message = SUCCESSFUL_UNBOND_OPERATOR.format(worker_address=worker_address, staking_address=staking_address)
 
-    message = SUCCESSFUL_DETACH_WORKER.format(worker_address=worker_address, staking_address=staking_address)
     emitter.echo(message, color='green')
     paint_receipt_summary(emitter=emitter,
                           receipt=receipt,
                           chain_name=blockchain.client.chain_name,
                           transaction_type='unbond_worker')
-    emitter.echo(DETACH_DETAILS.format(current_period=current_period, bonded_date=bonded_date), color='green')
 
 
 @stake.group()
@@ -648,44 +666,32 @@ if __name__ == '__main__':
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    get_stake_tokens()
+    # get_stake_tokens()
 
+    # unstake_all([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
-    unstake_all([
+    # bond_worker([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     # '--worker-address', '0xC0C32e3e60d153BcEF6B10f2d1Fb3758cbFa9E49'  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    unbond_worker([
         #  '--config-root', 'D:\\nulink_data\\',
         '--gas-price', '1000000000',
         '--force',
-        '--debug',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+        '--debug'
     ])
 
-    get_stake_tokens()
-
-    # import os
-
-    #
-    # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"
-    # os.environ['NULINK_KEYSTORE_PASSWORD'] = "12345678"  # "NuLink@tH9iym"
-    # run([
-    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    #     # '--rest-host', '192.168.3.25',
-    #     '--rest-port', '9151',
-    #     # '--teacher', 'https://8.219.188.70:9151',
-    #     '--config-file', 'D:\\nulink_data\\ursula-02fa5003.json',
-    #     # '--config-file', "D:\\nulink_data\\ursula-02983e2b.json",
-    #     '--db-filepath', 'D:\\nulink_data',
-    #     '--debug',
-    #     # '--force',
-    #     '--no-ip-checkup',
-    #     '--no-block-until-ready',
-    #     '--console-logs',
-    #     '--file-logs',
-    # ])
-    #
-    # """
-    # nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs
-    # """
 
 """
     # While creating a new staker

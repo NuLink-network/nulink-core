@@ -484,6 +484,11 @@ class Staker(NulinkTokenActor):
 
         return self._worker_address
 
+    def get_operator_from_staking_provider(self, stake_address: ChecksumAddress = None) -> ChecksumAddress:
+        return self.application_agent.get_operator_from_staking_provider(stake_address or self.checksum_address)
+
+    def get_staking_provider_from_operator(self, operator_address: ChecksumAddress) -> ChecksumAddress:
+        return self.application_agent.get_staking_provider_from_operator(operator_address)
 
 class BlockchainPolicyAuthor(NulinkTokenActor):
     """Alice base class for blockchain operations, mocking up new policies!"""
