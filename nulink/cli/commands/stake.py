@@ -58,7 +58,7 @@ from nulink.cli.options import (
     option_staking_address,
     option_gas_price
 )
-from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes
+from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes, paint_unstaking_confirmation
 
 from nulink.cli.painting.transactions import paint_receipt_summary
 from nulink.cli.types import (
@@ -358,7 +358,7 @@ def unstake_all(general_config: GroupGeneralConfig,
 
     # Execute
     receipt = STAKEHOLDER.staker.unstake_all(gas_price=int(transacting_staker_options.gas_price))
-    paint_staking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
+    paint_unstaking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
 
 
 @stake.command('tokens')
