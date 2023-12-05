@@ -187,7 +187,7 @@ class NulinkTokenAgent(EthereumContractAgent):
                          transacting_power: TransactingPower
                          ) -> TxReceipt:
         """Approve the spender address to transfer an amount of tokens on behalf of the sender address"""
-        self._validate_zero_allowance(amount, spender_address, transacting_power)
+        # self._validate_zero_allowance(amount, spender_address, transacting_power)
 
         payload: TxParams = {'gas': Wei(500_000)}  # gas is gas_limit  # TODO #842: gas needed for use with geth! <<<< Is this still open?
         contract_function: ContractFunction = self.contract.functions.approve(spender_address, amount)
@@ -548,18 +548,24 @@ class PREApplicationAgent(EthereumContractAgent):
         return receipt
 
     @contract_api(TRANSACTION)
-    def bond_operator(self, staking_provider: ChecksumAddress, operator: ChecksumAddress, transacting_power: TransactingPower) -> TxReceipt:
+    def bond_operator(self, staking_provider: ChecksumAddress, operator: ChecksumAddress, transacting_power: TransactingPower,
+                      gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
         contract_function: ContractFunction = self.contract.functions.bondOperator(staking_provider, operator)
         receipt = self.blockchain.send_transaction(contract_function=contract_function,
+                                                   payload=payload,
                                                    transacting_power=transacting_power)
         return receipt
 
     @contract_api(TRANSACTION)
-    def unbond_operator(self, staking_provider: ChecksumAddress, transacting_power: TransactingPower) -> TxReceipt:
+    def unbond_operator(self, staking_provider: ChecksumAddress, transacting_power: TransactingPower,
+                        gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        return self.bond_operator(staking_provider, to_checksum_address('0x0000000000000000000000000000000000000000'), transacting_power)
+        return self.bond_operator(staking_provider, to_checksum_address('0x0000000000000000000000000000000000000000'), transacting_power,gas_price=gas_price)
 
 
 class StakingPoolAgent(EthereumContractAgent):
@@ -623,8 +629,10 @@ class StakingPoolAgent(EthereumContractAgent):
     def unstake_all(self,
                     stake_address: ChecksumAddress,
                     transacting_power: TransactingPower,
+                    gas_price: Wei = None
                     ) -> TxReceipt:
-        payload: TxParams = {}
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
         contract_function: ContractFunction = self.contract.functions.unstakeAll(
             stake_address,
         )
@@ -640,8 +648,11 @@ class StakingPoolAgent(EthereumContractAgent):
     def claim(self,
               stake_address: ChecksumAddress,
               transacting_power: TransactingPower,
+              gas_price: Wei = None
               ) -> TxReceipt:
-        payload: TxParams = {}
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
         contract_function: ContractFunction = self.contract.functions.claim(
             stake_address,
         )
@@ -657,8 +668,11 @@ class StakingPoolAgent(EthereumContractAgent):
     def claim_reward(self,
                      stake_address: ChecksumAddress,
                      transacting_power: TransactingPower,
+                     gas_price: Wei = None
                      ) -> TxReceipt:
-        payload: TxParams = {}
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
         contract_function: ContractFunction = self.contract.functions.claimReward(
             stake_address,
         )

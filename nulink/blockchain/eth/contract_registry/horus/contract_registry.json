@@ -1172,16 +1172,6 @@
         "outputs": [
           {
             "internalType": "uint96",
-            "name": "tStake",
-            "type": "uint96"
-          },
-          {
-            "internalType": "uint96",
-            "name": "keepInTStake",
-            "type": "uint96"
-          },
-          {
-            "internalType": "uint96",
             "name": "nuInTStake",
             "type": "uint96"
           }

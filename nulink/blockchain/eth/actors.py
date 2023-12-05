@@ -444,8 +444,8 @@ class Staker(NulinkTokenActor):
 
     @only_me
     @save_receipt
-    def unstake_all(self, value: Wei, stake_address: ChecksumAddress = None) -> TxReceipt:
-        receipt = self.staking_agent.unstake_all(stake_address or self.checksum_address, transacting_power=self.transacting_power)
+    def unstake_all(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.unstake_all(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
 
     def stakes(self, stake_address: ChecksumAddress = None) -> int:
@@ -463,15 +463,15 @@ class Staker(NulinkTokenActor):
     @only_me
     @save_receipt
     @validate_checksum_address
-    def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress = None) -> TxReceipt:
-        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, worker_address, transacting_power=self.transacting_power)
+    def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = worker_address
         return receipt
 
     @only_me
     @save_receipt
-    def unbond_worker(self, stake_address: ChecksumAddress = None) -> TxReceipt:
-        receipt = self.application_agent.unbond_operator(stake_address or self.checksum_address, transacting_power=self.transacting_power)
+    def unbond_worker(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.application_agent.unbond_operator(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = NULL_ADDRESS
         return receipt
 
@@ -567,7 +567,8 @@ class StakeHolder:
         self.log.info(f"Setting Staker from {original_form} to {new_form}.")
 
     @validate_checksum_address
-    def get_staker(self, checksum_address: ChecksumAddress):
+    def get_staker(self, checksum_address: ChecksumAddress = None):
+        checksum_address = self.checksum_address if not checksum_address else checksum_address
         if checksum_address not in self.signer.accounts:
             raise ValueError(f"{checksum_address} is not a known client account.")
         transacting_power = TransactingPower(account=checksum_address, signer=self.signer)

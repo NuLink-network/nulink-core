@@ -58,7 +58,7 @@ from nulink.cli.options import (
     option_staking_address,
     option_gas_price
 )
-from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation
+from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes
 
 from nulink.cli.painting.transactions import paint_receipt_summary
 from nulink.cli.types import (
@@ -310,8 +310,85 @@ def create(general_config: GroupGeneralConfig,
         paint_approve_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt_approve)
 
     # Execute
-    receipt = STAKEHOLDER.staker.stake(staking_address, int(value), int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.stake(staking_address, int(value), gas_price=int(transacting_staker_options.gas_price))
     paint_staking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
+
+
+@stake.command()
+@group_transacting_staker_options
+@option_config_file
+@option_force
+@group_general_config
+def unstake_all(general_config: GroupGeneralConfig,
+                transacting_staker_options: TransactingStakerOptions,
+                config_file, force):
+    """unstake all nlk for one address."""
+
+    # Setup
+    emitter = setup_emitter(general_config)
+    # stakholder is StakeHolder
+    STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
+    blockchain = transacting_staker_options.get_blockchain()
+
+    client_account, staking_address = select_client_account_for_staking(
+        emitter=emitter,
+        stakeholder=STAKEHOLDER,
+        staking_address=transacting_staker_options.staker_options.staking_address)
+
+    # Authenticate
+    password = get_password(stakeholder=STAKEHOLDER,
+                            blockchain=blockchain,
+                            client_account=client_account,
+                            hw_wallet=transacting_staker_options.hw_wallet)
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
+
+    #
+    # Stage Stake
+    #
+
+    token_balance = STAKEHOLDER.staker.token_balance
+
+    if token_balance <= 0:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        raise click.Abort
+
+    #
+    # Review and Publish
+    #
+
+    # Execute
+    receipt = STAKEHOLDER.staker.unstake_all(gas_price=int(transacting_staker_options.gas_price))
+    paint_staking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
+
+
+@stake.command('tokens')
+@group_staker_options
+@option_config_file
+@group_general_config
+def get_stake_tokens(general_config: GroupGeneralConfig,
+                     staker_options: StakerOptions,
+                     config_file):
+    """unstake all nlk for one address."""
+
+    # Setup
+    emitter = setup_emitter(general_config)
+    # stakholder is StakeHolder
+    STAKEHOLDER = staker_options.create_character(emitter, config_file)
+
+    client_account, staking_address = select_client_account_for_staking(
+        emitter=emitter,
+        stakeholder=STAKEHOLDER,
+        staking_address=staker_options.staking_address)
+
+    STAKEHOLDER.assimilate(checksum_address=client_account, password=None)
+    #
+    # get Stake tokens by address
+    #
+
+    token_stakes = STAKEHOLDER.staker.stakes()
+    #
+    # Review and Publish
+    paint_stakes(emitter=emitter, staker=STAKEHOLDER.staker, token_stakes=token_stakes)
 
 
 @stake.command('bond-worker')
@@ -365,7 +442,7 @@ def bond_worker(general_config: GroupGeneralConfig,
                       f"worker {worker_address} to staker {staking_address} "
                       f"for a minimum of {STAKEHOLDER.staker.economics.minimum_worker_periods} periods?", abort=True)
 
-    receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address)
+    receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
     message = SUCCESSFUL_WORKER_BONDING.format(worker_address=worker_address, staking_address=staking_address)
@@ -412,7 +489,7 @@ def unbond_worker(general_config: GroupGeneralConfig,
 
     STAKEHOLDER.assimilate(checksum_address=client_account, password=password)
     economics = STAKEHOLDER.staker.economics
-    receipt = STAKEHOLDER.staker.unbond_worker()
+    receipt = STAKEHOLDER.staker.unbond_worker(gas_price=int(transacting_staker_options.gas_price))
 
     # TODO: Double-check dates
     current_period = STAKEHOLDER.staker.staking_agent.get_current_period()
@@ -562,14 +639,27 @@ if __name__ == '__main__':
 
     os.environ['NULINK_STAKING_PROVIDER_ETH_PASSWORD'] = "qazwsxedc"
 
-    create([
+    # create([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--value', '1000000000000000000',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    get_stake_tokens()
+
+
+    unstake_all([
         #  '--config-root', 'D:\\nulink_data\\',
         '--gas-price', '1000000000',
         '--force',
         '--debug',
-        '--value', '1000000000000000000',
         # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     ])
+
+    get_stake_tokens()
 
     # import os
 
