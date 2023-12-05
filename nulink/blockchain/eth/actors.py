@@ -490,6 +490,18 @@ class Staker(NulinkTokenActor):
     def get_staking_provider_from_operator(self, operator_address: ChecksumAddress) -> ChecksumAddress:
         return self.application_agent.get_staking_provider_from_operator(operator_address)
 
+    @only_me
+    @save_receipt
+    def claim_unstaked_tokens(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.claim(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
+    @only_me
+    @save_receipt
+    def claim_rewards(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.claim_reward(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
 class BlockchainPolicyAuthor(NulinkTokenActor):
     """Alice base class for blockchain operations, mocking up new policies!"""
 

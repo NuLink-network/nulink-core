@@ -34,6 +34,8 @@ CONFIRM_SELECTED_ACCOUNT = "Selected {address} - Continue?"
 # Staking
 #
 
+INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS = "Insufficient NLK for send transactions."
+
 INSUFFICIENT_BALANCE_TO_CREATE = "Insufficient NLK for stake creation."
 
 STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE = "stake value {value} greater than NLK {balance} for stake creation."
@@ -159,8 +161,11 @@ Wrote JSON configuration to {filepath}
 
 * Review configuration     -> nulink stake init
 * Stake NLK tokens         -> nulink stake create
+* Stake NLK tokens         -> nulink stake unstake-all
 * Bond a worker            -> nulink stake bond-worker
-
+* UnBond a worker          -> nulink stake unbond-worker
+* Claim unStaked tokens    -> nulink stake rewards claim
+* Claim staking rewards    -> nulink stake rewards claim-rewards
 """
 
 PROMPT_STAKE_CREATE_VALUE = "Enter stake value in NLK ({lower_limit} - {upper_limit})"

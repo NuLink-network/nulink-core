@@ -35,12 +35,9 @@ from nulink.cli.actions.select import select_client_account_for_staking
 
 from nulink.cli.config import group_general_config, GroupGeneralConfig
 from nulink.cli.literature import (
-    COLLECTING_ETH_FEE,
-    COLLECTING_TOKEN_REWARD,
     SUCCESSFUL_NEW_STAKEHOLDER_CONFIG,
-    NO_TOKENS_TO_WITHDRAW,
-    NO_FEE_TO_WITHDRAW, PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
-    CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR,
+    PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
+    CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR, INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS,
 )
 from nulink.cli.options import (
     group_options,
@@ -314,7 +311,7 @@ def create(general_config: GroupGeneralConfig,
     paint_staking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
 
 
-@stake.command()
+@stake.command('unstake-all')
 @group_transacting_staker_options
 @option_config_file
 @option_force
@@ -349,7 +346,7 @@ def unstake_all(general_config: GroupGeneralConfig,
     token_balance = STAKEHOLDER.staker.token_balance
 
     if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
         raise click.Abort
 
     #
@@ -426,7 +423,7 @@ def bond_worker(general_config: GroupGeneralConfig,
     token_balance = STAKEHOLDER.staker.token_balance
 
     if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
         raise click.Abort
 
     if not worker_address:
@@ -491,7 +488,7 @@ def unbond_worker(general_config: GroupGeneralConfig,
     token_balance = STAKEHOLDER.staker.token_balance
 
     if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
+        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
         raise click.Abort
 
     worker_address = STAKEHOLDER.staker.get_operator_from_staking_provider(staking_address)
@@ -527,112 +524,117 @@ def rewards():
     """Manage staking rewards."""
 
 
-@rewards.command('show')
-@group_staker_options
-@option_config_file
-@group_general_config
-@click.option('--periods', help="Number of past periods for which to calculate rewards", type=click.INT)
-def show_rewards(general_config, staker_options, config_file, periods):
-    """Show staking rewards."""
-
-    if periods and periods < 0:
-        raise click.BadOptionUsage(option_name='--periods', message='--periods must positive')
-
-    emitter = setup_emitter(general_config)
-    stakeholder = staker_options.create_character(emitter, config_file)
-    _client_account, staking_address = select_client_account_for_staking(emitter=emitter,
-                                                                         stakeholder=stakeholder,
-                                                                         staking_address=staker_options.staking_address)
-    blockchain = staker_options.get_blockchain()
-    staking_agent = stakeholder.staker.staking_agent
-
-    paint_staking_rewards(stakeholder, blockchain, emitter, periods, staking_address, staking_agent)
-
-
-@rewards.command('withdraw')
+@rewards.command('claim')
 @group_transacting_staker_options
 @option_config_file
-@click.option('--replace', help="Replace any existing pending transaction", is_flag=True)
-@click.option('--tokens/--no-tokens', help="Enable/disable tokens withdrawal. Defaults to `--no-tokens`", is_flag=True,
-              default=False)
-@click.option('--fees/--no-fees', help="Enable/disable fees withdrawal. Defaults to `--no-fees`", is_flag=True,
-              default=False)
-@click.option('--withdraw-address', help="Send fee collection to an alternate address", type=EIP55_CHECKSUM_ADDRESS)
 @option_force
 @group_general_config
-def withdraw_rewards(general_config: GroupGeneralConfig,
-                     transacting_staker_options: TransactingStakerOptions,
-                     config_file,
-                     tokens,
-                     fees,
-                     withdraw_address,
-                     replace,
-                     force):
-    """Withdraw staking rewards."""
-
-    # Setup
+def claim(general_config: GroupGeneralConfig,
+                  transacting_staker_options: TransactingStakerOptions,
+                  config_file, force):
+    """
+    claim unstaked tokens
+    """
     emitter = setup_emitter(general_config)
+
+    # stakholder is StakeHolder
     STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
     blockchain = transacting_staker_options.get_blockchain()
-
-    if not tokens and not fees:
-        raise click.BadArgumentUsage(f"Either --tokens or --fees must be True to collect rewards.")
 
     client_account, staking_address = select_client_account_for_staking(
         emitter=emitter,
         stakeholder=STAKEHOLDER,
         staking_address=transacting_staker_options.staker_options.staking_address)
 
-    password = None
+    # Authenticate
+    password = get_password(stakeholder=STAKEHOLDER,
+                            blockchain=blockchain,
+                            client_account=client_account,
+                            hw_wallet=transacting_staker_options.hw_wallet)
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
 
-    if tokens:
-        # Note: Sending staking / inflation rewards to another account is not allowed.
-        reward_amount = STAKEHOLDER.staker.calculate_staking_reward()
-        if reward_amount == 0:
-            emitter.echo(NO_TOKENS_TO_WITHDRAW, color='red')
-            raise click.Abort
+    #
+    # Stage Stake
+    #
 
-        emitter.echo(message=COLLECTING_TOKEN_REWARD.format(reward_amount=reward_amount))
+    token_balance = STAKEHOLDER.staker.token_balance
 
-        withdrawing_last_portion = STAKEHOLDER.staker.non_withdrawable_stake() == 0
-        if not force and withdrawing_last_portion and STAKEHOLDER.staker.mintable_periods() > 0:
-            click.confirm(CONFIRM_COLLECTING_WITHOUT_MINTING, abort=True)
+    if token_balance <= 0:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+        raise click.Abort
 
-        # Authenticate and Execute
-        password = get_password(stakeholder=STAKEHOLDER,
-                                blockchain=blockchain,
-                                client_account=client_account,
-                                hw_wallet=transacting_staker_options.hw_wallet)
-        STAKEHOLDER.assimilate(checksum_address=client_account, password=password)
+    if not force:
+        click.confirm("Are you sure you want to claim unstaked tokens?", abort=True)
+    #
+    # Review and Publish
+    #
 
-        staking_receipt = STAKEHOLDER.staker.collect_staking_reward(replace=replace)
-        paint_receipt_summary(receipt=staking_receipt,
-                              chain_name=blockchain.client.chain_name,
-                              emitter=emitter)
+    # Execute
+    receipt = STAKEHOLDER.staker.claim_unstaked_tokens(gas_price=int(transacting_staker_options.gas_price))
 
-    if fees:
-        fee_amount = Web3.fromWei(STAKEHOLDER.staker.calculate_policy_fee(), 'ether')
-        if fee_amount == 0:
-            emitter.echo(NO_FEE_TO_WITHDRAW, color='red')
-            raise click.Abort
-
-        emitter.echo(message=COLLECTING_ETH_FEE.format(fee_amount=fee_amount))
-
-        if password is None:
-            # Authenticate and Execute
-            password = get_password(stakeholder=STAKEHOLDER,
-                                    blockchain=blockchain,
-                                    client_account=client_account,
-                                    hw_wallet=transacting_staker_options.hw_wallet)
-            STAKEHOLDER.assimilate(checksum_address=client_account, password=password)
-
-        policy_receipt = STAKEHOLDER.staker.collect_policy_fee(collector_address=withdraw_address)
-        paint_receipt_summary(receipt=policy_receipt,
-                              chain_name=blockchain.client.chain_name,
-                              emitter=emitter)
+    # Report Success
+    paint_receipt_summary(emitter=emitter,
+                          receipt=receipt,
+                          chain_name=blockchain.client.chain_name,
+                          transaction_type='claim unstaked tokens')
 
 
-# add by andi for debug
+@rewards.command('claim-rewards')
+@group_transacting_staker_options
+@option_config_file
+@option_force
+@group_general_config
+def claim_rewards(general_config: GroupGeneralConfig,
+          transacting_staker_options: TransactingStakerOptions,
+          config_file, force):
+    """
+    claim rewards
+    """
+    emitter = setup_emitter(general_config)
+
+    # stakholder is StakeHolder
+    STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
+    blockchain = transacting_staker_options.get_blockchain()
+
+    client_account, staking_address = select_client_account_for_staking(
+        emitter=emitter,
+        stakeholder=STAKEHOLDER,
+        staking_address=transacting_staker_options.staker_options.staking_address)
+
+    # Authenticate
+    password = get_password(stakeholder=STAKEHOLDER,
+                            blockchain=blockchain,
+                            client_account=client_account,
+                            hw_wallet=transacting_staker_options.hw_wallet)
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
+
+    #
+    # Stage Stake
+    #
+
+    token_balance = STAKEHOLDER.staker.token_balance
+
+    if token_balance <= 0:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+        raise click.Abort
+
+    if not force:
+        click.confirm("Are you sure you want to claim rewards?", abort=True)
+    #
+    # Review and Publish
+    #
+
+    # Execute
+    receipt = STAKEHOLDER.staker.claim_rewards(gas_price=int(transacting_staker_options.gas_price))
+
+    # Report Success
+    paint_receipt_summary(emitter=emitter,
+                          receipt=receipt,
+                          chain_name=blockchain.client.chain_name,
+                          transaction_type='claim rewards')
+
+
+# for debug
 if __name__ == '__main__':
     # # If the local connection is not connected to the extranet's chain, you need to set the proxy PyCHARM in your code to set the function
     # # https://blog.csdn.net/whatday/article/details/112169945
@@ -685,12 +687,26 @@ if __name__ == '__main__':
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    unbond_worker([
+    # unbond_worker([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug'
+    # ])
+
+    claim([
         #  '--config-root', 'D:\\nulink_data\\',
         '--gas-price', '1000000000',
         '--force',
         '--debug'
     ])
+
+    # claim_rewards([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug'
+    # ])
 
 
 """
