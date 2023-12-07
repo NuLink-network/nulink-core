@@ -180,7 +180,7 @@ if __name__ == '__main__':
         # '--teacher', '192.168.3.20:9151',
         '--teacher', '127.0.0.1:9151',  # '192.168.3.25:9151',  # '127.0.0.1:9151',
         '--network', 'horus',
-        '--eth-provider', 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+        '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
         '--allow-origins', "*",
         '--debug',
         '--console-logs',

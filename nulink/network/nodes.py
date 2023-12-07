@@ -75,6 +75,7 @@ TEACHER_NODES = {
     # NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9151",),  # dev server for greenfield sp
     # NetworksInventory.BSC_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),  # dev server for greenfield sp
     # NetworksInventory.HORUS: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),
+
     NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
     NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
 

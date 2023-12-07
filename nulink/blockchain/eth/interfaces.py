@@ -47,6 +47,7 @@ from constant_sorrow.constants import (
     UNKNOWN_TX_STATUS
 )
 
+from nulink.config.constants import WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE
 from nulink.crypto.powers import TransactingPower
 from nulink.blockchain.eth.clients import EthereumClient, POA_CHAINS, InfuraClient
 from nulink.blockchain.eth.decorators import validate_checksum_address
@@ -336,7 +337,9 @@ class BlockchainInterface:
         try:
             self.w3 = self.Web3(provider=self._eth_provider)
             # https://blog.csdn.net/shebao3333/article/details/118051932
-            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)  # 注入poa中间件
+            self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Inject poa middleware
+            # to fix send Transaction failed: \nSender balance: 0 ETH \nReason: max message response size exceed. upgrade your plan at https://blockpi.io \nTransaction
+            self.w3.eth.max_response_content_size = WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE  # for: Increase the maximum message response size in bytes
 
             self.client = EthereumClient.from_w3(w3=self.w3)
         except requests.ConnectionError:  # RPC

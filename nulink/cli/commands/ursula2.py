@@ -535,36 +535,38 @@ if __name__ == '__main__':
     #     '--rest-port', '9152',
     #     '--force',
     #     '--debug',
+    #     # '--availability-check', # don't open, ursula is stopped if the current ursula availability check does not pass
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-37e134573ae74c212aa47941c95b58265d437998-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-1edfc8629d723956c4c4147b61859fd5db3c98b1-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
     #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    #     '--eth-provider', 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+    #     '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--eth-provider', 'https://evmtestnet.confluxrpc.com',
     #     '--network', 'horus',
     #     # '--network', 'conflux_espace_testnet',
-    #     '--payment-provider', 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+    #     '--payment-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--payment-provider', 'https://evmtestnet.confluxrpc.com',
     #     '--payment-network', 'bsc_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
     #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-    #     '--operator-address', '0x37e134573ae74c212aa47941c95b58265d437998',
+    #     '--operator-address', '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
     #     '--max-gas-price', '5000000'])
 
     import os
-    #
 
-    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"
-    os.environ['NULINK_KEYSTORE_PASSWORD'] = "12345678"
+    #
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
+    os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
+
     run([
         '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
         '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
         # '--rest-host', '192.168.3.25',
         '--rest-port', '9152',
         # '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', 'D:\\nulink_data\\ursula-0265fc79.json',
-        # '--config-file', "D:\\nulink_data\\ursula-02983e2b.json",
+        # '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
+        '--config-file', 'D:\\nulink_data\\ursula-02d12b64.json',
         '--db-filepath', 'D:\\nulink_data',
         '--debug',
         # '--force',
@@ -573,7 +575,6 @@ if __name__ == '__main__':
         '--console-logs',
         '--file-logs',
     ])
-
 
     """
     nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs

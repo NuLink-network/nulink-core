@@ -30,7 +30,7 @@ from web3.middleware import (
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
     buffered_gas_estimate_middleware,
-    gas_price_strategy_middleware,
+    gas_price_strategy_middleware, geth_poa_middleware,
 )
 from web3.tools.benchmark.node import (
     GethBenchmarkFixture,
@@ -47,6 +47,8 @@ from web3.tools.benchmark.utils import (
 from web3.types import (
     Wei,
 )
+
+from nulink.config.constants import WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE
 
 KEYFILE_PW = 'web3py-test'
 
@@ -67,6 +69,10 @@ def build_web3_http(endpoint_uri: str) -> Web3:
         HTTPProvider(endpoint_uri),
         middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware]
     )
+    _web3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Inject poa middleware
+    # to fix send Transaction failed: \nSender balance: 0 ETH \nReason: max message response size exceed. upgrade your plan at https://blockpi.io \nTransaction
+    _web3.eth.max_response_content_size = WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE  # for: Increase the maximum message response size in bytes
+
     return _web3
 
 
@@ -77,6 +83,10 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
         middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
         modules={"eth": AsyncEth},
     )
+    _web3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Inject poa middleware
+    # to fix send Transaction failed: \nSender balance: 0 ETH \nReason: max message response size exceed. upgrade your plan at https://blockpi.io \nTransaction
+    _web3.eth.max_response_content_size = WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE  # for: Increase the maximum message response size in bytes
+
     return _web3
 
 

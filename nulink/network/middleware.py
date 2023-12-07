@@ -28,6 +28,7 @@ from constant_sorrow.constants import EXEMPT_FROM_VERIFICATION
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509 import Certificate
+from eth_typing import ChecksumAddress
 from nucypher_core import MetadataRequest, FleetStateChecksum, NodeMetadata
 from requests.exceptions import SSLError, JSONDecodeError
 
@@ -316,7 +317,7 @@ class RestMiddleware:
                                     )
         return response
 
-    def ping(self, node):
+    def ping(self, node: 'Ursula'):
         response = self.client.get(node_or_sprout=node, path="ping", timeout=15)
 
         if not str(response.status_code).startswith('2'):
@@ -335,6 +336,26 @@ class RestMiddleware:
         except JSONDecodeError:
             # old version content-type is text/html
             raise VersionMismatchError(f"the teacher {node.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")
+
+    def check_ursula_status(self, ursula: 'Ursula', operator_address: ChecksumAddress):
+        response = self.client.get(node_or_sprout=ursula, path="check_current_ursula_started", timeout=15, params={"operator_address": operator_address})
+
+        if not str(response.status_code).startswith('2'):
+            return response
+
+        try:
+            # "application/json" in response.headers['Content-Type'].lower()
+            ping_response = response.json()
+            ver = ping_response.get('version')
+            if not check_version(ver):
+                # major version
+                raise VersionMismatchError(
+                    f"the teacher {ping_response.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+
+            return response
+        except JSONDecodeError:
+            # old version content-type is text/html
+            raise VersionMismatchError(f"the teacher {ursula.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")
 
     def get_nodes_via_rest(self,
                            node,

@@ -232,3 +232,7 @@ class StakerGetUrsulas(BaseSchema):
 class GetCurrentVersion(BaseSchema):
     # output
     version = marshmallow_fields.String(dump_only=True)
+
+class CheckUrsulaStatus(BaseSchema):
+    # output
+    operator_address = marshmallow_fields.String(dump_only=True)

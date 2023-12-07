@@ -17,6 +17,7 @@
 from typing import List, Optional
 
 from eth_typing import ChecksumAddress
+from flask import request, Response
 
 from nucypher_core import TreasureMap, RetrievalKit
 from nucypher_core.umbral import PublicKey
@@ -83,6 +84,13 @@ class PorterInterface(ControlInterface):
         version = self.implementer.get_current_version()
 
         return {"version": version}
+
+    @attach_schema(porter_schema.CheckUrsulaStatus)
+    def check_ursula_status(self) -> Response:
+        response = self.implementer.check_ursula_status()
+        return response
+
+
 
     @attach_schema(porter_schema.AliceRevoke)
     def revoke(self) -> dict:

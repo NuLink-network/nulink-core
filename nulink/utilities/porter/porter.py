@@ -17,15 +17,16 @@
 import json
 from http import HTTPStatus
 from pathlib import Path
-from typing import List, NamedTuple, Optional, Sequence, Dict, Set
+from typing import List, NamedTuple, Optional, Sequence, Dict, Set, Any, Tuple
 
 from constant_sorrow.constants import NO_BLOCKCHAIN_CONNECTION, NO_CONTROL_PROTOCOL
+from eth.constants import ZERO_ADDRESS
 from eth_typing import ChecksumAddress
 from eth_utils import to_checksum_address
 from flask import request, Response
 from nucypher_core import TreasureMap, RetrievalKit
 from nucypher_core.umbral import PublicKey
-
+from nulink import __version__
 from nulink.blockchain.eth.agents import ContractAgency, PREApplicationAgent
 from nulink.blockchain.eth.interfaces import BlockchainInterfaceFactory
 from nulink.blockchain.eth.registry import BaseContractRegistry, InMemoryContractRegistry
@@ -46,6 +47,7 @@ from nulink.utilities.concurrency import WorkerPool
 from nulink.utilities.logging import Logger
 from nulink.utilities.porter.control.controllers import PorterCLIController
 from nulink.utilities.porter.control.interfaces import PorterInterface
+from nulink.utilities.version import VersionMismatchError
 
 nulink_workers: Dict = \
     {
@@ -143,9 +145,9 @@ the Pipe for PRE Application network operations
         #                   encrypting_key=ursula.public_keys(DecryptingPower))
 
         porter_ursula_worker_dict: Dict[ChecksumAddress, Porter.UrsulaInfo] = {to_checksum_address(ursula_address): Porter.UrsulaInfo(checksum_address=to_checksum_address(ursula_address),
-                                                                                                                                        uri=ursula_info["uri"],
-                                                                                                                                        encrypting_key=PublicKey.from_bytes(
-                                                                                                                                            bytes.fromhex(ursula_info["encrypting_key"])))
+                                                                                                                                      uri=ursula_info["uri"],
+                                                                                                                                      encrypting_key=PublicKey.from_bytes(
+                                                                                                                                          bytes.fromhex(ursula_info["encrypting_key"])))
                                                                                for ursula_address, ursula_info in nulink_workers.items()}
 
         porter_ursula_worker_dict = random_dic(porter_ursula_worker_dict)
@@ -289,6 +291,31 @@ the Pipe for PRE Application network operations
         from nulink import __version__
         return str(__version__)
 
+    def check_ursula_status(self, operator_address: ChecksumAddress) -> Response:
+
+        if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
+            return Response(json.dumps({'version': __version__, "error": "operator_address must be passed and cannot be empty"}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+        date_len = len(self.known_nodes)
+        if date_len <= 0:
+            return Response(json.dumps({'version': __version__, "error": "Porter has not learned the node. Please ask the administrator to check the porter network and startup status"}),
+                            content_type="application/json", status=HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        _ursula_operator_address = to_checksum_address(operator_address)
+
+        if _ursula_operator_address not in self.known_nodes:
+            return Response(json.dumps({'version': __version__,
+                                        "error": "porter has not found the current operator, please troubleshoot the problem in the following order:\n\t1. Check whether the operator address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+
+        ursula = self.known_nodes[_ursula_operator_address]
+
+        try:
+            return self.network_middleware.check_ursula_status(ursula, _ursula_operator_address)
+        except Exception as e:
+            # if isinstance(e, VersionMismatchError):
+            return Response(json.dumps({'version': __version__, "error": str(e)}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+
     def retrieve_cfrags(self,
                         treasure_map: TreasureMap,
                         retrieval_kits: Sequence[RetrievalKit],
@@ -414,5 +441,12 @@ the Pipe for PRE Application network operations
             # return response
             from nulink import __version__
             return Response(json.dumps({'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
+
+        @porter_flask_control.route('/check/ursula', methods=['GET'])
+        def check_ursula_status() -> Response:
+            """Porter control endpoint for checking the status of the specified ursula node (."""
+
+            response = controller(method_name='check_ursula_status', control_request=request)
+            return response
 
         return controller

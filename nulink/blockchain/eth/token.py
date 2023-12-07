@@ -27,6 +27,7 @@ from constant_sorrow.constants import (
 )
 from eth_utils import currency
 from hexbytes.main import HexBytes
+from nulink.control.emitters import StdoutEmitter
 from twisted.internet import reactor, task
 from web3.exceptions import TransactionNotFound
 
@@ -389,15 +390,23 @@ class WorkTrackerBase:
 
         if self._final_work_prep_before_transaction() is False:
             return
-
+        emitter = StdoutEmitter()
         try:
             txhash = self._fire_commitment()
             self.__pending[current_block_number] = txhash
         except web3.exceptions.ContractLogicError as e:
             if 'execution reverted: Operator address is already confirmed' in str(e):
+
+                emitter.message(f"Confirming operator address {self.worker.operator_address} is already confirmed", color='red')
+
                 self.log.warn(f'Confirming operator address {self.worker.operator_address} is already confirmed ')
             else:
                 raise
+        except Exception as e:
+            emitter.message(f"Confirming operator address {self.worker.operator_address} exception: {str(e)}", color='red')
+            import traceback
+            self.log.warn(f'Confirming operator address {self.worker.operator_address} exception: {str(e)} \nstack: {traceback.format_exc()}')
+            raise
 
     #  the following four methods are specific to PRE network schemes and must be implemented as below
     def _configure(self, stakes):
@@ -430,6 +439,7 @@ class WorkTracker(WorkTrackerBase):
     INTERVAL_CEIL = 2
 
     def _configure(self, *args):
+        self.token_agent = self.worker.token_agent
         self.application_agent = self.worker.application_agent
         self.client = self.application_agent.blockchain.client
 
@@ -450,6 +460,8 @@ class WorkTracker(WorkTrackerBase):
         transacting_power = self.worker.transacting_power
         with transacting_power:
             txhash = self.worker.confirm_address(fire_and_forget=True)  # < --- blockchain WRITE
+            emitter = StdoutEmitter()
+            emitter.message(f"Confirming operator address {self.worker.operator_address} with staking provider {self.worker.staking_provider_address} - TxHash: {txhash.hex()}", color='yellow')
             self.log.info(f"Confirming operator address {self.worker.operator_address} with staking provider {self.worker.staking_provider_address} - TxHash: {txhash.hex()}")
             return txhash
 

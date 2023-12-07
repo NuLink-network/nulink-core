@@ -143,7 +143,7 @@ group_config_options = group_options(
     poa=option_poa,
     light=option_light,
     registry_filepath=option_registry_filepath,
-    network=option_network(),
+    network=option_network(validate=True),
     signer_uri=option_signer_uri
 )
 
@@ -238,6 +238,21 @@ def init_stakeholder(general_config, config_root, force, config_options):
     new_stakeholder: StakeHolderConfiguration = config_options.generate_config(config_root)
     filepath = new_stakeholder.to_configuration_file(override=force)
     emitter.echo(SUCCESSFUL_NEW_STAKEHOLDER_CONFIG.format(filepath=filepath), color='green')
+
+
+@stake.command()
+@option_config_file
+@group_general_config
+@group_config_options
+def config(general_config, config_file, config_options):
+    """View and optionally update existing StakeHolder's configuration."""
+    emitter = setup_emitter(general_config)
+    configuration_file_location = config_file or StakeHolderConfiguration.default_filepath()
+    updates = config_options.get_updates()
+    get_or_update_configuration(emitter=emitter,
+                                config_class=StakeHolderConfiguration,
+                                filepath=configuration_file_location,
+                                updates=updates)
 
 
 @stake.command()
@@ -530,8 +545,8 @@ def rewards():
 @option_force
 @group_general_config
 def claim(general_config: GroupGeneralConfig,
-                  transacting_staker_options: TransactingStakerOptions,
-                  config_file, force):
+          transacting_staker_options: TransactingStakerOptions,
+          config_file, force):
     """
     claim unstaked tokens
     """
@@ -585,8 +600,8 @@ def claim(general_config: GroupGeneralConfig,
 @option_force
 @group_general_config
 def claim_rewards(general_config: GroupGeneralConfig,
-          transacting_staker_options: TransactingStakerOptions,
-          config_file, force):
+                  transacting_staker_options: TransactingStakerOptions,
+                  config_file, force):
     """
     claim rewards
     """
@@ -648,9 +663,21 @@ if __name__ == '__main__':
     #     #  '--config-root', 'D:\\nulink_data\\',
     #     '--force',
     #     '--debug',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xf9ab0b2632783816312a12615cc3e68dda171e28-worker',
+    #     # '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xf9ab0b2632783816312a12615cc3e68dda171e28-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-8ef191d2b8aef4c6c66e7700708885cf30bef6eb-worker',
     #     # '--signer', 'keystore:///Users/t/data/nulink/keystore' ,
-    #     '--provider', 'https://bsc-testnet.blockpi.network/v1/rpc/public',
+    #     '--provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
+    #     '--network', 'horus',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    # config([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
+    #     '--debug',
+    #     # '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xd9eca420ea4384ec4831cb4f785b1da08d5890af-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-8ef191d2b8aef4c6c66e7700708885cf30bef6eb-worker',
+    #     # '--signer', 'keystore:///Users/t/data/nulink/keystore' ,
+    #     '--provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     '--network', 'horus',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
@@ -671,43 +698,43 @@ if __name__ == '__main__':
     # get_stake_tokens()
 
     # unstake_all([
-    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
     #     '--gas-price', '1000000000',
     #     '--force',
     #     '--debug',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    # bond_worker([
-    #     #  '--config-root', 'D:\\nulink_data\\',
-    #     '--gas-price', '1000000000',
-    #     '--force',
-    #     '--debug',
-    #     # '--worker-address', '0xC0C32e3e60d153BcEF6B10f2d1Fb3758cbFa9E49'  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
-    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    # ])
-
-    # unbond_worker([
-    #     #  '--config-root', 'D:\\nulink_data\\',
-    #     '--gas-price', '1000000000',
-    #     '--force',
-    #     '--debug'
-    # ])
-
-    claim([
-        #  '--config-root', 'D:\\nulink_data\\',
+    bond_worker([
+        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
         '--gas-price', '1000000000',
         '--force',
-        '--debug'
+        '--debug',
+        # '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
+        '--worker-address', '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     ])
 
-    # claim_rewards([
-    #     #  '--config-root', 'D:\\nulink_data\\',
+    # unbond_worker([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
     #     '--gas-price', '1000000000',
     #     '--force',
     #     '--debug'
     # ])
 
+    # claim([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug'
+    # ])
+
+    # claim_rewards([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug'
+    # ])
 
 """
     # While creating a new staker

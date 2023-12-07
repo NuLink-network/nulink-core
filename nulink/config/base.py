@@ -588,6 +588,14 @@ class CharacterConfiguration(BaseConfiguration):
     def attach_keystore(self, keystore: Keystore) -> None:
         self.__keystore = keystore
 
+    @property
+    def provider_uri(self) -> Keystore:
+        return self.eth_provider_uri
+
+    @provider_uri.setter
+    def provider_uri(self, provider_uri: str) -> None:
+        self.eth_provider_uri = provider_uri
+
     @classmethod
     def checksum_address_from_filepath(cls, filepath: Path) -> str:
         pattern = re.compile(r'''

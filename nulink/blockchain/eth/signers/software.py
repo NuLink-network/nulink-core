@@ -37,6 +37,7 @@ from web3.middleware import geth_poa_middleware
 from nulink.blockchain.eth.constants import NULL_ADDRESS
 from nulink.blockchain.eth.decorators import validate_checksum_address
 from nulink.blockchain.eth.signers.base import Signer
+from nulink.config.constants import WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE
 
 
 class Web3Signer(Signer):
@@ -124,7 +125,9 @@ class ClefSigner(Signer):
         super().__init__()
         self.w3 = Web3(provider=IPCProvider(ipc_path=ipc_path, timeout=timeout))  # TODO: Unify with clients or build error handling
         # https://blog.csdn.net/shebao3333/article/details/118051932
-        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)  # 注入poa中间件
+        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)  # Inject poa middleware
+        # to fix send Transaction failed: \nSender balance: 0 ETH \nReason: max message response size exceed. upgrade your plan at https://blockpi.io \nTransaction
+        self.w3.eth.max_response_content_size = WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE  # for: Increase the maximum message response size in bytes
         self.ipc_path = ipc_path
         self.testnet = testnet
 

@@ -23,6 +23,9 @@ from typing import Tuple
 
 from constant_sorrow import constants
 from constant_sorrow.constants import RELAX
+from eth.constants import ZERO_ADDRESS
+from eth_typing import ChecksumAddress
+from eth_utils import to_checksum_address
 from flask import Flask, Response, jsonify, request
 from mako import exceptions as mako_exceptions
 from mako.template import Template
@@ -33,6 +36,8 @@ from nucypher_core import (
     MetadataResponse,
     MetadataResponsePayload,
 )
+from nulink.network.middleware import NulinkMiddlewareClient
+
 from nulink import __version__
 from nulink.config.constants import MAX_UPLOAD_CONTENT_LENGTH
 from nulink.control.emitters import StdoutEmitter
@@ -291,7 +296,6 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     def check_availability():
         """Asks this node: Can you access my public information endpoint?"""
 
-
         split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
         # bytes(request) + split_symbol + bytes(__version__, 'utf-8')
 
@@ -299,23 +303,24 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         len_bytes_list = len(bytes_list)
         if len_bytes_list == 1:
             # Note The version of the requesting end is relatively early, return an empty node list, Indicates that we do not support the old version
-            return Response({'error': f'Invalid Ursula: Version mismatch, please upgrade your node version to {__version__}'}, status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': f'Invalid Ursula: Version mismatch, please upgrade your node version to {__version__}'}), content_type="application/json",
+                            status=HTTPStatus.BAD_REQUEST)
         else:
             # current len_bytes_list must be 2
             assert len_bytes_list == 2
-            ursula_metadata_bytes, version_bytes = bytes_list
+            ursula_metadata_bytes, version_bytes = bytes_list  # ursula_metadata_bytes is sender's metadata
             version_str = version_bytes.decode('utf-8')
 
             if not check_version(version_str):
                 # Note The version of the requesting end is different from the current node version, return an empty node list, Indicates that we do not support the old version
-                return Response({'error': f'Invalid Ursula: Version {version_str} mismatch, please upgrade your node version to {__version__}'}, status=HTTPStatus.BAD_REQUEST)
-
+                return Response(json.dumps({'version': __version__, 'error': f'Invalid Ursula: Version {version_str} mismatch, please upgrade your node version to {__version__}'}),
+                                content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         try:
             requesting_ursula = Ursula.from_metadata_bytes(ursula_metadata_bytes)  # request.data)
             requesting_ursula.mature()
         except ValueError:
-            return Response({'error': 'Invalid Ursula'}, status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': 'Invalid Ursula'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
         else:
             initiator_address, initiator_port = tuple(requesting_ursula.rest_interface)
 
@@ -323,7 +328,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         request_address = request.remote_addr
         if request_address != initiator_address:
             message = f'Origin address mismatch: Request origin is {request_address} but metadata claims {initiator_address}.'
-            return Response({'error': message}, status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': message}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         # Make a Sandwich
         try:
@@ -332,13 +337,13 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
                 port=initiator_port,
             )
         except NodeSeemsToBeDown:
-            return Response({'error': 'Unreachable node'}, status=HTTPStatus.BAD_REQUEST)  # ... toasted
+            return Response(json.dumps({'version': __version__, 'error': 'Unreachable node'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)  # ... toasted
 
         # Compare the results of the outer POST with the inner GET... yum
-        if requesting_ursula_metadata == request.data:
-            return Response(status=HTTPStatus.OK)
+        if requesting_ursula_metadata == ursula_metadata_bytes:  # request.data:
+            return Response(json.dumps({'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
         else:
-            return Response({'error': 'Suspicious node'}, status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': 'Suspicious node'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
     @rest_app.route('/status/', methods=['GET'])
     def status():
@@ -389,6 +394,73 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         signed_message = this_node.signer.sign_message(this_node.wallet_address, this_node.rest_interface.host.encode()).hex()
         emitter.message(f"signed_message: {signed_message}")
-        return Response(json.dumps({"worker_signed": signed_message}), content_type="application/json", status=HTTPStatus.OK)
+        return Response(json.dumps({'version': __version__, "worker_signed": signed_message}), content_type="application/json", status=HTTPStatus.OK)
+
+    @rest_app.route("/check-running", methods=['GET'])
+    def check_current_ursula_started():
+        """Porter or others Ursula check the status of the current ursula node (this_node ursula_object)"""
+        # requester_ip_address = request.remote_addr
+
+        emitter = StdoutEmitter()
+
+        operator_address = request.args.get('operator_address')
+
+        if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
+            return Response(json.dumps({'version': __version__, 'error': 'Parameter operator_address not be null'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+
+        operator_address = to_checksum_address(operator_address)
+        ursula: Ursula = this_node
+        # ursula.network_middleware: RestMiddleware
+        # ursula.network_middleware.client: NulinkMiddlewareClient
+        client: NulinkMiddlewareClient = ursula.network_middleware.client
+
+        staker_address: ChecksumAddress = ursula.application_agent.get_staking_provider_from_operator(operator_address)
+        if not staker_address or staker_address == f"0x{ZERO_ADDRESS.hex()}":
+            return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK first'}), content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
+
+        operator_confirmed: bool = ursula.application_agent.is_operator_confirmed(operator_address)
+        if not operator_confirmed:
+            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and started the worker(ursula) node first'}), content_type="application/json",
+                            status=HTTPStatus.PRECONDITION_REQUIRED)
+
+        #
+        all_known_nodes = ursula.known_nodes.values()
+        if not all_known_nodes or len(all_known_nodes) < 1:
+            return Response(json.dumps({'version': __version__, 'error': 'Please started the worker(ursula) node first and wait for node discovery'}), content_type="application/json",
+                            status=HTTPStatus.PRECONDITION_REQUIRED)
+
+        # Call the check_availability of the teacher node to check whether it is externally accessible =>
+        # (Asks teacher node: Can you access my(this_node: current ursula node) public information endpoint?)
+        last_error = ""
+        teacher_unreachable = False
+
+        for node in all_known_nodes:
+            split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
+            try:
+                teacher_unreachable = False
+                response = client.post(node_or_sprout=node,
+                                       data=bytes(ursula.metadata()) + split_symbol + bytes(__version__, 'utf-8'),
+                                       path="check_availability",
+                                       timeout=15,  # Two round trips are expected
+                                       )
+
+                if not str(response.status_code).startswith('2'):
+                    try:
+                        last_error = response.content.decode()
+                    except:
+                        last_error = response.content
+
+                    continue
+
+                return Response(json.dumps({'version': __version__, 'data': 'success'}), content_type="application/json", status=HTTPStatus.OK)
+
+            except Exception as e:
+                last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable  details reason: str(e)"
+                teacher_unreachable = True
+                emitter.message(f"check_current_ursula_started exception: {last_error}")
+                continue
+
+        error_info = f'The ursula node cannot be accessed externally. Enable port {ursula.rest_interface.port} and set a static public ip address' if not teacher_unreachable else 'teacher(work) node is inaccessible, configure the accessible node as the worker\'s learning(teacher) node or resolve the problem that the teacher(work) node is inaccessible'
+        return Response(json.dumps({'version': __version__, 'error': error_info, 'details': last_error}), content_type="application/json", status=HTTPStatus.GATEWAY_TIMEOUT)
 
     return rest_app

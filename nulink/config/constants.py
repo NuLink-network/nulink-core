@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from collections import namedtuple
 from pathlib import Path
 
@@ -54,25 +53,23 @@ DEFAULT_JSON_LOG_FILENAME = "nulink.json"
 SeednodeMetadata = namedtuple('seednode', ['checksum_address', 'rest_host', 'rest_port'])
 SEEDNODES = tuple()
 
-
 # Sentry (Add your public key and user ID below)
 NULINK_SENTRY_PUBLIC_KEY = ""
 NULINK_SENTRY_USER_ID = ""
 NULINK_SENTRY_ENDPOINT = f"https://{NULINK_SENTRY_PUBLIC_KEY}@sentry.io/{NULINK_SENTRY_USER_ID}"
-
 
 # Web
 CLI_ROOT = NULINK_PACKAGE / 'network' / 'templates'
 TEMPLATES_DIR = CLI_ROOT / 'templates'
 MAX_UPLOAD_CONTENT_LENGTH = 1024 * 50
 
-
 # Dev Mode
 TEMPORARY_DOMAIN = ":temporary-domain:"  # for use with `--dev` node runtimes
-
 
 # Event Blocks Throttling
 NULINK_EVENTS_THROTTLE_MAX_BLOCKS = 'NULINK_EVENTS_THROTTLE_MAX_BLOCKS'
 
 # Probationary period
 END_OF_POLICIES_PROBATIONARY_PERIOD = MayaDT.from_iso8601('2022-6-16T23:59:59.0Z')
+
+WEB3_ETH_MAX_RESPONSE_CONTENT_SIZE = 100_000_000_000_000  # for: Increase the maximum message response size in bytes

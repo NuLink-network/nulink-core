@@ -22,6 +22,7 @@ from typing import Optional, Tuple
 from typing import Union
 
 import maya
+import web3.exceptions
 from constant_sorrow.constants import FULL
 from eth_typing import ChecksumAddress
 from hexbytes import HexBytes
@@ -325,6 +326,7 @@ class Operator(BaseActor):
         self.__operator_address = operator_address
         self.__staking_provider_address = None  # set by block_until_ready
         if is_me:
+            self.token_agent = ContractAgency.get_agent(NulinkTokenAgent, registry=self.registry)
             self.application_agent = ContractAgency.get_agent(PREApplicationAgent, registry=self.registry)
             self.work_tracker = work_tracker or WorkTracker(worker=self)
 
@@ -352,6 +354,7 @@ class Operator(BaseActor):
         return self.application_agent.is_operator_confirmed(self.operator_address)
 
     def confirm_address(self, fire_and_forget: bool = True) -> Union[TxReceipt, HexBytes]:
+        # self.token_agent.get_balance(self.operator_address)
         txhash_or_receipt = self.application_agent.confirm_operator_address(self.transacting_power, fire_and_forget=fire_and_forget)
         return txhash_or_receipt
 

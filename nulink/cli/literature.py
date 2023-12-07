@@ -77,7 +77,7 @@ It is *highly recommended* to use a different accounts for staker and operator r
 
 Continue using the same account for operator and staker?"""
 
-SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking provider {staking_provider_address}"
+SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking provider {staking_address}"
 
 BONDING_DETAILS = "Bonded at {bonded_date}"
 
@@ -159,7 +159,8 @@ SUCCESSFUL_NEW_STAKEHOLDER_CONFIG = """
 Configured new stakeholder!
 Wrote JSON configuration to {filepath}
 
-* Review configuration     -> nulink stake init
+* Create configuration     -> nulink stake init
+* Review configuration     -> nulink stake config
 * Stake NLK tokens         -> nulink stake create
 * Stake NLK tokens         -> nulink stake unstake-all
 * Bond a worker            -> nulink stake bond-worker
