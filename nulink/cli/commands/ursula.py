@@ -14,7 +14,8 @@
  You should have received a copy of the GNU Affero General Public License
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
-
+import urllib3
+import warnings
 from pathlib import Path
 
 import nuclick as click
@@ -72,6 +73,9 @@ from nulink.config.constants import (
 )
 from nulink.crypto.keystore import Keystore
 
+
+# Globally suppress this warning : InsecureRequestWarning
+warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
 
 class UrsulaConfigOptions:
     __option_name__ = 'config_options'
