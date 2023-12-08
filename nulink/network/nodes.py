@@ -73,11 +73,12 @@ TEACHER_NODES = {
     # NetworksInventory.CONFLUX_ESPACE_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152"),  # conflux_espace_testnet
     # NetworksInventory.BSC_TESTNET: ("https://47.245.98.245:9151",),  # dev server
     # NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9151",),  # dev server for greenfield sp
-    # NetworksInventory.BSC_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),  # dev server for greenfield sp
-    # NetworksInventory.HORUS: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),
 
-    NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
-    NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
+    NetworksInventory.BSC_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),  # dev server for greenfield sp
+    NetworksInventory.HORUS: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),
+
+    # NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
+    # NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
 
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO: ("https://8.219.11.39:9151",),

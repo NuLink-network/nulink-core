@@ -291,30 +291,36 @@ the Pipe for PRE Application network operations
         from nulink import __version__
         return str(__version__)
 
-    def check_ursula_status(self, operator_address: ChecksumAddress) -> Response:
+    def check_ursula_status(self, staker_address: ChecksumAddress) -> dict:
 
-        if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
-            return Response(json.dumps({'version': __version__, "error": "operator_address must be passed and cannot be empty"}),
-                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+        if not staker_address or staker_address == f"0x{ZERO_ADDRESS.hex()}":
+            return {  # 'version': __version__,
+                "error": "staker_address must be passed and cannot be empty"}
+            # status=HTTPStatus.BAD_REQUEST)
+
         date_len = len(self.known_nodes)
         if date_len <= 0:
-            return Response(json.dumps({'version': __version__, "error": "Porter has not learned the node. Please ask the administrator to check the porter network and startup status"}),
-                            content_type="application/json", status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return {  # 'version': __version__,
+                "error": "Porter has not learned the node. Please ask the administrator to check the porter network and startup status"}
+            # status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        _ursula_operator_address = to_checksum_address(operator_address)
+        _ursula_staker_address = to_checksum_address(staker_address)
 
-        if _ursula_operator_address not in self.known_nodes:
-            return Response(json.dumps({'version': __version__,
-                                        "error": "porter has not found the current operator, please troubleshoot the problem in the following order:\n\t1. Check whether the operator address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}),
-                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+        if _ursula_staker_address not in self.known_nodes:
+            return {  # 'version': __version__,
+                "error": "porter has not found the current staker, please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}
+            # status=HTTPStatus.BAD_REQUEST)
 
-        ursula = self.known_nodes[_ursula_operator_address]
+        # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
+        ursula = self.known_nodes[_ursula_staker_address]
 
         try:
-            return self.network_middleware.check_ursula_status(ursula, _ursula_operator_address)
+            return self.network_middleware.check_ursula_status(ursula, _ursula_staker_address)
         except Exception as e:
             # if isinstance(e, VersionMismatchError):
-            return Response(json.dumps({'version': __version__, "error": str(e)}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+            return {  # 'version': __version__,
+                "error": str(e)}
+            # status=HTTPStatus.BAD_REQUEST)
 
     def retrieve_cfrags(self,
                         treasure_map: TreasureMap,

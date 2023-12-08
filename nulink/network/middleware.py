@@ -38,6 +38,7 @@ from nulink.network.exceptions import NodeSeemsToBeDown
 from nulink.utilities.logging import Logger
 from nulink.utilities.version import check_version_pickle_symbol, check_version, VersionMismatchError
 from nulink import __version__
+import json
 
 SSL_LOGGER = Logger('ssl-middleware')
 EXEMPT_FROM_VERIFICATION.bool_value(False)
@@ -337,22 +338,38 @@ class RestMiddleware:
             # old version content-type is text/html
             raise VersionMismatchError(f"the teacher {node.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")
 
-    def check_ursula_status(self, ursula: 'Ursula', operator_address: ChecksumAddress):
-        response = self.client.get(node_or_sprout=ursula, path="check_current_ursula_started", timeout=15, params={"operator_address": operator_address})
+    def check_ursula_status(self, ursula: 'Ursula', staker_address: ChecksumAddress) -> dict:
+
+        # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
+        response = self.client.get(node_or_sprout=ursula, path="check-running", timeout=15, params={"staker_address": staker_address})
 
         if not str(response.status_code).startswith('2'):
-            return response
+            try:
+                response_json = response.json()
+                ver = response_json.get('version')
+                # "application/json" in response.headers['Content-Type'].lower()
+                return {# 'version': ver or __version__,
+                        'error': response_json.get('error') or response_json.get('data') or str(response_json)}
+            except:
+                try:
+                    return {# 'version': __version__,
+                            'error': response.content.decode()}
+                except:
+                    return { # 'version': __version__,
+                            'error': str(response.content)}
 
         try:
             # "application/json" in response.headers['Content-Type'].lower()
-            ping_response = response.json()
-            ver = ping_response.get('version')
+            response_json = response.json()
+            ver = response_json.get('version')
             if not check_version(ver):
                 # major version
                 raise VersionMismatchError(
-                    f"the teacher {ping_response.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
+                    f"the teacher {response_json.get('requester_ip')}'s version {ver} do not match with the local node's version {__version__}, please upgrade the node or connect to the node of the latest version")
 
-            return response
+            return { # 'version': ver or __version__,
+                    'data': response_json.get('data')}
+
         except JSONDecodeError:
             # old version content-type is text/html
             raise VersionMismatchError(f"the teacher {ursula.rest_interface.uri}'s version 0.1.0 is too low, you can't connect to it")

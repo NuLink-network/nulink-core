@@ -86,8 +86,8 @@ class PorterInterface(ControlInterface):
         return {"version": version}
 
     @attach_schema(porter_schema.CheckUrsulaStatus)
-    def check_ursula_status(self) -> Response:
-        response = self.implementer.check_ursula_status()
+    def check_ursula_status(self, staker_address: ChecksumAddress) -> dict:
+        response = self.implementer.check_ursula_status(staker_address)
         return response
 
 

@@ -234,5 +234,12 @@ class GetCurrentVersion(BaseSchema):
     version = marshmallow_fields.String(dump_only=True)
 
 class CheckUrsulaStatus(BaseSchema):
+
+    # input
+    staker_address = marshmallow_fields.String(dump_only=True)
+
     # output
-    operator_address = marshmallow_fields.String(dump_only=True)
+    # list = marshmallow_fields.Dict(keys=marshmallow_fields.String,values=marshmallow_fields., dump_only=True)
+    version = marshmallow_fields.String(dump_only=True)
+    data = marshmallow_fields.String(dump_only=True)
+    error = marshmallow_fields.String(dump_only=True)

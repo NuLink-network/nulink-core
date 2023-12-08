@@ -403,19 +403,26 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         emitter = StdoutEmitter()
 
-        operator_address = request.args.get('operator_address')
+        staker_address = request.args.get('staker_address')
 
-        if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
-            return Response(json.dumps({'version': __version__, 'error': 'Parameter operator_address not be null'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+        if not staker_address or staker_address == f"0x{ZERO_ADDRESS.hex()}":
+            return Response(json.dumps({'version': __version__, 'error': 'Parameter staker_address not be null'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
-        operator_address = to_checksum_address(operator_address)
+        staker_address = to_checksum_address(staker_address)
         ursula: Ursula = this_node
         # ursula.network_middleware: RestMiddleware
         # ursula.network_middleware.client: NulinkMiddlewareClient
         client: NulinkMiddlewareClient = ursula.network_middleware.client
 
-        staker_address: ChecksumAddress = ursula.application_agent.get_staking_provider_from_operator(operator_address)
-        if not staker_address or staker_address == f"0x{ZERO_ADDRESS.hex()}":
+        is_authorized: bool = ursula.application_agent.is_authorized(staker_address)
+        if not is_authorized:
+            return Response(
+                json.dumps({'version': __version__,
+                            'error': f'The amount staked of NLK must be greater than the minimum amount staked: {ursula.application_agent.get_min_authorization()}'}),
+                content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
+
+        operator_address: ChecksumAddress = ursula.application_agent.get_operator_from_staking_provider(staker_address)
+        if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
             return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK first'}), content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
 
         operator_confirmed: bool = ursula.application_agent.is_operator_confirmed(operator_address)
@@ -423,10 +430,10 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
             return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and started the worker(ursula) node first'}), content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
-        #
+        # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
         all_known_nodes = ursula.known_nodes.values()
         if not all_known_nodes or len(all_known_nodes) < 1:
-            return Response(json.dumps({'version': __version__, 'error': 'Please started the worker(ursula) node first and wait for node discovery'}), content_type="application/json",
+            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and start the worker(ursula) node first and wait for node discovery'}), content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
         # Call the check_availability of the teacher node to check whether it is externally accessible =>
