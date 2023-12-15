@@ -250,24 +250,29 @@ the Pipe for PRE Application network operations
 
     def get_ursulas_total(self, return_list=False):
 
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+
         if return_list:
-            return len(self.known_nodes), [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in self.known_nodes]
+            return len(filter_nodes), [{'checksum_address': checksum_address, 'uri': node.rest_interface.formal_uri} for checksum_address, node in filter_nodes.items()]
         else:
-            return len(self.known_nodes)
+
+            return len(filter_nodes)
 
     def get_include_ursulas(self, include_ursulas=None):
 
         if include_ursulas is None:
             include_ursulas = []
 
-        date_len = len(self.known_nodes)
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+
+        date_len = len(filter_nodes)
         ret_list = []
         for ursula_address in include_ursulas:
             _ursula_address = to_checksum_address(ursula_address)
-            if _ursula_address not in self.known_nodes:
+            if _ursula_address not in filter_nodes:
                 ret_list.append("")
             else:
-                node = self.known_nodes[_ursula_address]
+                node = filter_nodes[_ursula_address]
                 ret_list.append(node.rest_interface.formal_uri)
 
         return date_len, ret_list
@@ -277,11 +282,13 @@ the Pipe for PRE Application network operations
         if start_index > end_index:
             start_index, end_index = end_index, start_index
 
-        date_len = len(self.known_nodes)
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+
+        date_len = len(filter_nodes)
         if start_index > date_len - 1:
             return date_len, []
         # sorted(list(self.known_nodes.addresses()))
-        node_list = [node for node in self.known_nodes]
+        node_list = [node for node in filter_nodes.values()]
         if end_index < 0 or end_index > date_len - 1:
             return date_len, [{'checksum_address': node.checksum_address, 'uri': node.rest_interface.formal_uri} for node in node_list[start_index:]]
         else:
@@ -298,7 +305,9 @@ the Pipe for PRE Application network operations
                 "error": "staker_address must be passed and cannot be empty"}
             # status=HTTPStatus.BAD_REQUEST)
 
-        date_len = len(self.known_nodes)
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+
+        date_len = len(filter_nodes)
         if date_len <= 0:
             return {  # 'version': __version__,
                 "error": "Porter has not learned the node. Please ask the administrator to check the porter network and startup status"}
@@ -306,13 +315,13 @@ the Pipe for PRE Application network operations
 
         _ursula_staker_address = to_checksum_address(staker_address)
 
-        if _ursula_staker_address not in self.known_nodes:
+        if _ursula_staker_address not in filter_nodes:
             return {  # 'version': __version__,
                 "error": "porter has not found the current staker, please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}
             # status=HTTPStatus.BAD_REQUEST)
 
         # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
-        ursula = self.known_nodes[_ursula_staker_address]
+        ursula = filter_nodes[_ursula_staker_address]
 
         try:
             return self.network_middleware.check_ursula_status(ursula, _ursula_staker_address)
@@ -344,6 +353,7 @@ the Pipe for PRE Application network operations
                                                              timeout=self.execution_timeout,
                                                              learn_on_this_thread=True):
                 raise ValueError("Unable to learn about sufficient Ursulas")
+
             return make_federated_staker_reservoir(known_nodes=self.known_nodes,
                                                    exclude_addresses=exclude_ursulas,
                                                    include_addresses=include_ursulas)

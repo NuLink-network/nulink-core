@@ -15,9 +15,9 @@ You should have received a copy of the GNU Affero General Public License
 along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from typing import Iterable, List, Optional
 
+from eth.constants import ZERO_ADDRESS
 from eth_typing import ChecksumAddress
 
 from nulink.acumen.perception import FleetSensor
@@ -33,8 +33,9 @@ def make_federated_staker_reservoir(known_nodes: FleetSensor,
     include_addresses = include_addresses or ()
     exclusion_set = set(include_addresses) | set(exclude_addresses or ())
     addresses = {}
+
     for ursula in known_nodes:
-        if ursula.checksum_address in exclusion_set:
+        if ursula.checksum_address in exclusion_set or ursula.checksum_address == f"0x{ZERO_ADDRESS.hex()}":
             continue
         addresses[ursula.checksum_address] = 1
 
