@@ -92,7 +92,7 @@ class FleetState:
         self._this_node_metadata = this_node_metadata
 
     def archived(self) -> ArchivedFleetState:
-        # 存储所有节点的 以太坊地址和节点个数
+        # Stores Ethereum addresses and the number of nodes   for all nodes
         return ArchivedFleetState(checksum=self.checksum,
                                   nickname=self.nickname,
                                   timestamp=self.timestamp,

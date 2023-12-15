@@ -83,7 +83,7 @@ BONDING_DETAILS = "Bonded at {bonded_date}"
 
 BONDING_RELEASE_INFO = "This operator can be replaced or detached after {release_date}"
 
-SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from staking provider {staking_provider_address}"
+SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from staking provider {staking_address}"
 
 
 #
