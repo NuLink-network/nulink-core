@@ -438,7 +438,8 @@ class Learner:
         restored_from_disk = []
         invalid_nodes = defaultdict(list)
         for node in stored_nodes:
-            if node.domain != self.domain:
+            if node.domain != self.domain and \
+                    not (node.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS] and self.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS]):
                 invalid_nodes[node.domain].append(node)
                 continue
             restored_node = self.remember_node(node, record_fleet_state=False)  # TODO: Validity status 1866
@@ -875,7 +876,8 @@ class Learner:
 
         # TODO: we really should be checking this *before* we ask it for a node list,
         # but currently we may not know this before the REST request (which may mature the node)
-        if self.domain != current_teacher.domain:
+        if self.domain != current_teacher.domain and \
+                not (current_teacher.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS] and self.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS]):
             self.log.debug(f"{current_teacher} is serving '{current_teacher.domain}', "
                            f"ignore since we are learning about '{self.domain}'")
             return  # This node is not serving our domain.

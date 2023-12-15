@@ -25,6 +25,7 @@ import maya
 from eth_typing import ChecksumAddress
 
 from nucypher_core import FleetStateChecksum, NodeMetadata
+from nulink.blockchain.eth.networks import NetworksInventory
 
 from nulink.utilities.logging import Logger
 from .nicknames import Nickname
@@ -239,7 +240,8 @@ class FleetSensor:
 
     def record_node(self, node: 'Ursula'):
         #  domain is network  e.g. mainnet, bsc_testnet, horus
-        if node.domain == self._domain:
+        if node.domain == self._domain or \
+                (node.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS] and self._domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS]):
             # Replace the existing object with a newer object, even if they're equal
             # (this object can be mutated externally).
             # This behavior is supposed to be consistent with that of the node storage
