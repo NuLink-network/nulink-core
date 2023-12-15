@@ -289,7 +289,7 @@ def create(general_config: GroupGeneralConfig,
     #
 
     min_stake_amount = STAKEHOLDER.staker.get_min_stake_amount()
-    max_stake_amount = STAKEHOLDER.staker.get_min_stake_amount()
+    max_stake_amount = STAKEHOLDER.staker.get_max_stake_amount()
     token_balance = STAKEHOLDER.staker.token_balance
 
     stake_value_range = DecimalRange(min=min_stake_amount, max=max_stake_amount, clamp=False)
