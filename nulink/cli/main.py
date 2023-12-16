@@ -27,6 +27,7 @@ from nulink.cli.commands import (
     contacts,
     porter,
     bond,
+    stake
 )
 from nulink.cli.painting.help import echo_version, echo_config_root_path, echo_logging_root_path
 
@@ -79,6 +80,9 @@ ENTRY_POINTS = (
     # Utility Commands
     status.status,      # Network status explorer
     porter.porter,      # Network support services
+
+    # stake
+    stake.stake,
 
     # Demos
     alice.alice,        # Author of Policies
