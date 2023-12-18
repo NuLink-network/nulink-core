@@ -202,6 +202,7 @@ the Pipe for PRE Application network operations
         # ursulas_info = workers.values()
         # return list(ursulas_info)
 
+        # Note: The contract function getActiveStakingProviders returns a list of workers that have been bonded during the current epoch
         reservoir = self._make_reservoir(quantity, exclude_ursulas, include_ursulas)
         value_factory = PrefetchStrategy(reservoir, quantity)
 
@@ -210,7 +211,7 @@ the Pipe for PRE Application network operations
                 raise ValueError(f"{ursula_address} is not known")
 
             ursula_address = to_checksum_address(ursula_address)
-            ursula = self.known_nodes[ursula_address]
+            ursula = self.known_nodes[ursula_address]  # ursula_address is staker address
             try:
                 # ensure node is up and reachable
                 self.network_middleware.ping(ursula)
