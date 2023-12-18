@@ -40,7 +40,7 @@ Bond an Operator to a Staking Provider. The Staking Provider must be authorized 
 
 .. code:: bash
 
-    (nulink)$ nulink bond [OPTIONS]
+    (nulink)$ nulink stake bond-worker [OPTIONS]
 
 
 Unbond
@@ -50,7 +50,7 @@ Unbonds an operator from an authorized Staking Provider.
 
 .. code:: bash
 
-    (nulink)$ nulink unbond [OPTIONS]
+    (nulink)$ nulink stake unbond-worker [OPTIONS]
 
 
 Enrico
