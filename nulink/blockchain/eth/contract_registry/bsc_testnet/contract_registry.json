@@ -2,7 +2,7 @@
   [
     "NuLinkToken",
     "v0.0.0",
-    "0x11e7eBf856134A484121f8d4FD301d21dC7582Df",
+    "0xc3fF4FF7417b2c52F892fC36EEC8Ae5c342397Fe",
     [
       {
         "inputs": [],
@@ -487,7 +487,7 @@
   [
     "NuLinkStakingPool",
     "v0.0.0",
-    "0xbE6c319cecD667787d4dDbD38a18053B49115B70",
+    "0x2Ca971dC1F07331601bAd5956936BD4607471a7F",
     [
       {
         "inputs": [
@@ -1287,7 +1287,7 @@
   [
     "SubscriptionManager",
     "v0.0.0",
-    "0x88D8D243e106F5571A6BB740cE4E268C01c6001a",
+    "0x74e6985CBE513EcA3Fd5de8b271b303a1D67dF04",
     [
       {
         "anonymous": false,
@@ -1970,7 +1970,7 @@
   [
     "SimplePREApplication",
     "v0.0.0",
-    "0xE70b5D599EaDC8E79aF7856b818C523458B29CC5",
+    "0xf782EF0555f8a6e898A4a0E8cd427Bb1DB059Ffd",
     [
       {
         "inputs": [
