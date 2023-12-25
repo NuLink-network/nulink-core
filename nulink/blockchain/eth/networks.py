@@ -33,6 +33,7 @@ class NetworksInventory:  # TODO: See #1564
 
     BSC = 'bsc'
     BSC_TESTNET = 'bsc_testnet'
+    BSC_DEV_TESTNET = 'bsc_dev_testnet'
 
     CONFLUX_ESPACE = 'conflux_espace'
     CONFLUX_ESPACE_TESTNET = 'conflux_espace_testnet'
@@ -64,6 +65,7 @@ class NetworksInventory:  # TODO: See #1564
         BSC: 56,
         BSC_TESTNET: 97,
         HORUS: 97,
+        BSC_DEV_TESTNET: 97,
     }
 
     __to_chain_id_conflux_espace = {
