@@ -251,7 +251,10 @@ the Pipe for PRE Application network operations
 
     def get_ursulas_total(self, return_list=False):
 
-        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+        # List of invalid or unreachable nodes
+        node_to_remove = list(self.known_nodes._nodes_to_remove)
+
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if (node.checksum_address != f"0x{ZERO_ADDRESS.hex()}" and node.checksum_address not in node_to_remove)}
 
         if return_list:
             return len(filter_nodes), [{'checksum_address': checksum_address, 'uri': node.rest_interface.formal_uri} for checksum_address, node in filter_nodes.items()]
@@ -264,7 +267,10 @@ the Pipe for PRE Application network operations
         if include_ursulas is None:
             include_ursulas = []
 
-        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+        # List of invalid or unreachable nodes
+        node_to_remove = list(self.known_nodes._nodes_to_remove)
+
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if (node.checksum_address != f"0x{ZERO_ADDRESS.hex()}" and node.checksum_address not in node_to_remove)}
 
         date_len = len(filter_nodes)
         ret_list = []
@@ -283,7 +289,10 @@ the Pipe for PRE Application network operations
         if start_index > end_index:
             start_index, end_index = end_index, start_index
 
-        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+        # List of invalid or unreachable nodes
+        node_to_remove = list(self.known_nodes._nodes_to_remove)
+
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if (node.checksum_address != f"0x{ZERO_ADDRESS.hex()}" and node.checksum_address not in node_to_remove)}
 
         date_len = len(filter_nodes)
         if start_index > date_len - 1:
@@ -306,7 +315,10 @@ the Pipe for PRE Application network operations
                 "error": "staker_address must be passed and cannot be empty"}
             # status=HTTPStatus.BAD_REQUEST)
 
-        filter_nodes = {node.checksum_address: node for node in self.known_nodes if node.checksum_address != f"0x{ZERO_ADDRESS.hex()}"}
+        # List of invalid or unreachable nodes
+        node_to_remove = list(self.known_nodes._nodes_to_remove)
+
+        filter_nodes = {node.checksum_address: node for node in self.known_nodes if (node.checksum_address != f"0x{ZERO_ADDRESS.hex()}" and node.checksum_address not in node_to_remove)}
 
         date_len = len(filter_nodes)
         if date_len <= 0:
@@ -318,7 +330,7 @@ the Pipe for PRE Application network operations
 
         if _ursula_staker_address not in filter_nodes:
             return {  # 'version': __version__,
-                "error": "porter has not found the current staker, please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}
+                "error": f"{'The worker node corresponding to the current staker is an invalid node' if _ursula_staker_address in node_to_remove else 'The porter service did not found the current staker'} , please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network"}
             # status=HTTPStatus.BAD_REQUEST)
 
         # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses

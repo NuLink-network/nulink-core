@@ -79,7 +79,7 @@ TEACHER_NODES = {
 
     NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
     NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
-    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161", ),
+    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),
 
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO: ("https://8.219.11.39:9151",),
@@ -1200,8 +1200,24 @@ class Teacher:
                 self.certificate_filepath = self._cert_store_function(self.certificate, port=self.rest_interface.port)
             certificate_filepath = self.certificate_filepath
 
-        response_data = network_middleware_client.node_information(host=self.rest_interface.host,
-                                                                   port=self.rest_interface.port)
+        # add by andi start
+        RETRY_LIMIT = 2
+        retry_cnt = 0
+        while retry_cnt < RETRY_LIMIT:
+            try:  # add by end
+                response_data = network_middleware_client.node_information(host=self.rest_interface.host,
+                                                                           port=self.rest_interface.port)
+
+                # add by andi start
+                break
+            except RestMiddleware.Unreachable as e:
+                # ping is Unreachable
+                retry_cnt += 1
+                if retry_cnt >= RETRY_LIMIT:
+                    raise self.InvalidNode(str(e))  # This will trigger the node to be added to the list of nodes to be removed
+                # else:
+                #     time.sleep(1)
+            # add by end
 
         try:
             # response_data is the 'NodeMetadata' bytes, NodeMetadata is the signer object of NodeMetadataPayload: NodeMetadata(signer=self.stamp.as_umbral_signer(), payload=payload)
