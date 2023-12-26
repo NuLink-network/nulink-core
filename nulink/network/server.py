@@ -462,7 +462,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
                 return Response(json.dumps({'version': __version__, 'data': 'success'}), content_type="application/json", status=HTTPStatus.OK)
 
             except Exception as e:
-                last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable  details reason: str(e)"
+                last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable details reason: str(e)"
                 teacher_unreachable = True
                 emitter.message(f"check_current_ursula_started exception: {last_error}")
                 continue

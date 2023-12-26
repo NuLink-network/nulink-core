@@ -53,10 +53,12 @@ from nucypher_core.umbral import (
     PublicKey, VerifiedKeyFrag, reencrypt,
 
 )
+from nulink.blockchain.eth.constants import NULL_ADDRESS
 from twisted.internet import reactor, stdio
 from twisted.internet.defer import Deferred
 from twisted.logger import Logger
 from web3.types import TxReceipt
+from web3.main import Web3
 
 import nulink
 from nulink.acumen.nicknames import Nickname
@@ -1067,6 +1069,11 @@ class Ursula(Teacher, Character, Operator):
         else:
             operator_signature = self.operator_signature
 
+        # when start ursula with parameter --no-block-until-ready, the initial value of self.checksum_address will be assigned NULL_ADDRESS,
+        # So here we need to recapture the value to ensure that the checksum_address has a value when Ursula's metadata is generated
+        if Web3.toHex(self.canonical_address) == NULL_ADDRESS and self.operator_address != NULL_ADDRESS:
+            self.get_staking_provider_address()
+
         payload = NodeMetadataPayload(staking_provider_address=self.canonical_address,
                                       domain=self.domain,
                                       timestamp_epoch=timestamp.epoch,
@@ -1084,6 +1091,14 @@ class Ursula(Teacher, Character, Operator):
     def metadata(self):
         if not self._metadata:
             self._metadata = self._generate_metadata()
+
+        # when start ursula with parameter --no-block-until-ready, the initial value of self.checksum_address will be assigned NULL_ADDRESS,
+        # So here we need to recapture the value to ensure that the checksum_address has a value when Ursula's metadata is generated
+        if Web3.toHex(self._metadata.payload.staking_provider_address) == NULL_ADDRESS and self.operator_address != NULL_ADDRESS:
+            self.get_staking_provider_address()
+            if self.checksum_address != NULL_ADDRESS:
+                self._metadata = self._generate_metadata()
+
         return self._metadata
 
     @property
@@ -1437,16 +1452,12 @@ class Staker(Character):
 
     def __init__(self,
                  *args, **kwargs):
-
         # Enrico never uses the blockchain (hence federated_only)
         kwargs['federated_only'] = True
         kwargs['known_node_class'] = None
         super().__init__(*args, **kwargs)
 
-
-
         self.log = Logger(f'{self.__class__.__name__}-{bytes(self.public_keys(SigningPower)).hex()[:6]}')
-
 
     def encrypt_message(self, plaintext: bytes) -> MessageKit:
         # TODO: #2107 Rename to "encrypt"

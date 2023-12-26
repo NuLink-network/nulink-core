@@ -339,7 +339,7 @@ class Operator(BaseActor):
 
     @property
     def staking_provider_address(self):
-        if not self.__staking_provider_address:
+        if not self.__staking_provider_address or self.__staking_provider_address == NULL_ADDRESS:
             self.__staking_provider_address = self.get_staking_provider_address()
         return self.__staking_provider_address
 
