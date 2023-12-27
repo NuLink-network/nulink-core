@@ -564,15 +564,15 @@ if __name__ == '__main__':
     os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
 
     run([
-        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
         # '--rest-host', '192.168.3.25',
         '--rest-port', '9151',
         # '--teacher', 'https://8.219.188.70:9151',
         '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
         '--db-filepath', 'D:\\nulink_data',
-        '--debug',
-        # '--force',
+        # '--debug',
+        # # '--force',
         '--no-ip-checkup',
         '--no-block-until-ready',
         '--console-logs',

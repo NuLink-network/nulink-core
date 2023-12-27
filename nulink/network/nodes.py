@@ -79,7 +79,8 @@ TEACHER_NODES = {
 
     NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
     NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
-    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.216.53:9161",),
+    # NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.216.53:9161",),
+    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),
 
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO: ("https://8.219.11.39:9151",),
@@ -548,6 +549,9 @@ class Learner:
         """
         Only for tests at this point.  Maybe some day for graceful shutdowns.
         """
+
+        self.log.critical("---------------------------------- stop_learning_loop ----------------------------------")
+
         if self._learning_task.running:
             self._learning_task.stop()
 
@@ -585,7 +589,7 @@ class Learner:
 
         failure.raiseException()
         # TODO: We don't actually have checksum_address at this level - maybe only Characters can crash gracefully :-)  1711
-        self.log.critical("{} crashed with {}".format(self.checksum_address, failure))
+        self.log.critical("{} crashed with {}".format(self.checksum_address if hasattr(self, "checksum_address") else "", str(failure)))
         reactor.stop()
 
     def select_teacher_nodes(self):
@@ -679,6 +683,7 @@ class Learner:
                 self.log.warn("Blocking to learn about nodes, but learning loop isn't running.")
             if learn_on_this_thread:
                 try:
+                    self.log.info("block_until_number_of_known_nodes_is learn_from_teacher_node.")
                     self.learn_from_teacher_node(eager=eager)
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
                     # TODO: Even this "same thread" logic can be done off the main thread.  NRN
@@ -722,6 +727,7 @@ class Learner:
                 return True
 
             if learn_on_this_thread:
+                self.log.info("block_until_specific_nodes_are_known learn_from_teacher_node.")
                 self.learn_from_teacher_node(eager=True)
             elif not self._learning_task.running:
                 raise RuntimeError(
@@ -804,6 +810,8 @@ class Learner:
 
         TODO: A lot of other code can be simplified if this is converted to async def.  That's a project, though.
         """
+
+        self.log.info(f"in learn_from_teacher_node ......")
         remembered = []
 
         if not self.done_seeding:
@@ -831,6 +839,7 @@ class Learner:
         # Request
         #
         if canceller and canceller.stop_now:
+            self.log.critical(f"learn_from_teacher_node stop now RELAX.")
             return RELAX
 
         try:
@@ -856,6 +865,7 @@ class Learner:
             if canceller and canceller.stop_now:
                 # Race condition that seems limited to tests.
                 # TODO: Sort this out.
+                self.log.critical(f"RuntimeError learn_from_teacher_node stop now RELAX.")
                 return RELAX
             else:
                 self.log.warn(

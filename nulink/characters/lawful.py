@@ -997,7 +997,8 @@ class Ursula(Teacher, Character, Operator):
 
                 try:
                     deployer.run()  # <--- Blocking Call (Reactor)
-                except Exception as e:
+                except BaseException as e:
+                    self.log.critical(f"start server error: for deployer.run() {str(e)}")
                     self.log.critical(str(e))
                     if emitter:
                         emitter.message(f"{e.__class__.__name__} {e}", color='red', bold=True)

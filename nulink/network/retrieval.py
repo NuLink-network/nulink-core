@@ -187,6 +187,7 @@ class RetrievalClient:
         # OK, so we're going to need to do some network activity for this retrieval.
         # Let's make sure we've seeded.
         if not self._learner.done_seeding:
+            self.log.info("_ensure_ursula_availability learn_from_teacher_node")
             self._learner.learn_from_teacher_node()
 
         ursulas_in_map = treasure_map.destinations.keys()

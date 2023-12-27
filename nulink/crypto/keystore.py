@@ -270,7 +270,7 @@ class Keystore:
             return True
         except SecretBoxAuthenticationError:
             self.__secret = KEYSTORE_LOCKED
-            raise self.AuthenticationFailed(f"keystore path: {path}")
+            raise self.AuthenticationFailed(f"keystore.unlock AuthenticationFailed, Maybe password error, please check the password or corresponding environment variables, keystore path: {path}")
 
     @staticmethod
     def __save(secret: bytes, password: str, keystore_dir: Optional[Path] = None) -> Path:

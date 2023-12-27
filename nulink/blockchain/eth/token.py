@@ -240,6 +240,9 @@ class WorkTrackerBase:
         self._crashed = failure
         failure.raiseException()
 
+        # TODO: We don't actually have checksum_address at this level - maybe only Characters can crash gracefully :-)  1711
+        self.log.critical("handle_working_errors {} crashed with {}".format(self.checksum_address if hasattr(self, "checksum_address") else "", str(failure)))
+
     def handle_working_errors(self, *args, **kwargs) -> None:
         failure = args[0]
         if self._abort_on_error:
