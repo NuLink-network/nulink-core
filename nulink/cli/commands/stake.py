@@ -664,10 +664,12 @@ if __name__ == '__main__':
     #     '--force',
     #     '--debug',
     #     # '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0xf9ab0b2632783816312a12615cc3e68dda171e28-worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-8ef191d2b8aef4c6c66e7700708885cf30bef6eb-worker',
+    #     # '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-8ef191d2b8aef4c6c66e7700708885cf30bef6eb-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-staker-417136ee7133e3d2e333daf4b80e299422521f80',
     #     # '--signer', 'keystore:///Users/t/data/nulink/keystore' ,
     #     '--provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
-    #     '--network', 'horus',
+    #     # '--network', 'horus',
+    #     '--network', 'bsc_dev_testnet',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
@@ -686,14 +688,14 @@ if __name__ == '__main__':
 
     os.environ['NULINK_STAKING_PROVIDER_ETH_PASSWORD'] = "qazwsxedc"
 
-    # create([
-    #     #  '--config-root', 'D:\\nulink_data\\',
-    #     '--gas-price', '1000000000',
-    #     '--force',
-    #     '--debug',
-    #     '--value', '1000000000000000000',
-    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    # ])
+    create([
+        #  '--config-root', 'D:\\nulink_data\\',
+        '--gas-price', '1000000000',
+        '--force',
+        '--debug',
+        '--value', '1000000000000000000',
+        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    ])
 
     get_stake_tokens()
 

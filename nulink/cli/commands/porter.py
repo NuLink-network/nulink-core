@@ -179,7 +179,7 @@ if __name__ == '__main__':
         # '--teacher', '54.241.67.36:9151',
         # '--teacher', '192.168.3.20:9151',
         # '--teacher', '8.222.155.168:9161',  # '127.0.0.1:9151',  # '192.168.3.25:9151',  # '127.0.0.1:9151',
-        '--network', 'horus',
+        '--network', 'bsc_dev_testnet',  # 'horus',
         '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
         '--allow-origins', "*",
         '--debug',
