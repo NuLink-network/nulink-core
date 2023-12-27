@@ -14,6 +14,10 @@
  You should have received a copy of the GNU Affero General Public License
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
+import faulthandler
+faulthandler.enable()
+
+# 后边正常写你的代码
 import urllib3
 import warnings
 from pathlib import Path
@@ -72,6 +76,7 @@ from nulink.config.constants import (
     TEMPORARY_DOMAIN
 )
 from nulink.crypto.keystore import Keystore
+
 
 # Globally suppress this warning : InsecureRequestWarning
 warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
@@ -535,12 +540,12 @@ if __name__ == '__main__':
     # init([
     #     '--config-root', 'D:\\nulink_data\\',
     #     '--rest-host', '192.168.3.25',
-    #     '--rest-port', '9152',
+    #     '--rest-port', '9151',
     #     '--force',
     #     '--debug',
     #     # '--availability-check', # don't open, ursula is stopped if the current ursula availability check does not pass
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-1edfc8629d723956c4c4147b61859fd5db3c98b1-worker',
+    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0x7afb812531f1c7a5c52c8a9720f34f4b65706b21-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
     #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
@@ -553,32 +558,44 @@ if __name__ == '__main__':
     #     '--payment-network', 'bsc_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
     #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-    #     '--operator-address', '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     '--operator-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',
     #     '--max-gas-price', '5000000'])
 
     import os
 
     #
-    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
-    os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
+    # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
+    # os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
+
+    # run([
+    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     # '--rest-host', '192.168.3.25',
+    #     '--rest-port', '9151',
+    #     # '--teacher', 'https://8.219.188.70:9151',
+    #     '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
+    #     '--db-filepath', 'D:\\nulink_data',
+    #     # '--debug',
+    #     # # '--force',
+    #     '--no-ip-checkup',
+    #     '--no-block-until-ready',
+    #     '--console-logs',
+    #     '--file-logs',
+    # ])
+
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"  # "c2d3f8bdf4"
+    os.environ['NULINK_KEYSTORE_PASSWORD'] = "NuLink@tH9iym"  # "12345678"  # "NuLink@tH9iym"
+
 
     run([
-        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-        # '--rest-host', '192.168.3.25',
-        '--rest-port', '9152',
+        '--rest-port', '9162',
         # '--teacher', 'https://8.219.188.70:9151',
-        # '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
-        '--config-file', 'D:\\nulink_data\\ursula-02d12b64.json',
-        '--db-filepath', 'D:\\nulink_data',
-        '--debug',
-        # '--force',
+        '--config-file', '/root/.local/share/nulink/ursula-02b45819.json',
+        # '--debug',
+        # # '--force',
         '--no-ip-checkup',
         '--no-block-until-ready',
         '--console-logs',
         '--file-logs',
     ])
 
-    """
-    nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs
-    """

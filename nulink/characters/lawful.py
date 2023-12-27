@@ -1223,6 +1223,10 @@ class Ursula(Teacher, Character, Operator):
                 raise Learner.NotATeacher(
                     f"{staking_provider_address} is staking less than the specified minimum stake value ({minimum_stake}).")
 
+        if not (potential_seed_node and hasattr(potential_seed_node, "checksum_address") and potential_seed_node.checksum_address != NULL_ADDRESS):
+            raise Learner.NotAValidTeacher(
+                f"teacher {real_host}:{port} 's  checksum_address is {NULL_ADDRESS}, it was a valid Node, Maybe it's not bound to an operator")
+
         return potential_seed_node
 
     @classmethod

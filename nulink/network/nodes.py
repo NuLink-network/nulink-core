@@ -80,7 +80,7 @@ TEACHER_NODES = {
     NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
     NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
     # NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.216.53:9161",),
-    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),
+    NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),  # test the invalid node ("https://8.219.11.39:9168",),
 
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO: ("https://8.219.11.39:9151",),
@@ -273,6 +273,13 @@ class Learner:
         """
         Raised when a character cannot be properly utilized because
         it does not have the proper attributes for learning or verification.
+
+        """
+
+    class NotAValidTeacher(ValueError):
+        """
+        Raised when a character's checksum_address are NULL_ADDRESS (It means he's not bound always)
+
         """
 
     def __init__(self,
@@ -389,6 +396,7 @@ class Learner:
                                                                        federated_only=self.federated_only,
                                                                        network_middleware=self.network_middleware,
                                                                        registry=self.registry)
+
 
                 except VersionMismatchError as e:
                     self.log.warn(f"the Teacher {uri}: {e}")
@@ -597,7 +605,14 @@ class Learner:
 
         if not nodes_we_know_about:
             raise self.NotEnoughTeachers(
-                f"Need some nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node")
+                f"Need some nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node or had staked and bonded with operator and the node are started")
+
+        # Remove the invalid node whose address is 0x0000...(NULL_ADDRESS)
+        nodes_we_know_about = list(filter(lambda x: hasattr(x, "checksum_address") and x.checksum_address != NULL_ADDRESS, nodes_we_know_about))
+
+        if not nodes_we_know_about:
+            raise self.NotEnoughTeachers(
+                f"Need some valid nodes to start learning from.\n Check your network connection then node configuration then Maybe this node version {nulink.__version__} is mismatching with the Teacher node or had staked and bonded with operator and the node are started")
 
         self.teacher_nodes.extend(nodes_we_know_about)
 
@@ -853,11 +868,11 @@ class Learner:
             unresponsive_nodes.add(current_teacher)
             self.log.info(f"Teacher {current_teacher.seed_node_metadata(as_teacher_uri=True)} is unreachable: {e}.")
             return
-        except current_teacher.InvalidNode as e:
+        except Teacher.InvalidNode as e:  # 'NodeSprout' object has no attribute 'InvalidNode'
             # Ugh.  The teacher is invalid.  Rough.
             # TODO: Bucket separately and report.
             unresponsive_nodes.add(current_teacher)  # This does nothing.
-            self.known_nodes.mark_as(current_teacher.InvalidNode, current_teacher)
+            self.known_nodes.mark_as(e, current_teacher)
             self.log.warn(f"Teacher {str(current_teacher)} is invalid: {e}.")
             # TODO (#567): bucket the node as suspicious
             return
@@ -1143,7 +1158,12 @@ class Teacher:
 
     def validate_metadata_signature(self) -> bool:
         """Checks that the interface info is valid for this node's canonical address."""
+
+        # andi comment
+        # Note: When ursula's checksum_address is NULL_ADDRESS, self.metadata() throws a segment error exception that cannot be caught
+        #  so let's get to the root of the problem. Ursula whose checksum_address is NULL_ADDRESS is not allowed
         metadata_is_valid = self.metadata().verify()
+
         self.verified_metadata = metadata_is_valid
         if metadata_is_valid:
             return True

@@ -14,6 +14,7 @@
  You should have received a copy of the GNU Affero General Public License
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
+
 from pathlib import Path
 
 import nuclick as click
@@ -175,7 +176,7 @@ if __name__ == '__main__':
     # os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
     run([
-        '--http-port', '9155',
+        '--http-port', '9165',
         # '--teacher', '54.241.67.36:9151',
         # '--teacher', '192.168.3.20:9151',
         # '--teacher', '8.222.155.168:9161',  # '127.0.0.1:9151',  # '192.168.3.25:9151',  # '127.0.0.1:9151',
