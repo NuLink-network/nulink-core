@@ -14,10 +14,7 @@
  You should have received a copy of the GNU Affero General Public License
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
-import faulthandler
-faulthandler.enable()
 
-# 后边正常写你的代码
 import urllib3
 import warnings
 from pathlib import Path
@@ -77,9 +74,9 @@ from nulink.config.constants import (
 )
 from nulink.crypto.keystore import Keystore
 
-
 # Globally suppress this warning : InsecureRequestWarning
 warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
+
 
 class UrsulaConfigOptions:
     __option_name__ = 'config_options'
@@ -586,7 +583,6 @@ if __name__ == '__main__':
     os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"  # "c2d3f8bdf4"
     os.environ['NULINK_KEYSTORE_PASSWORD'] = "NuLink@tH9iym"  # "12345678"  # "NuLink@tH9iym"
 
-
     run([
         '--rest-port', '9162',
         # '--teacher', 'https://8.219.188.70:9151',
@@ -598,4 +594,3 @@ if __name__ == '__main__':
         '--console-logs',
         '--file-logs',
     ])
-
