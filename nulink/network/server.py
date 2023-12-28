@@ -36,7 +36,9 @@ from nucypher_core import (
     MetadataResponse,
     MetadataResponsePayload,
 )
-from nulink.network.middleware import NulinkMiddlewareClient
+from nulink.blockchain.eth.constants import NULL_ADDRESS
+
+from nulink.network.middleware import NulinkMiddlewareClient, RestMiddleware
 
 from nulink import __version__
 from nulink.config.constants import MAX_UPLOAD_CONTENT_LENGTH
@@ -405,13 +407,19 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         staker_address = request.args.get('staker_address')
 
-        if not staker_address or staker_address == f"0x{ZERO_ADDRESS.hex()}":
+        if not staker_address or staker_address == NULL_ADDRESS:
             return Response(json.dumps({'version': __version__, 'error': 'Parameter staker_address not be null'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         staker_address = to_checksum_address(staker_address)
         ursula: Ursula = this_node
         # ursula.network_middleware: RestMiddleware
         # ursula.network_middleware.client: NulinkMiddlewareClient
+
+        if not hasattr(ursula, "checksum_address") or ursula.checksum_address == NULL_ADDRESS:
+            return Response(json.dumps(
+                {'version': __version__, 'error': f'current node is not valid (checksum_address is {NULL_ADDRESS}). Please Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+
         client: NulinkMiddlewareClient = ursula.network_middleware.client
 
         is_authorized: bool = ursula.application_agent.is_authorized(staker_address)
@@ -441,7 +449,18 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         last_error = ""
         teacher_unreachable = False
 
-        for node in all_known_nodes:
+        node_to_remove = list(ursula.known_nodes._nodes_to_remove)
+
+        filter_nodes = {node.checksum_address: node for node in ursula.known_nodes if (node.checksum_address != NULL_ADDRESS and node.checksum_address not in node_to_remove)}
+
+        date_len = len(filter_nodes)
+
+        if date_len < 1:
+            return Response(json.dumps({'version': __version__, 'error': 'Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
+                            content_type="application/json",
+                            status=HTTPStatus.PRECONDITION_REQUIRED)
+
+        for node in filter_nodes.values():
             split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
             try:
                 teacher_unreachable = False
@@ -461,8 +480,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
                 return Response(json.dumps({'version': __version__, 'data': 'success'}), content_type="application/json", status=HTTPStatus.OK)
 
-            except Exception as e:
-                last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable details reason: str(e)"
+            except BaseException as e:
+                last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable details reason: {str(e)}"
                 teacher_unreachable = True
                 emitter.message(f"check_current_ursula_started exception: {last_error}")
                 continue

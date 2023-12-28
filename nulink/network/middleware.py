@@ -190,7 +190,7 @@ class NulinkMiddlewareClient:
             if cleaned_response.status_code >= 300:
 
                 if cleaned_response.status_code == HTTPStatus.BAD_REQUEST:
-                    raise RestMiddleware.BadRequest(reason=cleaned_response.json)
+                    raise RestMiddleware.BadRequest(reason=cleaned_response.text)
 
                 elif cleaned_response.status_code == HTTPStatus.NOT_FOUND:
                     m = f"While trying to {method_name} {args} ({kwargs}), server 404'd.  Response: {cleaned_response.content}"
@@ -199,13 +199,13 @@ class NulinkMiddlewareClient:
                 elif cleaned_response.status_code == HTTPStatus.PAYMENT_REQUIRED:
                     # TODO: Use this as a hook to prompt Bob's payment for policy sponsorship
                     # https://getyarn.io/yarn-clip/ce0d37ba-4984-4210-9a40-c9c9859a3164
-                    raise RestMiddleware.PaymentRequired(cleaned_response.content)
+                    raise RestMiddleware.PaymentRequired(cleaned_response.text)
 
                 elif cleaned_response.status_code == HTTPStatus.FORBIDDEN:
-                    raise RestMiddleware.Unauthorized(cleaned_response.content)
+                    raise RestMiddleware.Unauthorized(cleaned_response.text)
 
                 else:
-                    raise RestMiddleware.UnexpectedResponse(cleaned_response.content, status=cleaned_response.status_code)
+                    raise RestMiddleware.UnexpectedResponse(cleaned_response.text, status=cleaned_response.status_code)
 
             return cleaned_response
 
