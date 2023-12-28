@@ -465,6 +465,9 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
             try:
                 teacher_unreachable = False
                 response = client.post(node_or_sprout=node,
+                                       # andi comment
+                                       # Note: When ursula's checksum_address is NULL_ADDRESS, self.metadata() throws a segment error exception that cannot be caught
+                                       #  so let's get to the root of the problem. Ursula whose checksum_address is NULL_ADDRESS is not allowed
                                        data=bytes(ursula.metadata()) + split_symbol + bytes(__version__, 'utf-8'),
                                        path="check_availability",
                                        timeout=15,  # Two round trips are expected
