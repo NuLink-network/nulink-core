@@ -431,7 +431,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         operator_address: ChecksumAddress = ursula.application_agent.get_operator_from_staking_provider(staker_address)
         if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
-            return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK first'}), content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
+            return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK and bond worker first'}), content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
 
         operator_confirmed: bool = ursula.application_agent.is_operator_confirmed(operator_address)
         if not operator_confirmed:
