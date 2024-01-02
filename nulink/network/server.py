@@ -435,7 +435,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         operator_confirmed: bool = ursula.application_agent.is_operator_confirmed(operator_address)
         if not operator_confirmed:
-            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and started the worker(ursula) node first'}), content_type="application/json",
+            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and started the worker(ursula) node first and Keep an adequate balance in your account'}), content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
         # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
