@@ -523,8 +523,6 @@ def unbond_worker(general_config: GroupGeneralConfig,
     receipt = STAKEHOLDER.staker.unbond_worker(gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
-    message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
-    emitter.echo(message, color='green')
     message = SUCCESSFUL_UNBOND_OPERATOR.format(worker_address=worker_address, staking_address=staking_address)
 
     emitter.echo(message, color='green')
@@ -688,16 +686,16 @@ if __name__ == '__main__':
 
     os.environ['NULINK_STAKING_PROVIDER_ETH_PASSWORD'] = "qazwsxedc"
 
-    create([
-        #  '--config-root', 'D:\\nulink_data\\',
-        '--gas-price', '1000000000',
-        '--force',
-        '--debug',
-        '--value', '1000000000000000000',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    ])
+    # create([
+    #     #  '--config-root', 'D:\\nulink_data\\',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--value', '1000000000000000000',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
-    get_stake_tokens()
+    # get_stake_tokens()
 
     # unstake_all([
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
@@ -707,15 +705,15 @@ if __name__ == '__main__':
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    bond_worker([
-        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
-        '--gas-price', '1000000000',
-        '--force',
-        '--debug',
-        # '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
-        '--worker-address', '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    ])
+    # bond_worker([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     # '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
+    #     '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
     # unbond_worker([
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',

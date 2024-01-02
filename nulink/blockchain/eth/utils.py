@@ -100,6 +100,9 @@ def etherscan_url(item, network: str, is_token=False) -> str:
                                            PUBLIC_CHAINS[4],  # Rinkeby
                                            PUBLIC_CHAINS[5],  # Goerli
                                            PUBLIC_CHAINS[42],  # Kovan
+                                           PUBLIC_CHAINS[97],  # "Bsc/Testnet", "horus"
+                                           PUBLIC_CHAINS[71],  # Conflux Espace/Testnet
+                                           PUBLIC_CHAINS[256],  # Heco/Testnet
                                            )
         if network in testnets_supported_by_etherscan:
             domain = f"https://{network.lower()}.etherscan.io"
