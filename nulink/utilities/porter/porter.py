@@ -330,7 +330,7 @@ the Pipe for PRE Application network operations
 
         if _ursula_staker_address not in filter_nodes:
             return {  # 'version': __version__,
-                "error": f"{'The worker node corresponding to the current staker is an invalid node' if _ursula_staker_address in node_to_remove else 'The porter service did not found the current staker'} , please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3. If the worker service has been started, wait until the worker node is discovered by the network\n\t4. Whether the ip address is a static address (public ip address) and the port (default :9151) is open"}
+                "error": f"{'The worker node corresponding to the current staker is an invalid node' if _ursula_staker_address in node_to_remove else 'The porter service did not found the current staker'} , please troubleshoot the problem in the following order:\n\t1. Check whether the staker address is correct\n\t2. Check whether the worker service corresponding to the operator address is started\n\t3.Ensure that the worker must have a small (t)bnb balance. \n\t4. If the worker service has been started, wait until the worker node is discovered by the network\n\t5. Whether the ip address is a static address (public ip address) and the port (default :9151) is open"}
             # status=HTTPStatus.BAD_REQUEST)
 
         # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
