@@ -61,7 +61,7 @@ NULINK_SENTRY_ENDPOINT = f"https://{NULINK_SENTRY_PUBLIC_KEY}@sentry.io/{NULINK_
 # Web
 CLI_ROOT = NULINK_PACKAGE / 'network' / 'templates'
 TEMPLATES_DIR = CLI_ROOT / 'templates'
-MAX_UPLOAD_CONTENT_LENGTH = 1024 * 50
+MAX_UPLOAD_CONTENT_LENGTH = 1024 * 50 * 2   # handle http response: HTTP 413 Content Too Large
 
 # Dev Mode
 TEMPORARY_DOMAIN = ":temporary-domain:"  # for use with `--dev` node runtimes

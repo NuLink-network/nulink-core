@@ -117,7 +117,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     _node_class = Ursula
 
     rest_app = Flask("ursula-service")
-    rest_app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH
+    rest_app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH   # handle http response: HTTP 413 Content Too Large
 
     @rest_app.route("/public_information")
     def public_information():

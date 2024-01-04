@@ -15,7 +15,6 @@
  along with nucypher.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 import inspect
 import json
 from abc import ABC, abstractmethod
@@ -61,7 +60,7 @@ class ControllerBase(ABC):
         request = request or {}  # for requests with no input params request can be ''
         method = getattr(self.interface, action, None)
         serializer = method._schema
-        params = serializer.load(request) # input validation will occur here.
+        params = serializer.load(request)  # input validation will occur here.
         response = method(**params)  # < ---- INLET
 
         response_data = serializer.dump(response)
@@ -120,7 +119,6 @@ class InterfaceControlServer(ControllerBase):
 
 
 class CLIController(InterfaceControlServer):
-
     _emitter_class = StdoutEmitter
 
     def make_control_transport(self):
@@ -141,7 +139,6 @@ class CLIController(InterfaceControlServer):
 
 
 class JSONRPCController(InterfaceControlServer):
-
     _emitter_class = JSONRPCStdoutEmitter
 
     def start(self):
@@ -190,7 +187,7 @@ class JSONRPCController(InterfaceControlServer):
             raise self.emitter.InvalidRequest('No request id')
         except TypeError:
             raise self.emitter.InvalidRequest(f'Request object not valid: {type(message)}')
-        else:             # RPC
+        else:  # RPC
             return self.handle_procedure_call(control_request=message)
 
     def handle_batch(self, control_requests: list) -> int:
@@ -264,7 +261,7 @@ class WebController(InterfaceControlServer):
 
     def make_control_transport(self):
         self._transport = Flask(self.app_name)
-        self._transport.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH
+        self._transport.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH  # handle http response: HTTP 413 Content Too Large
 
         # Return FlaskApp decorator
         return self._transport
@@ -286,7 +283,8 @@ class WebController(InterfaceControlServer):
                                            options={
                                                "wsgi": self._transport,
                                                "https_port": port,
-                                               "resources": get_static_resources()
+                                               "resources": get_static_resources(),
+                                               # "max_upload_bytes": MAX_UPLOAD_CONTENT_LENGTH,   # handle http response: HTTP 413 Content Too Large
                                            })
         else:
             # HTTP endpoint
@@ -296,7 +294,8 @@ class WebController(InterfaceControlServer):
                                         options={
                                             "wsgi": self._transport,
                                             "http_port": port,
-                                            "resources": get_static_resources()
+                                            "resources": get_static_resources(),
+                                            # "max_upload_bytes": MAX_UPLOAD_CONTENT_LENGTH,   # handle http response: HTTP 413 Content Too Large
                                         })
 
         hx_deployer.run()  # <--- Blocking Call to Reactor

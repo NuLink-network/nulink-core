@@ -196,6 +196,6 @@ class HostingKeypair(Keypair):
                                 options={
                                     "wsgi": rest_app,
                                     "https_port": port,
-                                    "max_upload_bytes": MAX_UPLOAD_CONTENT_LENGTH,
+                                    "max_upload_bytes": MAX_UPLOAD_CONTENT_LENGTH,   # handle http response: HTTP 413 Content Too Large
                                     'resources': get_static_resources(),
                                 })
