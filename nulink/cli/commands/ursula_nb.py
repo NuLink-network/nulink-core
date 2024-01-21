@@ -535,27 +535,27 @@ if __name__ == '__main__':
     # Only Windows supports paths. All other systems must start with the network path /, which together is keystore:///
     #
     # init([
-    #     '--config-root', 'D:\\nulink_data\\',
-    #     '--rest-host', '192.168.3.25',
+    #     # 'D:\\nulink_data\\',
+    #     # '--config-root', 'C:\\Users\\wangyi\\AppData\\Local\\NuLink\\nulink\\ursula.json'
+    #     # '--rest-host', '192.168.3.25',
     #     '--rest-port', '9151',
     #     '--force',
     #     '--debug',
     #     # '--availability-check', # don't open, ursula is stopped if the current ursula availability check does not pass
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
-    #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-0x7afb812531f1c7a5c52c8a9720f34f4b65706b21-worker',
+    #     '--signer', 'keystore://E:\\code\\nulink\\dev_docs\\keystore-c2f98ba39c7447311017497fe2d1aea3f794eee6-worker',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
-    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    #     '--registry-filepath', 'E:\\code\\nulink\\code\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     '--policy-registry-filepath', 'E:\\code\\nulink\\code\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
     #     '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--eth-provider', 'https://evmtestnet.confluxrpc.com',
-    #     '--network', 'horus',
+    #     '--network', 'bsc_dev_testnet',
     #     # '--network', 'conflux_espace_testnet',
     #     '--payment-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--payment-provider', 'https://evmtestnet.confluxrpc.com',
-    #     '--payment-network', 'bsc_testnet',
+    #     '--payment-network', 'bsc_dev_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
-    #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
-    #     '--operator-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',
+    #     '--operator-address', '0xC2f98Ba39C7447311017497fE2d1aEa3f794eEe6',
     #     '--max-gas-price', '5000000'])
 
     import os
@@ -565,13 +565,13 @@ if __name__ == '__main__':
     os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
 
     run([
-        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        '--registry-filepath', 'E:\\code\\nulink\\code\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        '--policy-registry-filepath', 'E:\\code\\nulink\\code\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
         # '--rest-host', '192.168.3.25',
         '--rest-port', '9151',
         # '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
-        '--db-filepath', 'D:\\nulink_data',
+        '--config-file', 'C:\\Users\\wangyi\\AppData\\Local\\NuLink\\nulink\\ursula.json',
+        '--db-filepath', 'C:\\Users\\wangyi\\AppData\\Local\\NuLink\\nulink',
         # '--debug',
         # # '--force',
         '--no-ip-checkup',
