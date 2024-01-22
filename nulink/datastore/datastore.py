@@ -133,33 +133,20 @@ class Datastore:
             # If the ID can be converted to an int, we do it.
             record_id = int(record_id)
 
-        def sub_describe():
-            with self.__db_env.begin(write=writeable) as datastore_tx:
-                record = record_type(datastore_tx, record_id, writeable=writeable)
-                try:
-                    yield record
-                except (AttributeError, TypeError, DBWriteError) as tx_err:
-                    # Handle `RecordNotFound` cases when `writeable` is `False`.
-                    if not writeable and isinstance(tx_err, AttributeError):
-                        raise RecordNotFound(tx_err)
-                    raise DatastoreTransactionError(
-                        f'An error was encountered during the transaction (no data was written): {tx_err}')
-                finally:
-                    # Now we ensure that the record is not writeable
-                    record.__dict__['_DatastoreRecord__writeable'] = False
+        with self.__db_env.begin(write=writeable) as datastore_tx:
+            record = record_type(datastore_tx, record_id, writeable=writeable)
+            try:
+                yield record
+            except (AttributeError, TypeError, DBWriteError) as tx_err:
+                # Handle `RecordNotFound` cases when `writeable` is `False`.
+                if not writeable and isinstance(tx_err, AttributeError):
+                    raise RecordNotFound(tx_err)
+                raise DatastoreTransactionError(
+                    f'An error was encountered during the transaction (no data was written): {tx_err}')
+            finally:
+                # Now we ensure that the record is not writeable
+                record.__dict__['_DatastoreRecord__writeable'] = False
 
-        try:
-            sub_describe()
-        except lmdb.InvalidParameterError as e:
-            # process exception:
-            #   with self.__db_env.begin(write=writeable) as datastore_tx => raise:
-            #       lmdb.InvalidParameterError: mdb_txn_begin: Invalid argument
-            # call params:
-            #    => with datastore.describe(ReencryptionRequestModel, str(uuid.uuid4()), writeable=True) as new_request:
-            #
-            # re init lmdb
-            self.__db_env = lmdb.open(str(self.__db_env.path()), map_size=self._map_size)
-            sub_describe()
 
     @contextmanager
     def query_by(self,
@@ -187,94 +174,80 @@ class Datastore:
         """
         valid_records = set()
 
-        def sub_query_by():
-            with self.__db_env.begin(write=writeable) as datastore_tx:
-                db_cursor = datastore_tx.cursor()
+        with self.__db_env.begin(write=writeable) as datastore_tx:
+            db_cursor = datastore_tx.cursor()
 
-                # Set the cursor to the closest key (if it exists) by the query params.
-                #
-                # By providing a `filter_field`, the query will immediately be
-                # limited to the subset of keys for the `filter_field`.
-                query_key = f'{record_type.__name__}:{filter_field}'.encode()
-                if not db_cursor.set_range(query_key):
-                    # The cursor couldn't identify any records by the key
-                    raise RecordNotFound(
-                        f"No records exist for the key from the specified query parameters: '{query_key}'")
+            # Set the cursor to the closest key (if it exists) by the query params.
+            #
+            # By providing a `filter_field`, the query will immediately be
+            # limited to the subset of keys for the `filter_field`.
+            query_key = f'{record_type.__name__}:{filter_field}'.encode()
+            if not db_cursor.set_range(query_key):
+                # The cursor couldn't identify any records by the key
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
 
-                # Check if the record at the cursor is valid for the query
-                curr_key = DatastoreKey.from_bytestring(db_cursor.key())
+            # Check if the record at the cursor is valid for the query
+            curr_key = DatastoreKey.from_bytestring(db_cursor.key())
+            if not curr_key.compare_key(query_key):
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
+
+            # Everything checks out, let's begin iterating!
+            # We begin by comparing the current key to the query key.
+            # If the key doesn't match the query key, we know that there are
+            # no records for the query because lmdb orders the keys lexicographically.
+            # Ergo, if the current key doesn't match the query key, we know
+            # we have gone beyond the relevant keys and can `break` the loop.
+            # Additionally, if the record is already in the `valid_records`
+            # set (identified by the `record_id`, we call `continue`.
+            for db_key in db_cursor.iternext(keys=True, values=False):
+                curr_key = DatastoreKey.from_bytestring(db_key)
                 if not curr_key.compare_key(query_key):
-                    raise RecordNotFound(
-                        f"No records exist for the key from the specified query parameters: '{query_key}'")
+                    break
+                elif curr_key.record_id in valid_records:
+                    continue
 
-                # Everything checks out, let's begin iterating!
-                # We begin by comparing the current key to the query key.
-                # If the key doesn't match the query key, we know that there are
-                # no records for the query because lmdb orders the keys lexicographically.
-                # Ergo, if the current key doesn't match the query key, we know
-                # we have gone beyond the relevant keys and can `break` the loop.
-                # Additionally, if the record is already in the `valid_records`
-                # set (identified by the `record_id`, we call `continue`.
-                for db_key in db_cursor.iternext(keys=True, values=False):
-                    curr_key = DatastoreKey.from_bytestring(db_key)
-                    if not curr_key.compare_key(query_key):
-                        break
-                    elif curr_key.record_id in valid_records:
+                record = partial(record_type, datastore_tx, curr_key.record_id)
+
+                # We pass the field to the filter_func if `filter_field` and
+                # `filter_func` are both provided. In the event that the
+                # given `filter_field` doesn't exist for the record or the
+                # `filter_func` returns `False`, we call `continue`.
+                if filter_field and filter_func:
+                    try:
+                        field = getattr(record(writeable=False), filter_field)
+                    except (TypeError, AttributeError):
+                        continue
+                    else:
+                        if not filter_func(field):
+                            continue
+
+                # If only a filter_func is given, we pass a readonly record to it.
+                # Likewise to the above, if `filter_func` returns `False`, we
+                # call `continue`.
+                elif filter_func:
+                    if not filter_func(record(writeable=False)):
                         continue
 
-                    record = partial(record_type, datastore_tx, curr_key.record_id)
+                # Finally, having a record that satisfies the above conditional
+                # constraints, we can add the record to the set
+                valid_records.add(record(writeable=writeable))
 
-                    # We pass the field to the filter_func if `filter_field` and
-                    # `filter_func` are both provided. In the event that the
-                    # given `filter_field` doesn't exist for the record or the
-                    # `filter_func` returns `False`, we call `continue`.
-                    if filter_field and filter_func:
-                        try:
-                            field = getattr(record(writeable=False), filter_field)
-                        except (TypeError, AttributeError):
-                            continue
-                        else:
-                            if not filter_func(field):
-                                continue
-
-                    # If only a filter_func is given, we pass a readonly record to it.
-                    # Likewise to the above, if `filter_func` returns `False`, we
-                    # call `continue`.
-                    elif filter_func:
-                        if not filter_func(record(writeable=False)):
-                            continue
-
-                    # Finally, having a record that satisfies the above conditional
-                    # constraints, we can add the record to the set
-                    valid_records.add(record(writeable=writeable))
-
-                # If after the iteration we have no records, we raise `RecordNotFound`
-                if len(valid_records) == 0:
-                    raise RecordNotFound(
-                        f"No records exist for the key from the specified query parameters: '{query_key}'")
-                # We begin the context manager try/finally block
-                try:
-                    # At last, we yield the queried records
-                    yield list(valid_records)
-                except (AttributeError, TypeError, DBWriteError) as tx_err:
-                    # Handle `RecordNotFound` cases when `writeable` is `False`.
-                    if not writeable and isinstance(tx_err, AttributeError):
-                        raise RecordNotFound(tx_err)
-                    raise DatastoreTransactionError(
-                        f'An error was encountered during the transaction (no data was written): {tx_err}')
-                finally:
-                    for record in valid_records:
-                        record.__dict__['_DatastoreRecord__writeable'] = False
-
-        try:
-            sub_query_by()
-        except lmdb.InvalidParameterError as e:
-            # process exception:
-            #   with self.__db_env.begin(write=writeable) as datastore_tx => raise:
-            #       lmdb.InvalidParameterError: mdb_txn_begin: Invalid argument
-            # call params:
-            #    => with datastore.describe(ReencryptionRequestModel, str(uuid.uuid4()), writeable=True) as new_request:
-            #
-            # re init lmdb
-            self.__db_env = lmdb.open(str(self.__db_env.path()), map_size=self._map_size)
-            sub_query_by()
+            # If after the iteration we have no records, we raise `RecordNotFound`
+            if len(valid_records) == 0:
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
+            # We begin the context manager try/finally block
+            try:
+                # At last, we yield the queried records
+                yield list(valid_records)
+            except (AttributeError, TypeError, DBWriteError) as tx_err:
+                # Handle `RecordNotFound` cases when `writeable` is `False`.
+                if not writeable and isinstance(tx_err, AttributeError):
+                    raise RecordNotFound(tx_err)
+                raise DatastoreTransactionError(
+                    f'An error was encountered during the transaction (no data was written): {tx_err}')
+            finally:
+                for record in valid_records:
+                    record.__dict__['_DatastoreRecord__writeable'] = False
