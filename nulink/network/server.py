@@ -117,7 +117,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
     _node_class = Ursula
 
     rest_app = Flask("ursula-service")
-    rest_app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH   # handle http response: HTTP 413 Content Too Large
+    rest_app.config[
+        'MAX_CONTENT_LENGTH'] = MAX_UPLOAD_CONTENT_LENGTH  # handle http response: HTTP 413 Content Too Large
 
     @rest_app.route("/public_information")
     def public_information():
@@ -126,7 +127,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         from nulink import __version__
         split_symbol = bytes(check_version_pickle_symbol, 'utf-8')
 
-        response = Response(response=bytes(this_node.metadata()) + split_symbol + bytes(__version__, 'utf-8'), mimetype='application/octet-stream')
+        response = Response(response=bytes(this_node.metadata()) + split_symbol + bytes(__version__, 'utf-8'),
+                            mimetype='application/octet-stream')
         return response
 
     @rest_app.route('/node_metadata', methods=["GET"])
@@ -234,7 +236,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         # Right off the bat, if this HRAC is already known to be revoked, reject the order.
         if cross_chain_hrac in this_node.revoked_policies:
-            return Response(response=f"Policy with {cross_chain_hrac} has been revoked.", status=HTTPStatus.UNAUTHORIZED)
+            return Response(response=f"Policy with {cross_chain_hrac} has been revoked.",
+                            status=HTTPStatus.UNAUTHORIZED)
 
         publisher_verifying_key = reenc_request.publisher_verifying_key
 
@@ -273,10 +276,19 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         # TODO: return a sensible response if it fails (currently results in 500)
         response = this_node._reencrypt(kfrag=verified_kfrag, capsules=reenc_request.capsules)
 
-        # Now, Ursula saves evidence of this workorder to her database...
-        # Note: we give the work order a random ID to store it under.
-        with datastore.describe(ReencryptionRequestModel, str(uuid.uuid4()), writeable=True) as new_request:
-            new_request.bob_verifying_key = bob_verifying_key
+        try:
+            # Now, Ursula saves evidence of this workorder to her database...
+            # Note: we give the work order a random ID to store it under.
+            with datastore.describe(ReencryptionRequestModel, str(uuid.uuid4()), writeable=True) as new_request:
+                new_request.bob_verifying_key = bob_verifying_key
+        except BaseException as e:
+            # process exception:
+            #   with self.__db_env.begin(write=writeable) as datastore_tx => raise:
+            #       lmdb.InvalidParameterError: mdb_txn_begin: Invalid argument
+            # call params:
+            #    => with datastore.describe(ReencryptionRequestModel, str(uuid.uuid4()), writeable=True) as new_request:
+            import traceback
+            print(traceback.format_exc())
 
         headers = {'Content-Type': 'application/octet-stream'}
         return Response(headers=headers, response=bytes(response))
@@ -292,7 +304,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         """Asks this node: What is my IP address?"""
         requester_ip_address = request.remote_addr
 
-        return Response(json.dumps({'requester_ip': requester_ip_address, 'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
+        return Response(json.dumps({'requester_ip': requester_ip_address, 'version': __version__}),
+                        content_type="application/json", status=HTTPStatus.OK)
 
     @rest_app.route("/check_availability", methods=['POST'])
     def check_availability():
@@ -305,7 +318,9 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         len_bytes_list = len(bytes_list)
         if len_bytes_list == 1:
             # Note The version of the requesting end is relatively early, return an empty node list, Indicates that we do not support the old version
-            return Response(json.dumps({'version': __version__, 'error': f'Invalid Ursula: Version mismatch, please upgrade your node version to {__version__}'}), content_type="application/json",
+            return Response(json.dumps({'version': __version__,
+                                        'error': f'Invalid Ursula: Version mismatch, please upgrade your node version to {__version__}'}),
+                            content_type="application/json",
                             status=HTTPStatus.BAD_REQUEST)
         else:
             # current len_bytes_list must be 2
@@ -315,14 +330,16 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
             if not check_version(version_str):
                 # Note The version of the requesting end is different from the current node version, return an empty node list, Indicates that we do not support the old version
-                return Response(json.dumps({'version': __version__, 'error': f'Invalid Ursula: Version {version_str} mismatch, please upgrade your node version to {__version__}'}),
+                return Response(json.dumps({'version': __version__,
+                                            'error': f'Invalid Ursula: Version {version_str} mismatch, please upgrade your node version to {__version__}'}),
                                 content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         try:
             requesting_ursula = Ursula.from_metadata_bytes(ursula_metadata_bytes)  # request.data)
             requesting_ursula.mature()
         except ValueError:
-            return Response(json.dumps({'version': __version__, 'error': 'Invalid Ursula'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': 'Invalid Ursula'}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
         else:
             initiator_address, initiator_port = tuple(requesting_ursula.rest_interface)
 
@@ -330,7 +347,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         request_address = request.remote_addr
         if request_address != initiator_address:
             message = f'Origin address mismatch: Request origin is {request_address} but metadata claims {initiator_address}.'
-            return Response(json.dumps({'version': __version__, 'error': message}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': message}), content_type="application/json",
+                            status=HTTPStatus.BAD_REQUEST)
 
         # Make a Sandwich
         try:
@@ -339,13 +357,15 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
                 port=initiator_port,
             )
         except NodeSeemsToBeDown:
-            return Response(json.dumps({'version': __version__, 'error': 'Unreachable node'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)  # ... toasted
+            return Response(json.dumps({'version': __version__, 'error': 'Unreachable node'}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)  # ... toasted
 
         # Compare the results of the outer POST with the inner GET... yum
         if requesting_ursula_metadata == ursula_metadata_bytes:  # request.data:
             return Response(json.dumps({'version': __version__}), content_type="application/json", status=HTTPStatus.OK)
         else:
-            return Response(json.dumps({'version': __version__, 'error': 'Suspicious node'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': 'Suspicious node'}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
     @rest_app.route('/status/', methods=['GET'])
     def status():
@@ -394,9 +414,11 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         # emitter.message(f"external ip: {ip},  rest_interface.host: {this_node.rest_interface.host}")
         emitter.message(f"rest_interface.host: {this_node.rest_interface.host}")
 
-        signed_message = this_node.signer.sign_message(this_node.wallet_address, this_node.rest_interface.host.encode()).hex()
+        signed_message = this_node.signer.sign_message(this_node.wallet_address,
+                                                       this_node.rest_interface.host.encode()).hex()
         emitter.message(f"signed_message: {signed_message}")
-        return Response(json.dumps({'version': __version__, "worker_signed": signed_message}), content_type="application/json", status=HTTPStatus.OK)
+        return Response(json.dumps({'version': __version__, "worker_signed": signed_message}),
+                        content_type="application/json", status=HTTPStatus.OK)
 
     @rest_app.route("/check-running", methods=['GET'])
     def check_current_ursula_started():
@@ -408,7 +430,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
         staker_address = request.args.get('staker_address')
 
         if not staker_address or staker_address == NULL_ADDRESS:
-            return Response(json.dumps({'version': __version__, 'error': 'Parameter staker_address not be null'}), content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+            return Response(json.dumps({'version': __version__, 'error': 'Parameter staker_address not be null'}),
+                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         staker_address = to_checksum_address(staker_address)
         ursula: Ursula = this_node
@@ -417,8 +440,9 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         if not hasattr(ursula, "checksum_address") or ursula.checksum_address == NULL_ADDRESS:
             return Response(json.dumps(
-                {'version': __version__, 'error': f'current node is not valid (checksum_address is {NULL_ADDRESS}). Please Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
-                            content_type="application/json", status=HTTPStatus.BAD_REQUEST)
+                {'version': __version__,
+                 'error': f'current node is not valid (checksum_address is {NULL_ADDRESS}). Please Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
+                content_type="application/json", status=HTTPStatus.BAD_REQUEST)
 
         client: NulinkMiddlewareClient = ursula.network_middleware.client
 
@@ -431,17 +455,22 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         operator_address: ChecksumAddress = ursula.application_agent.get_operator_from_staking_provider(staker_address)
         if not operator_address or operator_address == f"0x{ZERO_ADDRESS.hex()}":
-            return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK and bond worker first'}), content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
+            return Response(json.dumps({'version': __version__, 'error': 'Please stake NLK and bond worker first'}),
+                            content_type="application/json", status=HTTPStatus.PRECONDITION_REQUIRED)
 
         operator_confirmed: bool = ursula.application_agent.is_operator_confirmed(operator_address)
         if not operator_confirmed:
-            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and started the worker(ursula) node first and Keep an adequate balance in your account'}), content_type="application/json",
+            return Response(json.dumps({'version': __version__,
+                                        'error': 'Please bond worker and started the worker(ursula) node first and Keep an adequate balance in your account'}),
+                            content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
         # Notes: ursula.known_nodes's keys are the staker_addresses, not the operator_addresses
         all_known_nodes = ursula.known_nodes.values()
         if not all_known_nodes or len(all_known_nodes) < 1:
-            return Response(json.dumps({'version': __version__, 'error': 'Please bond worker and start the worker(ursula) node first and wait for node discovery'}), content_type="application/json",
+            return Response(json.dumps({'version': __version__,
+                                        'error': 'Please bond worker and start the worker(ursula) node first and wait for node discovery'}),
+                            content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
         # Call the check_availability of the teacher node to check whether it is externally accessible =>
@@ -451,12 +480,14 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
         node_to_remove = list(ursula.known_nodes._nodes_to_remove)
 
-        filter_nodes = {node.checksum_address: node for node in ursula.known_nodes if (node.checksum_address != NULL_ADDRESS and node.checksum_address not in node_to_remove)}
+        filter_nodes = {node.checksum_address: node for node in ursula.known_nodes if
+                        (node.checksum_address != NULL_ADDRESS and node.checksum_address not in node_to_remove)}
 
         date_len = len(filter_nodes)
 
         if date_len < 1:
-            return Response(json.dumps({'version': __version__, 'error': 'Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
+            return Response(json.dumps({'version': __version__,
+                                        'error': 'Make sure the worker is staked and bonded and the ursula node is started, then wait for node discovery'}),
                             content_type="application/json",
                             status=HTTPStatus.PRECONDITION_REQUIRED)
 
@@ -481,7 +512,8 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
 
                     continue
 
-                return Response(json.dumps({'version': __version__, 'data': 'success'}), content_type="application/json", status=HTTPStatus.OK)
+                return Response(json.dumps({'version': __version__, 'data': 'success'}),
+                                content_type="application/json", status=HTTPStatus.OK)
 
             except BaseException as e:
                 last_error = f"teacher(worker) node {node.rest_interface.host}:{node.rest_interface.port} unreachable details reason: {str(e)}"
@@ -490,6 +522,7 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
                 continue
 
         error_info = f'The ursula node cannot be accessed externally. Enable port {ursula.rest_interface.port} and set a static public ip address' if not teacher_unreachable else 'teacher(work) node is inaccessible, configure the accessible node as the worker\'s learning(teacher) node or resolve the problem that the teacher(work) node is inaccessible'
-        return Response(json.dumps({'version': __version__, 'error': error_info, 'details': last_error}), content_type="application/json", status=HTTPStatus.GATEWAY_TIMEOUT)
+        return Response(json.dumps({'version': __version__, 'error': error_info, 'details': last_error}),
+                        content_type="application/json", status=HTTPStatus.GATEWAY_TIMEOUT)
 
     return rest_app

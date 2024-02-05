@@ -74,8 +74,8 @@ class DatastoreKey(NamedTuple):
         """
         other_key = DatastoreKey.from_bytestring(key_bytestring)
         return self.record_type == (other_key.record_type or self.record_type) and \
-               self.record_field == (other_key.record_field or self.record_field) and \
-               self.record_id == (other_key.record_id or self.record_id)
+            self.record_field == (other_key.record_field or self.record_field) and \
+            self.record_id == (other_key.record_id or self.record_id)
 
 
 class Datastore:
@@ -103,6 +103,7 @@ class Datastore:
         if map_size < 10_000_000_000:
             raise Exception(f"the disk {db_path.anchor} available space must greater than 20 G")
 
+        self._map_size = map_size
         self.__db_env = lmdb.open(str(db_path), map_size=map_size)
 
     @contextmanager
@@ -140,10 +141,12 @@ class Datastore:
                 # Handle `RecordNotFound` cases when `writeable` is `False`.
                 if not writeable and isinstance(tx_err, AttributeError):
                     raise RecordNotFound(tx_err)
-                raise DatastoreTransactionError(f'An error was encountered during the transaction (no data was written): {tx_err}')
+                raise DatastoreTransactionError(
+                    f'An error was encountered during the transaction (no data was written): {tx_err}')
             finally:
                 # Now we ensure that the record is not writeable
                 record.__dict__['_DatastoreRecord__writeable'] = False
+
 
     @contextmanager
     def query_by(self,
@@ -170,6 +173,7 @@ class Datastore:
         If records can't be found, this method will raise `RecordNotFound`.
         """
         valid_records = set()
+
         with self.__db_env.begin(write=writeable) as datastore_tx:
             db_cursor = datastore_tx.cursor()
 
@@ -180,12 +184,14 @@ class Datastore:
             query_key = f'{record_type.__name__}:{filter_field}'.encode()
             if not db_cursor.set_range(query_key):
                 # The cursor couldn't identify any records by the key
-                raise RecordNotFound(f"No records exist for the key from the specified query parameters: '{query_key}'")
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
 
             # Check if the record at the cursor is valid for the query
             curr_key = DatastoreKey.from_bytestring(db_cursor.key())
             if not curr_key.compare_key(query_key):
-                raise RecordNotFound(f"No records exist for the key from the specified query parameters: '{query_key}'")
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
 
             # Everything checks out, let's begin iterating!
             # We begin by comparing the current key to the query key.
@@ -230,7 +236,8 @@ class Datastore:
 
             # If after the iteration we have no records, we raise `RecordNotFound`
             if len(valid_records) == 0:
-                raise RecordNotFound(f"No records exist for the key from the specified query parameters: '{query_key}'")
+                raise RecordNotFound(
+                    f"No records exist for the key from the specified query parameters: '{query_key}'")
             # We begin the context manager try/finally block
             try:
                 # At last, we yield the queried records
@@ -239,7 +246,8 @@ class Datastore:
                 # Handle `RecordNotFound` cases when `writeable` is `False`.
                 if not writeable and isinstance(tx_err, AttributeError):
                     raise RecordNotFound(tx_err)
-                raise DatastoreTransactionError(f'An error was encountered during the transaction (no data was written): {tx_err}')
+                raise DatastoreTransactionError(
+                    f'An error was encountered during the transaction (no data was written): {tx_err}')
             finally:
                 for record in valid_records:
                     record.__dict__['_DatastoreRecord__writeable'] = False
