@@ -220,7 +220,7 @@ class RetrievalClient:
                               alice_verifying_key: PublicKey,
                               policy_encrypting_key: PublicKey,
                               bob_encrypting_key: PublicKey,
-                              timeout=3
+                              timeout=5
                               # timeout=115  # for test
                               ) -> Dict['Capsule', 'VerifiedCapsuleFrag']:
         """
