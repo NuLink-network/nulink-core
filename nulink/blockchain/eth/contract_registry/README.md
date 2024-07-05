@@ -11,7 +11,6 @@ These registries comprise the official addresses and ABIs for the networks' smar
 	* Main contract addresses:
 		* [**NuLink Token**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
         * [**Lock**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
-        * [**NuLinkStakingPool**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
         * [**SimplePREApplication**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
         * [**SubscriptionManager**](https://etherscan.io/address/0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx): - `0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
 * `heco_testnet`: Public Long-Term Support testnet, intended as a stable playground for network users (e.g., Alices wishing to create sharing policies). Running on Ethereum heco testnet.
