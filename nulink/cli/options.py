@@ -48,6 +48,8 @@ option_etherscan = click.option('--etherscan/--no-etherscan', help="Enable/disab
 option_event_name = click.option('--event-name', help="Specify an event by name", type=click.STRING)
 option_federated_only = click.option('--federated-only/--decentralized', '-F', help="Connect only to federated nodes", is_flag=True, default=None)
 option_force = click.option('--force', help="Don't ask for confirmation", is_flag=True)
+option_change_worker = click.option('--change-worker', help="Don't ask for confirmation", is_flag=True, default=False)
+option_nft_token_id = click.option('--token-id', help="the owner of the storage card slot NFT", type=click.STRING)
 option_gas_price = click.option('--gas-price', help="Set a static gas price (in GWEI)", type=GWEI)
 option_gas_strategy = click.option('--gas-strategy', help="Operate with a specified gas price strategy", type=click.STRING)  # TODO: GAS_STRATEGY_CHOICES
 option_key_material = click.option('--key-material', help="A pre-secured hex-encoded secret to use for private key derivations", type=click.STRING)

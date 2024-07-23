@@ -40,6 +40,9 @@ INSUFFICIENT_BALANCE_TO_CREATE = "Insufficient NLK for stake creation."
 
 STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE = "stake value {value} greater than NLK {balance} for stake creation."
 
+STAKE_VALUE_GREATER_THAN_ZERO = "stake value {value} must be greater than 0 for stake creation."
+
+
 #
 # Blockchain
 #
@@ -162,7 +165,7 @@ Wrote JSON configuration to {filepath}
 * Create configuration     -> nulink stake init
 * Review configuration     -> nulink stake config
 * Stake NLK tokens         -> nulink stake create
-* Stake NLK tokens         -> nulink stake unstake-all
+* UnStake NLK tokens       -> nulink stake unstake-all
 * Bond a worker            -> nulink stake bond-worker
 * UnBond a worker          -> nulink stake unbond-worker
 * Claim unStaked tokens    -> nulink stake rewards claim

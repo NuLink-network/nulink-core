@@ -13,10 +13,7 @@
 
  You should have received a copy of the GNU Affero General Public License
  along with nulink.  If not, see <https://www.gnu.org/licenses/>.
-
- node pool stake version
 """
-
 from decimal import Decimal
 from pathlib import Path
 
@@ -41,7 +38,6 @@ from nulink.cli.literature import (
     SUCCESSFUL_NEW_STAKEHOLDER_CONFIG,
     PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
     CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR, INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS,
-    STAKE_VALUE_GREATER_THAN_ZERO,
 )
 from nulink.cli.options import (
     group_options,
@@ -57,7 +53,7 @@ from nulink.cli.options import (
     option_registry_filepath,
     option_signer_uri,
     option_staking_address,
-    option_gas_price, option_nft_token_id, option_change_worker
+    option_gas_price
 )
 from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes, paint_unstaking_confirmation
 
@@ -263,12 +259,11 @@ def config(general_config, config_file, config_options):
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_nft_token_id
 @option_value
 @group_general_config
 def create(general_config: GroupGeneralConfig,
            transacting_staker_options: TransactingStakerOptions,
-           config_file, force, token_id, value):
+           config_file, force, value):
     """Initialize a new stake."""
 
     # Setup
@@ -293,23 +288,19 @@ def create(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    # min_stake_amount = STAKEHOLDER.staker.get_min_stake_amount()
-    # max_stake_amount = STAKEHOLDER.staker.get_max_stake_amount()
+    min_stake_amount = STAKEHOLDER.staker.get_min_stake_amount()
+    max_stake_amount = STAKEHOLDER.staker.get_max_stake_amount()
     token_balance = STAKEHOLDER.staker.token_balance
 
-    # stake_value_range = DecimalRange(min=min_stake_amount, max=max_stake_amount, clamp=False)
+    stake_value_range = DecimalRange(min=min_stake_amount, max=max_stake_amount, clamp=False)
 
-    # if not value or not (value >= min_stake_amount and value <= max_stake_amount):
-    #     value = click.prompt(PROMPT_STAKE_CREATE_VALUE.format(lower_limit=min_stake_amount, upper_limit=max_stake_amount),
-    #                          type=stake_value_range,
-    #                          default=max_stake_amount)
-    #
-    # if token_balance < min_stake_amount:
-    #     emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
-    #     raise click.Abort
+    if not value or not (value >= min_stake_amount and value <= max_stake_amount):
+        value = click.prompt(PROMPT_STAKE_CREATE_VALUE.format(lower_limit=min_stake_amount, upper_limit=max_stake_amount),
+                             type=stake_value_range,
+                             default=max_stake_amount)
 
-    if not value or value <= 0:
-        emitter.echo(STAKE_VALUE_GREATER_THAN_ZERO.format(value=value), color='red')
+    if token_balance < min_stake_amount:
+        emitter.echo(INSUFFICIENT_BALANCE_TO_CREATE, color='red')
         raise click.Abort
 
     if value > token_balance:
@@ -331,7 +322,7 @@ def create(general_config: GroupGeneralConfig,
         paint_approve_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt_approve)
 
     # Execute
-    receipt = STAKEHOLDER.staker.stake(token_id, int(value), gas_price=int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.stake(staking_address, int(value), gas_price=int(transacting_staker_options.gas_price))
     paint_staking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
 
 
@@ -339,11 +330,10 @@ def create(general_config: GroupGeneralConfig,
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_nft_token_id
 @group_general_config
 def unstake_all(general_config: GroupGeneralConfig,
                 transacting_staker_options: TransactingStakerOptions,
-                config_file, force, token_id):
+                config_file, force):
     """unstake all nlk for one address."""
 
     # Setup
@@ -379,50 +369,49 @@ def unstake_all(general_config: GroupGeneralConfig,
     #
 
     # Execute
-    receipt = STAKEHOLDER.staker.unstake_all(token_id, gas_price=int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.unstake_all(gas_price=int(transacting_staker_options.gas_price))
     paint_unstaking_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt)
 
 
-# @stake.command('tokens')
-# @group_staker_options
-# @option_config_file
-# @group_general_config
-# def get_stake_tokens(general_config: GroupGeneralConfig,
-#                      staker_options: StakerOptions,
-#                      config_file):
-#     """unstake all nlk for one address."""
-#
-#     # Setup
-#     emitter = setup_emitter(general_config)
-#     # stakholder is StakeHolder
-#     STAKEHOLDER = staker_options.create_character(emitter, config_file)
-#
-#     client_account, staking_address = select_client_account_for_staking(
-#         emitter=emitter,
-#         stakeholder=STAKEHOLDER,
-#         staking_address=staker_options.staking_address)
-#
-#     STAKEHOLDER.assimilate(checksum_address=client_account, password=None)
-#     #
-#     # get Stake tokens by address
-#     #
-#
-#     token_stakes = STAKEHOLDER.staker.stakes()
-#     #
-#     # Review and Publish
-#     paint_stakes(emitter=emitter, staker=STAKEHOLDER.staker, token_stakes=token_stakes)
+@stake.command('tokens')
+@group_staker_options
+@option_config_file
+@group_general_config
+def get_stake_tokens(general_config: GroupGeneralConfig,
+                     staker_options: StakerOptions,
+                     config_file):
+    """unstake all nlk for one address."""
+
+    # Setup
+    emitter = setup_emitter(general_config)
+    # stakholder is StakeHolder
+    STAKEHOLDER = staker_options.create_character(emitter, config_file)
+
+    client_account, staking_address = select_client_account_for_staking(
+        emitter=emitter,
+        stakeholder=STAKEHOLDER,
+        staking_address=staker_options.staking_address)
+
+    STAKEHOLDER.assimilate(checksum_address=client_account, password=None)
+    #
+    # get Stake tokens by address
+    #
+
+    token_stakes = STAKEHOLDER.staker.stakes()
+    #
+    # Review and Publish
+    paint_stakes(emitter=emitter, staker=STAKEHOLDER.staker, token_stakes=token_stakes)
 
 
 @stake.command('bond-worker')
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_change_worker
 @group_general_config
 @option_worker_address
 def bond_worker(general_config: GroupGeneralConfig,
                 transacting_staker_options: TransactingStakerOptions,
-                config_file, force, change_worker, worker_address):
+                config_file, force, worker_address):
     """Bond a worker to a staker."""
 
     emitter = setup_emitter(general_config)
@@ -466,12 +455,8 @@ def bond_worker(general_config: GroupGeneralConfig,
     # Review and Publish
     #
 
-    if change_worker:
-        # Execute
-        receipt = STAKEHOLDER.staker.change_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
-    else:
-        # Execute
-        receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
+    # Execute
+    receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
     message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
@@ -556,11 +541,10 @@ def rewards():
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_nft_token_id
 @group_general_config
 def claim(general_config: GroupGeneralConfig,
           transacting_staker_options: TransactingStakerOptions,
-          config_file, force, token_id):
+          config_file, force):
     """
     claim unstaked tokens
     """
@@ -599,7 +583,7 @@ def claim(general_config: GroupGeneralConfig,
     #
 
     # Execute
-    receipt = STAKEHOLDER.staker.claim_unstaked_tokens(token_id, gas_price=int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.claim_unstaked_tokens(gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
     paint_receipt_summary(emitter=emitter,
@@ -612,11 +596,10 @@ def claim(general_config: GroupGeneralConfig,
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_nft_token_id
 @group_general_config
 def claim_rewards(general_config: GroupGeneralConfig,
                   transacting_staker_options: TransactingStakerOptions,
-                  config_file, force, token_id):
+                  config_file, force):
     """
     claim rewards
     """
@@ -655,7 +638,7 @@ def claim_rewards(general_config: GroupGeneralConfig,
     #
 
     # Execute
-    receipt = STAKEHOLDER.staker.claim_rewards(token_id, gas_price=int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.claim_rewards(gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
     paint_receipt_summary(emitter=emitter,
@@ -709,7 +692,6 @@ if __name__ == '__main__':
     #     '--force',
     #     '--debug',
     #     '--value', '1000000000000000000',
-    #     '--token-id', '1',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
@@ -723,15 +705,15 @@ if __name__ == '__main__':
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    bond_worker([
-        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
-        '--gas-price', '1000000000',
-        '--force',
-        '--debug',
-        '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
-        # '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    ])
+    # bond_worker([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     # '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
+    #     '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
     # unbond_worker([
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',

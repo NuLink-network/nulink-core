@@ -419,24 +419,28 @@ class BlockchainInterface:
 
         response = exception.args[0]
 
-        # Assume this error is formatted as an RPC response
-        try:
-            code = int(response['code'])
-            message = response['message']
-        except Exception:
-            # TODO: #1504 - Try even harder to determine if this is insufficient funds causing the issue,
-            #               This may be best handled at the agent or actor layer for registry and token interactions.
-            # Worst case scenario - raise the exception held in context implicitly
-            raise exception
+        if isinstance(response, str):
+            message = response
+            # raise exception
+        else:
+            # Assume this error is formatted as an RPC response
+            try:
+                code = int(response['code'])
+                message = response['message']
+            except Exception:
+                # TODO: #1504 - Try even harder to determine if this is insufficient funds causing the issue,
+                #               This may be best handled at the agent or actor layer for registry and token interactions.
+                # Worst case scenario - raise the exception held in context implicitly
+                raise exception
 
-        if code != cls.TransactionFailed.IPC_CODE:
-            # Only handle client-specific exceptions
-            # https://www.jsonrpc.org/specification Section 5.1
-            raise exception
+            if code != cls.TransactionFailed.IPC_CODE:
+                # Only handle client-specific exceptions
+                # https://www.jsonrpc.org/specification Section 5.1
+                raise exception
 
         if logger:
             logger.critical(message)  # simple context
-
+        
         transaction_failed = cls.TransactionFailed(message=message,  # rich error (best case)
                                                    contract_function=contract_function,
                                                    transaction_dict=transaction_dict)

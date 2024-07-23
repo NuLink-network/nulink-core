@@ -38,8 +38,7 @@ from nulink.blockchain.eth.agents import (
     AdjudicatorAgent,
     ContractAgency,
     NulinkTokenAgent,
-    PREApplicationAgent,
-    NodePoolRouterAgent
+    PREApplicationAgent, StakingPoolAgent
 )
 from nulink.blockchain.eth.constants import NULL_ADDRESS
 from nulink.blockchain.eth.decorators import save_receipt, validate_checksum_address, only_me
@@ -416,7 +415,7 @@ class Staker(NulinkTokenActor):
         self._worker_address = None
 
         # Blockchain
-        self.staking_agent = ContractAgency.get_agent(NodePoolRouterAgent, registry=self.registry)
+        self.staking_agent = ContractAgency.get_agent(StakingPoolAgent, registry=self.registry)
         self.application_agent = ContractAgency.get_agent(PREApplicationAgent, registry=self.registry)
 
     def to_dict(self) -> dict:
@@ -442,25 +441,24 @@ class Staker(NulinkTokenActor):
 
     @only_me
     @save_receipt
-    def stake(self, token_id: int, value: Wei, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.staking_agent.stake(token_id, value=value, transacting_power=self.transacting_power, gas_price=gas_price)
+    def stake(self, stake_address: ChecksumAddress, value: Wei, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.stake(stake_address, value=value, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
 
     @only_me
     @save_receipt
-    def unstake_all(self, token_id: int, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.staking_agent.unstake_all(token_id, transacting_power=self.transacting_power, gas_price=gas_price)
+    def unstake_all(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.unstake_all(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
 
-    #
-    # def stakes(self, stake_address: ChecksumAddress = None) -> int:
-    #     return self.staking_agent.stakes(stake_address or self.checksum_address)
-    #
-    # def get_min_stake_amount(self) -> Wei:
-    #     return self.staking_agent.min_stake_amount()
-    #
-    # def get_max_stake_amount(self) -> Wei:
-    #     return self.staking_agent.max_stake_amount()
+    def stakes(self, stake_address: ChecksumAddress = None) -> int:
+        return self.staking_agent.stakes(stake_address or self.checksum_address)
+
+    def get_min_stake_amount(self) -> Wei:
+        return self.staking_agent.min_stake_amount()
+
+    def get_max_stake_amount(self) -> Wei:
+        return self.staking_agent.max_stake_amount()
 
     #
     # Bonding with Worker
@@ -480,14 +478,6 @@ class Staker(NulinkTokenActor):
         self._worker_address = NULL_ADDRESS
         return receipt
 
-    @only_me
-    @save_receipt
-    @validate_checksum_address
-    def change_worker(self, new_worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.change_operator(stake_address or self.checksum_address, new_worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
-        self._worker_address = new_worker_address
-        return receipt
-
     @property
     def worker_address(self) -> str:
         if not self._worker_address:
@@ -505,14 +495,14 @@ class Staker(NulinkTokenActor):
 
     @only_me
     @save_receipt
-    def claim_unstaked_tokens(self, token_id: int, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.staking_agent.claim(token_id, transacting_power=self.transacting_power, gas_price=gas_price)
+    def claim_unstaked_tokens(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.claim(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
 
     @only_me
     @save_receipt
-    def claim_rewards(self, token_id: int, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.staking_agent.claim_reward(token_id, transacting_power=self.transacting_power, gas_price=gas_price)
+    def claim_rewards(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.staking_agent.claim_reward(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
 
 class BlockchainPolicyAuthor(NulinkTokenActor):

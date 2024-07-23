@@ -1524,5 +1524,200 @@
         "type": "function"
       }
     ]
+  ],
+  [
+    "NodePoolRouter",
+    "v0.0.0",
+    "0x6E974f3e66be0857624F93FA1C1B4FDED711Ffd3",
+    [
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_addrCtrl",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "inputs": [],
+        "name": "addrCtrl",
+        "outputs": [
+          {
+            "internalType": "contract IAddressController",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          }
+        ],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          }
+        ],
+        "name": "claimReward",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          }
+        ],
+        "name": "getAuctionNodePool",
+        "outputs": [
+          {
+            "internalType": "contract IAuctionNodePool",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getFacotry",
+        "outputs": [
+          {
+            "internalType": "contract INodePoolFactory",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_user",
+            "type": "address"
+          }
+        ],
+        "name": "getPendingReward",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_reward",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_epochActiceAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "setEpochReward",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_feeRate",
+            "type": "uint256"
+          }
+        ],
+        "name": "setNextEpochFeeRate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "staking",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          }
+        ],
+        "name": "unstaking",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ]
   ]
 ]

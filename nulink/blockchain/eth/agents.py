@@ -41,7 +41,8 @@ from nulink.blockchain.eth.constants import (
     NULL_ADDRESS,
     SUBSCRIPTION_MANAGER_CONTRACT_NAME,
     PRE_APPLICATION_CONTRACT_NAME,
-    STAKING_POOL_CONTRACT_NAME
+    STAKING_POOL_CONTRACT_NAME,
+    NODE_POOL_ROUTER_CONTRACT_NAME
 )
 from nulink.blockchain.eth.decorators import contract_api
 from nulink.blockchain.eth.events import ContractEvents
@@ -566,7 +567,21 @@ class PREApplicationAgent(EthereumContractAgent):
                         gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        return self.bond_operator(staking_provider, to_checksum_address(ADDRESS_ZERO), transacting_power,gas_price=gas_price)
+        return self.bond_operator(staking_provider, to_checksum_address(ADDRESS_ZERO), transacting_power, gas_price=gas_price)
+
+
+    @contract_api(TRANSACTION)
+    def change_operator(self, staking_provider: ChecksumAddress, operator: ChecksumAddress, transacting_power: TransactingPower,
+                      gas_price: Wei = None) -> TxReceipt:
+        """For use by threshold operator accounts only."""
+
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.changeWorker(staking_provider, operator)
+        receipt = self.blockchain.send_transaction(contract_function=contract_function,
+                                                   payload=payload,
+                                                   transacting_power=transacting_power)
+        return receipt
 
 
 class StakingPoolAgent(EthereumContractAgent):
@@ -632,7 +647,6 @@ class StakingPoolAgent(EthereumContractAgent):
                     transacting_power: TransactingPower,
                     gas_price: Wei = None
                     ) -> TxReceipt:
-
         payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
         contract_function: ContractFunction = self.contract.functions.unstakeAll(
             stake_address,
@@ -651,7 +665,6 @@ class StakingPoolAgent(EthereumContractAgent):
               transacting_power: TransactingPower,
               gas_price: Wei = None
               ) -> TxReceipt:
-
         payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claim(
@@ -671,11 +684,106 @@ class StakingPoolAgent(EthereumContractAgent):
                      transacting_power: TransactingPower,
                      gas_price: Wei = None
                      ) -> TxReceipt:
-
         payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claimReward(
             stake_address,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+
+class NodePoolRouterAgent(EthereumContractAgent):
+    contract_name: str = NODE_POOL_ROUTER_CONTRACT_NAME
+
+    # TODO: A future deployment of SubscriptionManager may have a proxy.
+    #  _proxy_name: str = DISPATCHER_CONTRACT_NAME
+
+    #
+    # Calls
+    #
+
+    # Get the amount of pending reward
+    @contract_api(CONTRACT_CALL)
+    def get_pending_reward(self, stake_address: ChecksumAddress, token_id: int) -> Wei:
+        result = self.contract.functions.getPendingReward(token_id, stake_address).call()
+        return Wei(result)
+
+    #
+    # Transactions
+    #
+    @contract_api(TRANSACTION)
+    def stake(self,
+              token_id: int,
+              value: Wei,
+              transacting_power: TransactingPower,
+              gas_price: Wei = None) -> TxReceipt:
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.staking(
+            token_id,
+            int(value)
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def unstake_all(self,
+                    token_id: int,
+                    transacting_power: TransactingPower,
+                    gas_price: Wei = None
+                    ) -> TxReceipt:
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        contract_function: ContractFunction = self.contract.functions.unstaking(
+            token_id,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def claim(self,
+              token_id: int,
+              transacting_power: TransactingPower,
+              gas_price: Wei = None
+              ) -> TxReceipt:
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.claim(
+            token_id,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def claim_reward(self,
+                     token_id: int,
+                     transacting_power: TransactingPower,
+                     gas_price: Wei = None
+                     ) -> TxReceipt:
+        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.claimReward(
+            token_id,
         )
         # 交易凭据 tx
         receipt = self.blockchain.send_transaction(
@@ -726,7 +834,9 @@ class ContractAgency:
         if name == PRE_APPLICATION_CONTRACT_NAME:
             name = "PREApplication"  # TODO not needed once full PRE Application is used
         if name == STAKING_POOL_CONTRACT_NAME:
-            name = "StakingPool"  # TODO not needed once full PRE Application is used
+            name = "StakingPool"
+        if name == NODE_POOL_ROUTER_CONTRACT_NAME:
+            name = "NodePoolRouter"
 
         agent_name = f"{name}Agent"
         return agent_name
