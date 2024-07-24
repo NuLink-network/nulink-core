@@ -506,6 +506,7 @@ def unbond_worker(general_config: GroupGeneralConfig,
         emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
         raise click.Abort
 
+    # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
     worker_address = STAKEHOLDER.staker.get_operator_from_staking_provider(staking_address)
 
     if to_checksum_address(worker_address) == f"0x{ZERO_ADDRESS.hex()}":

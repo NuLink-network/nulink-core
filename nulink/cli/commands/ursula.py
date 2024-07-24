@@ -559,34 +559,19 @@ if __name__ == '__main__':
     #     '--max-gas-price', '5000000'])
 
     import os
-    #
-    # #
-    # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
-    # os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
-    #
-    # run([
-    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-    #     # '--rest-host', '192.168.3.25',
-    #     '--rest-port', '9151',
-    #     # '--teacher', 'https://8.219.188.70:9151',
-    #     '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
-    #     '--db-filepath', 'D:\\nulink_data',
-    #     # '--debug',
-    #     # # '--force',
-    #     '--no-ip-checkup',
-    #     '--no-block-until-ready',
-    #     '--console-logs',
-    #     '--file-logs',
-    # ])
 
-    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"  # "c2d3f8bdf4"
-    os.environ['NULINK_KEYSTORE_PASSWORD'] = "NuLink@tH9iym"  # "12345678"  # "NuLink@tH9iym"
+    #
+    os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
+    os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
 
     run([
-        '--rest-port', '9161',
+        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        # '--rest-host', '192.168.3.25',
+        '--rest-port', '9151',
         # '--teacher', 'https://8.219.188.70:9151',
-        '--config-file', '/root/.local/share/nulink/ursula.json',
+        '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
+        '--db-filepath', 'D:\\nulink_data',
         # '--debug',
         # # '--force',
         '--no-ip-checkup',
@@ -594,6 +579,21 @@ if __name__ == '__main__':
         '--console-logs',
         '--file-logs',
     ])
+
+    # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "c2d3f8bdf4"  # "c2d3f8bdf4"
+    # os.environ['NULINK_KEYSTORE_PASSWORD'] = "NuLink@tH9iym"  # "12345678"  # "NuLink@tH9iym"
+
+    # run([
+    #     '--rest-port', '9161',
+    #     # '--teacher', 'https://8.219.188.70:9151',
+    #     '--config-file', '/root/.local/share/nulink/ursula.json',
+    #     # '--debug',
+    #     # # '--force',
+    #     '--no-ip-checkup',
+    #     '--no-block-until-ready',
+    #     '--console-logs',
+    #     '--file-logs',
+    # ])
 
     """
     nulink ursula run --teacher 192.168.3.20:9152 --config-file D:\\nulink_data\\ursula-2.json --db-filepath D:\\nulink_data --no-ip-checkup --no-block-until-ready --console-logs --file-logs

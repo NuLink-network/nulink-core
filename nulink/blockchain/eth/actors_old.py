@@ -344,6 +344,7 @@ class Operator(BaseActor):
         return self.__staking_provider_address
 
     def get_staking_provider_address(self):
+        # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         self.__staking_provider_address = self.application_agent.get_staking_provider_from_operator(self.operator_address)
         self.checksum_address = self.__staking_provider_address
         self.nickname = Nickname.from_seed(self.checksum_address)
@@ -488,9 +489,11 @@ class Staker(NulinkTokenActor):
         return self._worker_address
 
     def get_operator_from_staking_provider(self, stake_address: ChecksumAddress = None) -> ChecksumAddress:
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         return self.application_agent.get_operator_from_staking_provider(stake_address or self.checksum_address)
 
     def get_staking_provider_from_operator(self, operator_address: ChecksumAddress) -> ChecksumAddress:
+        # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         return self.application_agent.get_staking_provider_from_operator(operator_address)
 
     @only_me

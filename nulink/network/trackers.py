@@ -61,6 +61,7 @@ class OperatorBondedTracker(SimpleTask):
             application_agent = ContractAgency.get_agent(PREApplicationAgent,
                                                          registry=self._ursula.registry,
                                                          eth_provider_uri=self._ursula.eth_provider_uri)
+            # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
             staking_provider_address = application_agent.get_staking_provider_from_operator(
                 operator_address=self._ursula.operator_address)
 

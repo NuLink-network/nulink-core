@@ -62,6 +62,7 @@ def is_authorized(emitter, staking_provider: ChecksumAddress, agent: PREApplicat
 
 
 def is_bonded(agent, staking_provider: ChecksumAddress, return_address: bool = False) -> Union[bool, Tuple[bool, ChecksumAddress]]:
+    # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
     onchain_operator = agent.get_operator_from_staking_provider(staking_provider=staking_provider)
     result = onchain_operator != NULL_ADDRESS
     if not return_address:
@@ -123,6 +124,7 @@ def bond(registry_filepath, eth_provider_uri, signer_uri, operator_address, stak
         # operator is already set - check timing
         check_bonding_requirements(emitter=emitter, agent=agent, staking_provider=staking_provider)
 
+    # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
     # Check for pre-existing staking providers for this operator
     onchain_staking_provider = agent.get_staking_provider_from_operator(operator_address=operator_address)
     if onchain_staking_provider != NULL_ADDRESS:

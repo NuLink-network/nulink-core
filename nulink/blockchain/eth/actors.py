@@ -347,6 +347,7 @@ class Operator(BaseActor):
         return self.__staking_provider_address
 
     def get_staking_provider_address(self):
+        # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         self.__staking_provider_address = self.application_agent.get_staking_provider_from_operator(self.operator_address)
         self.checksum_address = self.__staking_provider_address
         self.nickname = Nickname.from_seed(self.checksum_address)
