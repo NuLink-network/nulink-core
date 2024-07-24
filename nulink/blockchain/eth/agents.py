@@ -402,12 +402,14 @@ class PREApplicationAgent(EthereumContractAgent):
 
     @contract_api(CONTRACT_CALL)
     def get_staking_provider_from_operator(self, operator_address: ChecksumAddress) -> ChecksumAddress:
-        result = self.contract.functions.stakingProviderFromOperator(operator_address).call()
+        # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        result = self.contract.functions.stakingProviderFromOperator(to_checksum_address(operator_address)).call()
         return result
 
     @contract_api(CONTRACT_CALL)
     def get_operator_from_staking_provider(self, staking_provider: ChecksumAddress) -> ChecksumAddress:
-        result = self.contract.functions.getOperatorFromStakingProvider(staking_provider).call()
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        result = self.contract.functions.getOperatorFromStakingProvider(to_checksum_address(staking_provider)).call()
         return result
 
     @contract_api(CONTRACT_CALL)
@@ -555,6 +557,7 @@ class PREApplicationAgent(EthereumContractAgent):
     def bond_operator(self, staking_provider: ChecksumAddress, operator: ChecksumAddress, transacting_power: TransactingPower,
                       gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
 
         payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
@@ -568,7 +571,7 @@ class PREApplicationAgent(EthereumContractAgent):
     def unbond_operator(self, staking_provider: ChecksumAddress, transacting_power: TransactingPower,
                         gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
-
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         return self.bond_operator(to_checksum_address(staking_provider), to_checksum_address(ADDRESS_ZERO), transacting_power, gas_price=gas_price)
 
     @contract_api(TRANSACTION)
@@ -578,6 +581,7 @@ class PREApplicationAgent(EthereumContractAgent):
 
         payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         contract_function: ContractFunction = self.contract.functions.changeWorker(to_checksum_address(staking_provider), to_checksum_address(operator))
         receipt = self.blockchain.send_transaction(contract_function=contract_function,
                                                    payload=payload,

@@ -42,9 +42,11 @@ STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE = "stake value {value} greater than N
 
 STAKE_VALUE_GREATER_THAN_ZERO = "stake value {value} must be greater than 0 for stake creation."
 
-SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS = "slot nft owner {owner} is not stake address {stake_address}."
+SLOT_NFT_OWNER_IS_NOT_BELONG_TO_STAKE_ADDRESS = "the owner {owner} of the card slot NFT does not belong to the staking address {stake_address}, staking pool {staking_pool_address}."
 
 STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL = "token id {token_id} have successfully created the staking pool {staking_pool_address}. stake address {stake_address}"
+
+GET_STAKING_POOL_ADDRESS_BY_TOKEN_ID_FAILED = "get staking pool address failed by token id {token_id}"
 
 #
 # Blockchain
@@ -89,7 +91,7 @@ BONDING_DETAILS = "Bonded at {bonded_date}"
 
 BONDING_RELEASE_INFO = "This operator can be replaced or detached after {release_date}"
 
-SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from staking provider {staking_address}"
+SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from  staking pool {staking_pool_address}, staking provider {staking_address}, token id {token_id}"
 
 
 #

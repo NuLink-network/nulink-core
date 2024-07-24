@@ -41,7 +41,7 @@ from nulink.cli.literature import (
     SUCCESSFUL_NEW_STAKEHOLDER_CONFIG,
     PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
     CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR, INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS,
-    STAKE_VALUE_GREATER_THAN_ZERO, SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS, STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL
+    STAKE_VALUE_GREATER_THAN_ZERO, SLOT_NFT_OWNER_IS_NOT_BELONG_TO_STAKE_ADDRESS, STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL, GET_STAKING_POOL_ADDRESS_BY_TOKEN_ID_FAILED
 )
 from nulink.cli.options import (
     group_options,
@@ -452,11 +452,11 @@ def create_staking_pool(general_config: GroupGeneralConfig,
 
     slot_nft_owner_address = STAKEHOLDER.staker.owner_of(token_id).lower().strip()
     if slot_nft_owner_address == stake_pool_address.lower().strip():
-        emitter.echo(STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL.format(token_id=token_id, staking_pool_address= stake_pool_address, stake_address= staking_address), color='red')
+        emitter.echo(STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL.format(token_id=token_id, staking_pool_address=stake_pool_address, stake_address=staking_address), color='red')
         raise click.Abort
 
     if slot_nft_owner_address != staking_address.lower().strip():
-        emitter.echo(SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS.format(owner=slot_nft_owner_address, stake_address= staking_address), color='red')
+        emitter.echo(SLOT_NFT_OWNER_IS_NOT_BELONG_TO_STAKE_ADDRESS.format(owner=slot_nft_owner_address, stake_address=staking_address, staking_pool_address=stake_pool_address), color='red')
         raise click.Abort
 
     # Check if the NodePoolFactory contract has the permission to operate all the NFTs under my address
@@ -480,9 +480,10 @@ def create_staking_pool(general_config: GroupGeneralConfig,
 @option_change_worker
 @group_general_config
 @option_worker_address
+@option_nft_token_id
 def bond_worker(general_config: GroupGeneralConfig,
                 transacting_staker_options: TransactingStakerOptions,
-                config_file, force, change_worker, worker_address):
+                config_file, force, change_worker, worker_address, token_id):
     """Bond a worker to a staker."""
 
     emitter = setup_emitter(general_config)
@@ -506,11 +507,11 @@ def bond_worker(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    token_balance = STAKEHOLDER.staker.token_balance
-
-    if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
-        raise click.Abort
+    # token_balance = STAKEHOLDER.staker.token_balance
+    #
+    # if token_balance <= 0:
+    #     emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    #     raise click.Abort
 
     if not worker_address:
         worker_address = click.prompt(PROMPT_OPERATOR_ADDRESS, type=EIP55_CHECKSUM_ADDRESS)
@@ -526,12 +527,24 @@ def bond_worker(general_config: GroupGeneralConfig,
     # Review and Publish
     #
 
+    stake_pool_address = STAKEHOLDER.staker.get_stake_pool_address(token_id)
+
+    # if stake_pool_address.lower().strip() == f"0x{ZERO_ADDRESS.hex()}":
+    #     emitter.echo(GET_STAKING_POOL_ADDRESS_BY_TOKEN_ID_FAILED.format(token_id=token_id), color='red')
+    #     raise click.Abort
+
+    slot_nft_owner_address = STAKEHOLDER.staker.owner_of(token_id).lower().strip()
+
+    if slot_nft_owner_address != staking_address.lower().strip() and slot_nft_owner_address != stake_pool_address.lower().strip():
+        emitter.echo(SLOT_NFT_OWNER_IS_NOT_BELONG_TO_STAKE_ADDRESS.format(owner=slot_nft_owner_address, stake_address=staking_address, staking_pool_address=stake_pool_address), color='red')
+        raise click.Abort
+
     if change_worker:
         # Execute
-        receipt = STAKEHOLDER.staker.change_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
+        receipt = STAKEHOLDER.staker.change_worker(new_worker_address=worker_address, stake_address=stake_pool_address, gas_price=int(transacting_staker_options.gas_price))
     else:
         # Execute
-        receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, gas_price=int(transacting_staker_options.gas_price))
+        receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, stake_address=stake_pool_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
     message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
@@ -547,9 +560,10 @@ def bond_worker(general_config: GroupGeneralConfig,
 @option_config_file
 @option_force
 @group_general_config
+@option_nft_token_id
 def unbond_worker(general_config: GroupGeneralConfig,
                   transacting_staker_options: TransactingStakerOptions,
-                  config_file, force):
+                  config_file, force, token_id):
     """
     Unbond worker currently bonded to a staker.
     """
@@ -575,13 +589,25 @@ def unbond_worker(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    token_balance = STAKEHOLDER.staker.token_balance
+    # token_balance = STAKEHOLDER.staker.token_balance
+    #
+    # if token_balance <= 0:
+    #     emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    #     raise click.Abort
 
-    if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    stake_pool_address = STAKEHOLDER.staker.get_stake_pool_address(token_id)
+
+    # if stake_pool_address.lower().strip() == f"0x{ZERO_ADDRESS.hex()}":
+    #     emitter.echo(GET_STAKING_POOL_ADDRESS_BY_TOKEN_ID_FAILED.format(token_id=token_id), color='red')
+    #     raise click.Abort
+
+    slot_nft_owner_address = STAKEHOLDER.staker.owner_of(token_id).lower().strip()
+
+    if slot_nft_owner_address != staking_address.lower().strip() and slot_nft_owner_address != stake_pool_address.lower().strip():
+        emitter.echo(SLOT_NFT_OWNER_IS_NOT_BELONG_TO_STAKE_ADDRESS.format(owner=slot_nft_owner_address, stake_address=staking_address, staking_pool_address=stake_pool_address), color='red')
         raise click.Abort
 
-    worker_address = STAKEHOLDER.staker.get_operator_from_staking_provider(staking_address)
+    worker_address = STAKEHOLDER.staker.get_operator_from_staking_provider(stake_pool_address)
 
     if to_checksum_address(worker_address) == f"0x{ZERO_ADDRESS.hex()}":
         emitter.echo("\nStake unbound was successful.", color='green')
@@ -595,10 +621,10 @@ def unbond_worker(general_config: GroupGeneralConfig,
     #
 
     # Execute
-    receipt = STAKEHOLDER.staker.unbond_worker(gas_price=int(transacting_staker_options.gas_price))
+    receipt = STAKEHOLDER.staker.unbond_worker(stake_address=stake_pool_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
-    message = SUCCESSFUL_UNBOND_OPERATOR.format(worker_address=worker_address, staking_address=staking_address)
+    message = SUCCESSFUL_UNBOND_OPERATOR.format(worker_address=worker_address, staking_pool_address=stake_pool_address, staking_address=staking_address, token_id=token_id)
 
     emitter.echo(message, color='green')
     paint_receipt_summary(emitter=emitter,
@@ -803,21 +829,42 @@ if __name__ == '__main__':
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
-    bond_worker([
-        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
-        '--gas-price', '1000000000',
-        '--force',
-        '--debug',
-        '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
-        # '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    ])
+    # bond_worker([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--worker-address', '0x7afb812531f1c7a5c52c8a9720f34f4b65706b21',  # '0xf9ab0B2632783816312a12615Cc3e68dda171e28',
+    #     '--token-id', '2',
+    #     # '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    # bond_worker([
+    #     '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--worker-address', '0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48',
+    #     '--token-id', '4',
+    #     # '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
     # unbond_worker([
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
     #     '--gas-price', '1000000000',
     #     '--force',
-    #     '--debug'
+    #     '--debug',
+    #     '--token-id', '2',
+    # ])
+
+    # unbond_worker([
+    #     '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--token-id', '4',
     # ])
 
     # claim([

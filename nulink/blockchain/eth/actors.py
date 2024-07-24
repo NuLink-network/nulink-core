@@ -515,24 +515,27 @@ class Staker(NulinkTokenActor):
     @only_me
     @save_receipt
     @validate_checksum_address
-    def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, ChecksumAddress(worker_address), transacting_power=self.transacting_power, gas_price=gas_price)
+    def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress, gas_price: Wei = None) -> TxReceipt:
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        receipt = self.application_agent.bond_operator(stake_address, ChecksumAddress(worker_address), transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = worker_address
         return receipt
 
     @only_me
     @save_receipt
     @validate_checksum_address
-    def unbond_worker(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.unbond_operator(ChecksumAddress(stake_address) or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
+    def unbond_worker(self, stake_address: ChecksumAddress, gas_price: Wei = None) -> TxReceipt:
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        receipt = self.application_agent.unbond_operator(ChecksumAddress(stake_address), transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = NULL_ADDRESS
         return receipt
 
     @only_me
     @save_receipt
     @validate_checksum_address
-    def change_worker(self, new_worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.change_operator(ChecksumAddress(stake_address) or self.checksum_address, new_worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
+    def change_worker(self, new_worker_address: ChecksumAddress, stake_address: ChecksumAddress, gas_price: Wei = None) -> TxReceipt:
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        receipt = self.application_agent.change_operator(ChecksumAddress(stake_address), new_worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = new_worker_address
         return receipt
 
@@ -540,15 +543,18 @@ class Staker(NulinkTokenActor):
     def worker_address(self) -> str:
         if not self._worker_address:
             # TODO: This is broken for StakeHolder with different stakers - See #1358
+            #  # worker_address(stake address) is stake pool address, not slot nft owner's address(self.checksum_address)
             worker_address = self.application_agent.get_operator_from_staking_provider(staker_address=self.checksum_address)
             self._worker_address = worker_address
 
         return self._worker_address
 
     def get_operator_from_staking_provider(self, stake_address: ChecksumAddress = None) -> ChecksumAddress:
-        return self.application_agent.get_operator_from_staking_provider(stake_address or self.checksum_address)
+        # stake address is stake pool address, not slot nft owner's address(self.checksum_address)
+        return self.application_agent.get_operator_from_staking_provider(stake_address)
 
     def get_staking_provider_from_operator(self, operator_address: ChecksumAddress) -> ChecksumAddress:
+        # return the stake address: stake address is stake pool address, not slot nft owner's address(self.checksum_address)
         return self.application_agent.get_staking_provider_from_operator(operator_address)
 
     @only_me
