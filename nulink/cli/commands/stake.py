@@ -41,7 +41,7 @@ from nulink.cli.literature import (
     SUCCESSFUL_NEW_STAKEHOLDER_CONFIG,
     PROMPT_STAKE_CREATE_VALUE, INSUFFICIENT_BALANCE_TO_CREATE, STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE, PROMPT_OPERATOR_ADDRESS,
     CONFIRM_PROVIDER_AND_OPERATOR_ADDRESSES_ARE_EQUAL, SUCCESSFUL_OPERATOR_BONDING, SUCCESSFUL_UNBOND_OPERATOR, INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS,
-    STAKE_VALUE_GREATER_THAN_ZERO,
+    STAKE_VALUE_GREATER_THAN_ZERO, SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS, STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL
 )
 from nulink.cli.options import (
     group_options,
@@ -57,9 +57,10 @@ from nulink.cli.options import (
     option_registry_filepath,
     option_signer_uri,
     option_staking_address,
-    option_gas_price, option_nft_token_id, option_change_worker
+    option_gas_price, option_nft_token_id, option_change_worker, option_fee_rate
 )
-from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes, paint_unstaking_confirmation
+from nulink.cli.painting.staking import paint_staking_confirmation, paint_approve_confirmation, paint_stakes, paint_unstaking_confirmation, paint_create_staking_pool_confirmation, \
+    paint_create_staking_pool_approve_confirmation
 
 from nulink.cli.painting.transactions import paint_receipt_summary
 from nulink.cli.types import (
@@ -413,6 +414,65 @@ def unstake_all(general_config: GroupGeneralConfig,
 #     paint_stakes(emitter=emitter, staker=STAKEHOLDER.staker, token_stakes=token_stakes)
 
 
+@stake.command('create-staking-pool')
+@group_transacting_staker_options
+@option_config_file
+@option_force
+@option_nft_token_id
+@option_fee_rate
+@group_general_config
+def create_staking_pool(general_config: GroupGeneralConfig,
+                        transacting_staker_options: TransactingStakerOptions,
+                        config_file, force, token_id, fee_rate):
+    """unstake all nlk for one address."""
+
+    # Setup
+    emitter = setup_emitter(general_config)
+    # stakholder is StakeHolder
+    STAKEHOLDER = transacting_staker_options.create_character(emitter, config_file)
+    blockchain = transacting_staker_options.get_blockchain()
+
+    client_account, staking_address = select_client_account_for_staking(
+        emitter=emitter,
+        stakeholder=STAKEHOLDER,
+        staking_address=transacting_staker_options.staker_options.staking_address)
+
+    # Authenticate
+    password = get_password(stakeholder=STAKEHOLDER,
+                            blockchain=blockchain,
+                            client_account=client_account,
+                            hw_wallet=transacting_staker_options.hw_wallet)
+    STAKEHOLDER.assimilate(checksum_address=staking_address, password=password)
+
+    #
+    # Stage Create Staking Pool
+    #
+
+    stake_pool_address = STAKEHOLDER.staker.get_stake_pool_address(token_id)
+
+    slot_nft_owner_address = STAKEHOLDER.staker.owner_of(token_id).lower().strip()
+    if slot_nft_owner_address == stake_pool_address.lower().strip():
+        emitter.echo(STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL.format(token_id=token_id, staking_pool_address= stake_pool_address, stake_address= staking_address), color='red')
+        raise click.Abort
+
+    if slot_nft_owner_address != staking_address.lower().strip():
+        emitter.echo(SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS.format(owner=slot_nft_owner_address, stake_address= staking_address), color='red')
+        raise click.Abort
+
+    # Check if the NodePoolFactory contract has the permission to operate all the NFTs under my address
+    if not STAKEHOLDER.staker.is_approved_for_all(slot_nft_owner_address):
+        # approve the NodePoolFactory contract to operate this NFT.
+        receipt_approve = STAKEHOLDER.staker.set_approval_for_all_of_my_nft_erc721()
+        if isinstance(receipt_approve, (dict, AttributeDict)):  # (dict, TxReceipt) TypeError: TypedDict does not support instance and class checks
+            paint_create_staking_pool_approve_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, receipt=receipt_approve)
+
+    fee_rate = float(fee_rate)
+
+    # Execute
+    receipt = STAKEHOLDER.staker.create_staking_pool_for_slot_nft_owner(token_id, fee_rate, gas_price=int(transacting_staker_options.gas_price))
+    paint_create_staking_pool_confirmation(emitter=emitter, staker=STAKEHOLDER.staker, token_id=token_id, fee_rate=str(fee_rate), receipt=receipt)
+
+
 @stake.command('bond-worker')
 @group_transacting_staker_options
 @option_config_file
@@ -720,6 +780,26 @@ if __name__ == '__main__':
     #     '--gas-price', '1000000000',
     #     '--force',
     #     '--debug',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    # create_staking_pool([
+    #     '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--token-id', '4',
+    #     '--fee-rate', '0.05'
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
+
+    # create_staking_pool([
+    #     # '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--token-id', '2',
+    #     '--fee-rate', '0.05'
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 

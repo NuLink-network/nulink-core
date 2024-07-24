@@ -42,6 +42,9 @@ STAKE_VALUE_GREATER_THAN_BALANCE_TO_CREATE = "stake value {value} greater than N
 
 STAKE_VALUE_GREATER_THAN_ZERO = "stake value {value} must be greater than 0 for stake creation."
 
+SLOT_NFT_OWNER_IS_NOT_STAKE_ADDRESS = "slot nft owner {owner} is not stake address {stake_address}."
+
+STAKE_ADDRESS_TOKEN_ID_CREATE_STAKING_POOL_SUCCESSFUL = "token id {token_id} have successfully created the staking pool {staking_pool_address}. stake address {stake_address}"
 
 #
 # Blockchain
@@ -162,14 +165,15 @@ SUCCESSFUL_NEW_STAKEHOLDER_CONFIG = """
 Configured new stakeholder!
 Wrote JSON configuration to {filepath}
 
-* Create configuration     -> nulink stake init
-* Review configuration     -> nulink stake config
-* Stake NLK tokens         -> nulink stake create
-* UnStake NLK tokens       -> nulink stake unstake-all
-* Bond a worker            -> nulink stake bond-worker
-* UnBond a worker          -> nulink stake unbond-worker
-* Claim unStaked tokens    -> nulink stake rewards claim
-* Claim staking rewards    -> nulink stake rewards claim-rewards
+* Create configuration                      -> nulink stake init
+* Review configuration                      -> nulink stake config
+* Stake NLK tokens                          -> nulink stake create
+* UnStake NLK tokens                        -> nulink stake unstake-all
+* Create Staking Pool for slot nft owner    -> nulink stake create-staking-pool
+* Bond a worker                             -> nulink stake bond-worker
+* UnBond a worker                           -> nulink stake unbond-worker
+* Claim unStaked tokens                     -> nulink stake rewards claim
+* Claim staking rewards                     -> nulink stake rewards claim-rewards
 """
 
 PROMPT_STAKE_CREATE_VALUE = "Enter stake value in NLK ({lower_limit} - {upper_limit})"

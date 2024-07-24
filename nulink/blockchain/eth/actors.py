@@ -39,7 +39,9 @@ from nulink.blockchain.eth.agents import (
     ContractAgency,
     NulinkTokenAgent,
     PREApplicationAgent,
-    NodePoolRouterAgent
+    NodePoolRouterAgent,
+    NodePoolFactoryAgent,
+    ERC721NodePoolNFTAgent
 )
 from nulink.blockchain.eth.constants import NULL_ADDRESS
 from nulink.blockchain.eth.decorators import save_receipt, validate_checksum_address, only_me
@@ -418,6 +420,8 @@ class Staker(NulinkTokenActor):
         # Blockchain
         self.staking_agent = ContractAgency.get_agent(NodePoolRouterAgent, registry=self.registry)
         self.application_agent = ContractAgency.get_agent(PREApplicationAgent, registry=self.registry)
+        self.node_pool_agent = ContractAgency.get_agent(NodePoolFactoryAgent, registry=self.registry)
+        self.erc721_node_pool_nft_agent = ContractAgency.get_agent(ERC721NodePoolNFTAgent, registry=self.registry)
 
     def to_dict(self) -> dict:
         worker_address = self.worker_address or NULL_ADDRESS
@@ -462,6 +466,49 @@ class Staker(NulinkTokenActor):
     # def get_max_stake_amount(self) -> Wei:
     #     return self.staking_agent.max_stake_amount()
 
+    def test_slot_nft_owner_of(self, token_id: int, slot_nft_owner: ChecksumAddress = None) -> Tuple[bool, Union[ChecksumAddress, str]]:
+        return self.node_pool_agent.test_slot_nft_owner_of(token_id, slot_nft_owner or self.checksum_address)
+
+    @only_me
+    @save_receipt
+    def create_staking_pool_for_slot_nft_owner(self, token_id: int, fee_rate: float = 0.05, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.node_pool_agent.create_node_pool(token_id, fee_rate, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
+    @only_me
+    @save_receipt
+    @validate_checksum_address
+    def set_approval_for_all_of_my_nft_erc721(self, operator: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+        receipt = self.erc721_node_pool_nft_agent.set_approval_for_all_of_my_nft(ChecksumAddress(operator) or ChecksumAddress(self.node_pool_agent.contract_address), True, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
+    def is_approved_for_all(self, owner: ChecksumAddress, operator: ChecksumAddress = None) -> bool:
+
+        return self.erc721_node_pool_nft_agent.is_approved_for_all(owner, operator or ChecksumAddress(self.node_pool_agent.contract_address))
+
+    @only_me
+    @save_receipt
+    @validate_checksum_address
+    def approve_erc721(self, token_id: int, to: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
+
+        receipt = self.erc721_node_pool_nft_agent.approve(ChecksumAddress(to) or ChecksumAddress(self.node_pool_agent.contract_address), token_id, transacting_power=self.transacting_power, gas_price=gas_price)
+        return receipt
+
+    def has_approved(self, token_id: int) -> bool:
+        to_address = self.get_approved(token_id)
+        if to_address.lower().strip() == self.node_pool_agent.contract_address.lower().strip():
+            return True
+        return False
+
+    def get_approved(self, token_id: int) -> ChecksumAddress:
+        return self.erc721_node_pool_nft_agent.get_approved(token_id)
+
+    def owner_of(self, token_id: int) -> ChecksumAddress:
+        return self.erc721_node_pool_nft_agent.owner_of(token_id)
+
+    def get_stake_pool_address(self, token_id: int) -> str:
+        return self.node_pool_agent.get_staking_pool_address(token_id)
+
     #
     # Bonding with Worker
     #
@@ -469,14 +516,15 @@ class Staker(NulinkTokenActor):
     @save_receipt
     @validate_checksum_address
     def bond_worker(self, worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
+        receipt = self.application_agent.bond_operator(stake_address or self.checksum_address, ChecksumAddress(worker_address), transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = worker_address
         return receipt
 
     @only_me
     @save_receipt
+    @validate_checksum_address
     def unbond_worker(self, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.unbond_operator(stake_address or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
+        receipt = self.application_agent.unbond_operator(ChecksumAddress(stake_address) or self.checksum_address, transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = NULL_ADDRESS
         return receipt
 
@@ -484,7 +532,7 @@ class Staker(NulinkTokenActor):
     @save_receipt
     @validate_checksum_address
     def change_worker(self, new_worker_address: ChecksumAddress, stake_address: ChecksumAddress = None, gas_price: Wei = None) -> TxReceipt:
-        receipt = self.application_agent.change_operator(stake_address or self.checksum_address, new_worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
+        receipt = self.application_agent.change_operator(ChecksumAddress(stake_address) or self.checksum_address, new_worker_address, transacting_power=self.transacting_power, gas_price=gas_price)
         self._worker_address = new_worker_address
         return receipt
 
@@ -514,6 +562,7 @@ class Staker(NulinkTokenActor):
     def claim_rewards(self, token_id: int, gas_price: Wei = None) -> TxReceipt:
         receipt = self.staking_agent.claim_reward(token_id, transacting_power=self.transacting_power, gas_price=gas_price)
         return receipt
+
 
 class BlockchainPolicyAuthor(NulinkTokenActor):
     """Alice base class for blockchain operations, mocking up new policies!"""

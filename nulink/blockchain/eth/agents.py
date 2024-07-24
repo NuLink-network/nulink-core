@@ -20,7 +20,7 @@ import random
 import sys
 from bisect import bisect_right
 from itertools import accumulate
-from typing import Dict, Iterable, List, Tuple, Type, Any, Optional, cast, NamedTuple
+from typing import Dict, Iterable, List, Tuple, Type, Any, Optional, cast, NamedTuple, Union
 
 from constant_sorrow.constants import (  # type: ignore
     CONTRACT_CALL,
@@ -42,7 +42,9 @@ from nulink.blockchain.eth.constants import (
     SUBSCRIPTION_MANAGER_CONTRACT_NAME,
     PRE_APPLICATION_CONTRACT_NAME,
     STAKING_POOL_CONTRACT_NAME,
-    NODE_POOL_ROUTER_CONTRACT_NAME
+    NODE_POOL_ROUTER_CONTRACT_NAME,
+    NODE_POOL_FACTORY_CONTRACT_NAME,
+    ERC721_NODE_POOL_NFT_CONTRACT_NAME
 )
 from nulink.blockchain.eth.decorators import contract_api
 from nulink.blockchain.eth.events import ContractEvents
@@ -554,9 +556,9 @@ class PREApplicationAgent(EthereumContractAgent):
                       gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
-        contract_function: ContractFunction = self.contract.functions.bondOperator(staking_provider, operator)
+        contract_function: ContractFunction = self.contract.functions.bondOperator(to_checksum_address(staking_provider), to_checksum_address(operator))
         receipt = self.blockchain.send_transaction(contract_function=contract_function,
                                                    payload=payload,
                                                    transacting_power=transacting_power)
@@ -567,17 +569,16 @@ class PREApplicationAgent(EthereumContractAgent):
                         gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        return self.bond_operator(staking_provider, to_checksum_address(ADDRESS_ZERO), transacting_power, gas_price=gas_price)
-
+        return self.bond_operator(to_checksum_address(staking_provider), to_checksum_address(ADDRESS_ZERO), transacting_power, gas_price=gas_price)
 
     @contract_api(TRANSACTION)
     def change_operator(self, staking_provider: ChecksumAddress, operator: ChecksumAddress, transacting_power: TransactingPower,
-                      gas_price: Wei = None) -> TxReceipt:
+                        gas_price: Wei = None) -> TxReceipt:
         """For use by threshold operator accounts only."""
 
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
-        contract_function: ContractFunction = self.contract.functions.changeWorker(staking_provider, operator)
+        contract_function: ContractFunction = self.contract.functions.changeWorker(to_checksum_address(staking_provider), to_checksum_address(operator))
         receipt = self.blockchain.send_transaction(contract_function=contract_function,
                                                    payload=payload,
                                                    transacting_power=transacting_power)
@@ -625,7 +626,7 @@ class StakingPoolAgent(EthereumContractAgent):
         beneficiary_address = beneficiary_address or stake_address or transacting_power.account
         authorizer_address = authorizer_address or stake_address or transacting_power.account
 
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.stake(
             stake_address,
@@ -647,7 +648,7 @@ class StakingPoolAgent(EthereumContractAgent):
                     transacting_power: TransactingPower,
                     gas_price: Wei = None
                     ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
         contract_function: ContractFunction = self.contract.functions.unstakeAll(
             stake_address,
         )
@@ -665,7 +666,7 @@ class StakingPoolAgent(EthereumContractAgent):
               transacting_power: TransactingPower,
               gas_price: Wei = None
               ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claim(
             stake_address,
@@ -684,7 +685,7 @@ class StakingPoolAgent(EthereumContractAgent):
                      transacting_power: TransactingPower,
                      gas_price: Wei = None
                      ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claimReward(
             stake_address,
@@ -711,6 +712,8 @@ class NodePoolRouterAgent(EthereumContractAgent):
     # Get the amount of pending reward
     @contract_api(CONTRACT_CALL)
     def get_pending_reward(self, stake_address: ChecksumAddress, token_id: int) -> Wei:
+        token_id = int(token_id)
+
         result = self.contract.functions.getPendingReward(token_id, stake_address).call()
         return Wei(result)
 
@@ -723,7 +726,9 @@ class NodePoolRouterAgent(EthereumContractAgent):
               value: Wei,
               transacting_power: TransactingPower,
               gas_price: Wei = None) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.staking(
             token_id,
@@ -743,7 +748,9 @@ class NodePoolRouterAgent(EthereumContractAgent):
                     transacting_power: TransactingPower,
                     gas_price: Wei = None
                     ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
         contract_function: ContractFunction = self.contract.functions.unstaking(
             token_id,
         )
@@ -761,7 +768,9 @@ class NodePoolRouterAgent(EthereumContractAgent):
               transacting_power: TransactingPower,
               gas_price: Wei = None
               ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claim(
             token_id,
@@ -780,10 +789,158 @@ class NodePoolRouterAgent(EthereumContractAgent):
                      transacting_power: TransactingPower,
                      gas_price: Wei = None
                      ) -> TxReceipt:
-        payload: TxParams = {"gasPrice": int(gas_price) or self.blockchain.w3.eth.gas_price}  # {'value': value}
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
 
         contract_function: ContractFunction = self.contract.functions.claimReward(
             token_id,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+
+class NodePoolFactoryAgent(EthereumContractAgent):
+    """
+       卡槽nft拥有者可以调用此类的函数
+       按照现在的需求要求： 一个卡槽nft 只能创建一个质押池
+       卡槽nft拥有者拥有卡槽后，还要创建质押池(install), 才能bond-worker, 启动worker
+    """
+    contract_name: str = NODE_POOL_FACTORY_CONTRACT_NAME
+
+    # TODO: A future deployment of SubscriptionManager may have a proxy.
+    #  _proxy_name: str = DISPATCHER_CONTRACT_NAME
+
+    #
+    # Calls
+    #
+
+    @contract_api(CONTRACT_CALL)
+    def get_node_pool_length(self) -> int:
+        result = self.contract.functions.allNodePoolLength().call()
+        return result
+
+    @contract_api(CONTRACT_CALL)
+    def get_node_pool_list(self, index: int = 0) -> Union[ChecksumAddress, str]:
+        result = self.contract.functions.allNodePoolList(index).call()
+        return result
+
+    @contract_api(CONTRACT_CALL)
+    def get_staking_pool_address(self, token_id: int) -> Union[ChecksumAddress, str]:  # ChecksumAddress | str
+        token_id = int(token_id)
+
+        result = self.contract.functions.getNodePoolAddr(token_id).call()
+        return result
+
+    @contract_api(CONTRACT_CALL)
+    def test_slot_nft_owner_of(self, token_id: int, slot_nft_owner: ChecksumAddress) -> Tuple[bool, Union[ChecksumAddress, str]]:
+        token_id = int(token_id)
+
+        result = self.contract.functions.testNFTOwnerOF(token_id, slot_nft_owner).call()
+
+        isOwner: bool = result[0]
+        nft_owner_address: [ChecksumAddress, str] = result[1]
+        return isOwner, nft_owner_address
+
+    #
+    # Transactions
+    #
+    # fee_rate : 若是 5%， 这里需要传递 0.05
+    @contract_api(TRANSACTION)
+    def create_node_pool(self,
+                         token_id: int,
+                         fee_rate: float,
+                         transacting_power: TransactingPower,
+                         gas_price: Wei = None) -> TxReceipt:
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.createNodePool(
+            token_id,
+            int(fee_rate * 10000)  # 如果是 5%=0.05, 需要乘以10000，即传500到合约里
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+
+class ERC721NodePoolNFTAgent(EthereumContractAgent):
+    """
+         卡槽nft 的 approve (erc721)
+    """
+    contract_name: str = ERC721_NODE_POOL_NFT_CONTRACT_NAME
+
+    # TODO: A future deployment of SubscriptionManager may have a proxy.
+    #  _proxy_name: str = DISPATCHER_CONTRACT_NAME
+
+    #
+    # Calls
+    #
+
+    @contract_api(CONTRACT_CALL)
+    def is_approved_for_all(self, owner: ChecksumAddress, operator: ChecksumAddress) -> bool:
+        result = self.contract.functions.isApprovedForAll(to_checksum_address(owner), to_checksum_address(operator)).call()
+        return result
+
+    @contract_api(CONTRACT_CALL)
+    def get_approved(self, token_id: int) -> ChecksumAddress:
+        token_id = int(token_id)
+        result = self.contract.functions.getApproved(token_id).call()
+        return result
+
+    @contract_api(CONTRACT_CALL)
+    def owner_of(self, token_id: int) -> ChecksumAddress:
+        token_id = int(token_id)
+        result = self.contract.functions.ownerOf(token_id).call()
+        return result
+
+    #
+    # Transactions
+    #
+    # fee_rate : 若是 5%， 这里需要传递 0.05
+    @contract_api(TRANSACTION)
+    def approve(self,
+                to: ChecksumAddress,
+                token_id: int,
+                transacting_power: TransactingPower,
+                gas_price: Wei = None) -> TxReceipt:
+        token_id = int(token_id)
+
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.approve(
+            to,
+            token_id,
+        )
+        # 交易凭据 tx
+        receipt = self.blockchain.send_transaction(
+            contract_function=contract_function,
+            payload=payload,
+            transacting_power=transacting_power
+        )
+        return receipt
+
+    @contract_api(TRANSACTION)
+    def set_approval_for_all_of_my_nft(self,
+                                       operator: ChecksumAddress,
+                                       approved: bool,
+                                       transacting_power: TransactingPower,
+                                       gas_price: Wei = None) -> TxReceipt:
+        payload: TxParams = {"gasPrice": int(gas_price) if gas_price else self.blockchain.w3.eth.gas_price}  # {'value': value}
+
+        contract_function: ContractFunction = self.contract.functions.setApprovalForAll(
+            to_checksum_address(operator),
+            approved,
         )
         # 交易凭据 tx
         receipt = self.blockchain.send_transaction(
