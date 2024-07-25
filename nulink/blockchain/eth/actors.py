@@ -650,7 +650,8 @@ class StakeHolder:
         if password:
             self.signer.unlock_account(account=checksum_address, password=password)
         new_form = self.checksum_address
-        self.log.info(f"Setting Staker from {original_form} to {new_form}.")
+        if original_form and new_form and original_form.lower().strip() != new_form.lower().strip():
+            self.log.info(f"Setting Staker from {original_form} to {new_form}.")
 
     @validate_checksum_address
     def get_staker(self, checksum_address: ChecksumAddress = None):

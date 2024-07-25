@@ -1170,7 +1170,7 @@
   [
     "SimplePREApplication",
     "v0.0.0",
-    "0x1a30793F440Ee115E95c44088C220303BF6a7BA2",
+    "0x7422a2938A29E3E2e82DD0Ab118061797e75Deb9",
     [
       {
         "inputs": [
@@ -1528,32 +1528,8 @@
   [
     "NodePoolRouter",
     "v0.0.0",
-    "0x6E974f3e66be0857624F93FA1C1B4FDED711Ffd3",
+    "0xB26a4D56E0dB2103b118b724BFf5003a4DBA82CF",
     [
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "_addrCtrl",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-      },
-      {
-        "inputs": [],
-        "name": "addrCtrl",
-        "outputs": [
-          {
-            "internalType": "contract IAddressController",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
       {
         "inputs": [
           {
@@ -1578,62 +1554,6 @@
         "name": "claimReward",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_tokenID",
-            "type": "uint256"
-          }
-        ],
-        "name": "getAuctionNodePool",
-        "outputs": [
-          {
-            "internalType": "contract IAuctionNodePool",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "getFacotry",
-        "outputs": [
-          {
-            "internalType": "contract INodePoolFactory",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "_tokenID",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "_user",
-            "type": "address"
-          }
-        ],
-        "name": "getPendingReward",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
         "type": "function"
       },
       {
@@ -1708,6 +1628,17 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "_addrCtrl",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "uint256",
             "name": "_tokenID",
             "type": "uint256"
@@ -1716,6 +1647,149 @@
         "name": "unstaking",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "addrCtrl",
+        "outputs": [
+          {
+            "internalType": "contract IAddressController",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          }
+        ],
+        "name": "getAuctionNodePool",
+        "outputs": [
+          {
+            "internalType": "contract IStakingNodePool",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getFacotry",
+        "outputs": [
+          {
+            "internalType": "contract INodePoolFactory",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_user",
+            "type": "address"
+          }
+        ],
+        "name": "getPendingReward",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "_tokenID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_user",
+            "type": "address"
+          },
+          {
+            "internalType": "uint16",
+            "name": "_epoch",
+            "type": "uint16"
+          }
+        ],
+        "name": "getUserEpochInfo",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ]

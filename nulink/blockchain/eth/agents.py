@@ -532,8 +532,11 @@ class PREApplicationAgent(EthereumContractAgent):
 
         self.log.debug(f"Got {len(stake_provider_map)} staking providers with {n_tokens} total tokens "
                        f"({filtered_out} filtered out)")
-        if n_tokens == 0:
-            raise self.NotEnoughStakingProviders(f'There are no locked tokens.')
+
+        # n_tokens： The n_tokens variable represents the total amount of money staked by all users.
+        # In the V12 version, the minimum staking amount is no longer restricted, it can be 0. So the users who stake 0 amount are also considered active stakers, they just won't receive any rewards
+        # if n_tokens == 0:
+        #     raise self.NotEnoughStakingProviders(f'There are no locked tokens.')
 
         return StakingProvidersReservoir(stake_provider_map)
 
@@ -1031,7 +1034,19 @@ class WeightedSampler:
             elements, weights = zip(*weighted_elements.items())
         else:
             elements, weights = [], []
+        """
+            numbers = [1, 2, 3, 4, 5]
+            accumulated_sum = list(accumulate(numbers))
+            print(accumulated_sum)  # print: [1, 3, 6, 10, 15]
+        """
+        # adapter V12 contract  begin
+        # In the V12 version, the minimum staking amount is no longer restricted, it can be 0. So the users who stake 0 amount are also considered active stakers, they just won't receive any rewards.
+        # replace 0 to 1 for sample_no_replacement function
+        weights = list(map(lambda x: 1 if x == 0 else x, weights))
+        # adapter V12 contract  end
+
         self.totals = list(accumulate(weights))
+
         self.elements = elements
         self.__length = len(self.totals)
 
@@ -1054,8 +1069,23 @@ class WeightedSampler:
         samples = []
 
         for i in range(quantity):
+            # # for adapter V12 contract  begin
+            # # In the V12 version, the minimum staking amount is no longer restricted, it can be 0. So the users who stake 0 amount are also considered active stakers, they just won't receive any rewards.
+            # # self.totals[-1] : Using index -1 to access the last element of a list
+            # _value = self.totals[-1] - 1
+            # # for adapter V12 contract end
+            #
+            # # self.totals[-1] : Using index -1 to access the last element of a list
+            #
+            # # position = rng.randint(0, 0 if _value <= 0 else _value)
+
             position = rng.randint(0, self.totals[-1] - 1)
             idx = bisect_right(self.totals, position)
+            # if idx >= len(self.elements):
+            #     idx = len(self.elements) - 1
+            #
+            # idx = 0 if idx < 0 else idx
+
             samples.append(self.elements[idx])
 
             # Adjust the totals so that they correspond
