@@ -369,11 +369,11 @@ def unstake_all(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    token_balance = STAKEHOLDER.staker.token_balance
-
-    if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
-        raise click.Abort
+    # token_balance = STAKEHOLDER.staker.token_balance
+    #
+    # if token_balance <= 0:
+    #     emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    #     raise click.Abort
 
     #
     # Review and Publish
@@ -477,13 +477,13 @@ def create_staking_pool(general_config: GroupGeneralConfig,
 @group_transacting_staker_options
 @option_config_file
 @option_force
-@option_change_worker
 @group_general_config
 @option_worker_address
 @option_nft_token_id
+@option_change_worker
 def bond_worker(general_config: GroupGeneralConfig,
                 transacting_staker_options: TransactingStakerOptions,
-                config_file, force, change_worker, worker_address, token_id):
+                config_file, force, worker_address, token_id, change_worker):
     """Bond a worker to a staker."""
 
     emitter = setup_emitter(general_config)
@@ -795,19 +795,20 @@ if __name__ == '__main__':
     #     '--force',
     #     '--debug',
     #     '--value', '1000000000000000000',
-    #     '--token-id', '1',
+    #     '--token-id', '2',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     # ])
 
     # get_stake_tokens()
 
-    # unstake_all([
-    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
-    #     '--gas-price', '1000000000',
-    #     '--force',
-    #     '--debug',
-    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    # ])
+    unstake_all([
+        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+        '--gas-price', '1000000000',
+        '--force',
+        '--debug',
+        '--token-id', '2',
+        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    ])
 
     # create_staking_pool([
     #     '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
@@ -845,7 +846,8 @@ if __name__ == '__main__':
     #     '--gas-price', '1000000000',
     #     '--force',
     #     '--debug',
-    #     '--worker-address', '0xa4E676871bd80Dbee2027B6E8BC16812E2d60e48',
+    #     '--worker-address', '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
+    #     '--change-worker',
     #     '--token-id', '4',
     #     # '--worker-address', '0x417136ee7133e3d2e333daf4b80e299422521f80', # '0x1EDfC8629d723956c4c4147b61859FD5db3C98b1',
     #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
