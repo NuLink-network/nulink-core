@@ -672,11 +672,11 @@ def claim(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    token_balance = STAKEHOLDER.staker.token_balance
-
-    if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
-        raise click.Abort
+    # token_balance = STAKEHOLDER.staker.token_balance
+    #
+    # if token_balance <= 0:
+    #     emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    #     raise click.Abort
 
     if not force:
         click.confirm("Are you sure you want to claim unstaked tokens?", abort=True)
@@ -728,11 +728,11 @@ def claim_rewards(general_config: GroupGeneralConfig,
     # Stage Stake
     #
 
-    token_balance = STAKEHOLDER.staker.token_balance
-
-    if token_balance <= 0:
-        emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
-        raise click.Abort
+    # token_balance = STAKEHOLDER.staker.token_balance
+    #
+    # if token_balance <= 0:
+    #     emitter.echo(INSUFFICIENT_BALANCE_TO_SEND_TRANSACTIONS, color='red')
+    #     raise click.Abort
 
     if not force:
         click.confirm("Are you sure you want to claim rewards?", abort=True)
@@ -801,14 +801,14 @@ if __name__ == '__main__':
 
     # get_stake_tokens()
 
-    unstake_all([
-        #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
-        '--gas-price', '1000000000',
-        '--force',
-        '--debug',
-        '--token-id', '2',
-        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
-    ])
+    # unstake_all([
+    #     #  '--config-file', 'D:\\nulink_data\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
+    #     '--gas-price', '1000000000',
+    #     '--force',
+    #     '--debug',
+    #     '--token-id', '2',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    # ])
 
     # create_staking_pool([
     #     '--config-file', 'C:\\Users\\Administrator\\AppData\\Local\\NuLink\\nulink\\stakeholder-d9eca420ea4384ec4831cb4f785b1da08d5890af.json',
@@ -871,6 +871,7 @@ if __name__ == '__main__':
 
     # claim([
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
+    #     '--token-id', '2',
     #     '--gas-price', '1000000000',
     #     '--force',
     #     '--debug'
@@ -880,7 +881,8 @@ if __name__ == '__main__':
     #     #  '--config-file', 'D:\\nulink_data\\stakeholder.json',
     #     '--gas-price', '1000000000',
     #     '--force',
-    #     '--debug'
+    #     '--debug',
+    #     '--token-id', '2',
     # ])
 
 """
