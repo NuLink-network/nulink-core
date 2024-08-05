@@ -85,13 +85,13 @@ It is *highly recommended* to use a different accounts for staker and operator r
 
 Continue using the same account for operator and staker?"""
 
-SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking provider {staking_address}"
+SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking pool {staking_pool_address}. staking provider is {staking_address}"
 
 BONDING_DETAILS = "Bonded at {bonded_date}"
 
 BONDING_RELEASE_INFO = "This operator can be replaced or detached after {release_date}"
 
-SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from  staking pool {staking_pool_address}, staking provider {staking_address}, token id {token_id}"
+SUCCESSFUL_UNBOND_OPERATOR = "Successfully unbonded operator {worker_address} from staking pool {staking_pool_address}, staking provider {staking_address}, token id {token_id}"
 
 
 #

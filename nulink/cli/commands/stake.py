@@ -547,7 +547,7 @@ def bond_worker(general_config: GroupGeneralConfig,
         receipt = STAKEHOLDER.staker.bond_worker(worker_address=worker_address, stake_address=stake_pool_address, gas_price=int(transacting_staker_options.gas_price))
 
     # Report Success
-    message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, staking_address=staking_address)
+    message = SUCCESSFUL_OPERATOR_BONDING.format(worker_address=worker_address, stake_pool_address=stake_pool_address, staking_address=staking_address)
     emitter.echo(message, color='green')
     paint_receipt_summary(emitter=emitter,
                           receipt=receipt,

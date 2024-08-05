@@ -38,6 +38,7 @@ docker run -it --rm \
 nulink/nulink:dev nulink stake bond-worker --gas-price 1000000000 --force --worker-address 0xF3e30956ABacEF088a80C80A2F29E3e470190Aba --token-id 23
 
 4. 解绑 docker run -it --rm \
+-e NULINK_STAKING_PROVIDER_ETH_PASSWORD \
 -v /root/nulink/worker-1:/code \
 -v /root/nulink/worker-1:/home/circleci/.local/share/nulink \
 nulink/nulink:dev nulink stake unbond-worker  --gas-price 1000000000 --force --token-id 23
@@ -60,7 +61,7 @@ nulink/nulink:dev nulink ursula init \
 
 6.启动worker (需要至少0.1TBNB和1000NLK,如果没有这些启动了，那么充值后需要重新启动该worker)
 docker run --restart on-failure -d \
---name cross-chain-worker-1 \
+--name card-slot-worker-1 \
 -p 9166:9166 \
 -v /root/nulink/worker-1:/code \
 -v /root/nulink/worker-1:/home/circleci/.local/share/nulink \
