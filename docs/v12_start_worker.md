@@ -9,6 +9,8 @@ export NULINK_STAKING_PROVIDER_ETH_PASSWORD=qazwsxedc
 export NULINK_KEYSTORE_PASSWORD=qazwsxedc
 export NULINK_OPERATOR_ETH_PASSWORD=qazwsxedc
 
+chmod -R 777 /root/nulink/worker-1
+
 1. 需要先初始化: 
 sudo docker run -it --rm \
 -v /root/nulink/worker-1:/code \
@@ -38,7 +40,7 @@ nulink/nulink:dev nulink stake bond-worker --gas-price 1000000000 --force --work
 4. 解绑 docker run -it --rm \
 -v /root/nulink/worker-1:/code \
 -v /root/nulink/worker-1:/home/circleci/.local/share/nulink \
-nulink/nulink:dev nulink stake unbond-worker  --gas-price 1000000000 --force --token-id 2
+nulink/nulink:dev nulink stake unbond-worker  --gas-price 1000000000 --force --token-id 23
 
 
 5.初始化worker
