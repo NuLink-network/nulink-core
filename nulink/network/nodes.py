@@ -77,8 +77,8 @@ TEACHER_NODES = {
     # NetworksInventory.BSC_TESTNET: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),  # dev server for greenfield sp
     # NetworksInventory.HORUS: ("https://127.0.0.1:9151", "https://127.0.0.1:9152",),
 
-    NetworksInventory.BSC_TESTNET: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),  # dev server for greenfield sp
-    NetworksInventory.HORUS: ("https://8.222.155.168:9161", "https://8.222.131.226:9161", "https://8.222.146.98:9161",),
+    NetworksInventory.BSC_TESTNET: ("https://47.237.117.37:21107", "https://47.237.107.82:21107",),
+    NetworksInventory.HORUS: ("https://47.237.117.37:21107", "https://47.237.107.82:21107",),
     # NetworksInventory.BSC_DEV_TESTNET: ("https://192.168.3.32:9151",),
     NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),  # test the invalid node ("https://8.219.11.39:9168",),
 
