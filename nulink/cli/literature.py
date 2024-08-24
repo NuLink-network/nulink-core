@@ -85,7 +85,7 @@ It is *highly recommended* to use a different accounts for staker and operator r
 
 Continue using the same account for operator and staker?"""
 
-SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking pool {staking_pool_address}. staking provider is {staking_address}"
+SUCCESSFUL_OPERATOR_BONDING = "\nOperator {worker_address} successfully bonded to staking pool {stake_pool_address}. staking provider is {staking_address}"
 
 BONDING_DETAILS = "Bonded at {bonded_date}"
 
