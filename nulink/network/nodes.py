@@ -1258,12 +1258,15 @@ class Teacher:
 
         verifying_keys_match = sprout.verifying_key == self.public_keys(SigningPower)
         encrypting_keys_match = sprout.encrypting_key == self.public_keys(DecryptingPower)
+
+        # note: self.checksum_address is staking provider address
         addresses_match = sprout.checksum_address == self.checksum_address
         evidence_matches = sprout.operator_signature_from_metadata == self.operator_signature_from_metadata
 
         if not all((encrypting_keys_match, verifying_keys_match, addresses_match, evidence_matches)):
             # Failure
             if not addresses_match:
+                # self.checksum_address is staking provider address
                 message = "Wallet address swapped out.  It appears that someone is trying to defraud this node."
             elif not verifying_keys_match:
                 message = "Verifying key swapped out.  It appears that someone is impersonating this node."
