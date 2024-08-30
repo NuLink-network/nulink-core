@@ -406,11 +406,12 @@ class Learner:
                     self.log.warn(f"Failed to instantiate a node at {uri}: {e}")
                 else:
                     new_node = self.remember_node(maybe_sage_node, record_fleet_state=False)
-                    if new_node.checksum_address not in [_node.checksum_address for _node in discovered]:
-                        discovered.append(new_node)
-                    # else:
-                    #     _index = [_node.checksum_address for _node in discovered].index(new_node.checksum_address)
-                    #     discovered[_index] = new_node
+                    if new_node: # is not False
+                        if new_node.checksum_address not in [_node.checksum_address for _node in discovered]:
+                            discovered.append(new_node)
+                        # else:
+                        #     _index = [_node.checksum_address for _node in discovered].index(new_node.checksum_address)
+                        #     discovered[_index] = new_node
 
         self.log.info(f"=============> self._seed_nodes <================ {len(self._seed_nodes)}")
         for seednode_metadata in self._seed_nodes:
@@ -464,11 +465,12 @@ class Learner:
                 invalid_nodes[node.domain].append(node)
                 continue
             restored_node = self.remember_node(node, record_fleet_state=False)  # TODO: Validity status 1866
-            if restored_node.checksum_address not in [_node.checksum_address for _node in restored_from_disk]:
-                restored_from_disk.append(restored_node)
-            # else:
-            #     _index = [_node.checksum_address for _node in restored_from_disk].index(restored_node.checksum_address)
-            #     restored_from_disk[_index] = restored_node
+            if restored_node:  # is not False
+                if restored_node.checksum_address not in [_node.checksum_address for _node in restored_from_disk]:
+                    restored_from_disk.append(restored_node)
+                # else:
+                #     _index = [_node.checksum_address for _node in restored_from_disk].index(restored_node.checksum_address)
+                #     restored_from_disk[_index] = restored_node
 
         if invalid_nodes:
             self.log.warn(f"We're learning about domain '{self.domain}', but found nodes from other domains; "
