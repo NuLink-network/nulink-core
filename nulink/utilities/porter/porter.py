@@ -47,26 +47,10 @@ from nulink.utilities.concurrency import WorkerPool
 from nulink.utilities.logging import Logger
 from nulink.utilities.porter.control.controllers import PorterCLIController
 from nulink.utilities.porter.control.interfaces import PorterInterface
+from nulink.utilities.porter.node_list import nulink_workers
 from nulink.utilities.version import VersionMismatchError
 
-nulink_workers: Dict = \
-    {
-        # "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945": {
-        #     "checksum_address": "0xc95C2BA4234b2a3E1aa91d167Ee1CB5f951A5945",
-        #     "uri": "https://8.222.155.168:9161",
-        #     "encrypting_key": "032aa6db627b3a4b527d4bbe74b8b82801fa287dddc30665b6d8d45292c60640ee"
-        # },
-        # "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18": {
-        #     "checksum_address": "0x4F09EA918210dC8422299BD0E94eEfE78C30eC18",
-        #     "uri": "https://8.222.131.226:9161",
-        #     "encrypting_key": "0317ea59b97b7114a4954229a6798ac1565c64f19ac66364fbba205c8ba008e948"
-        # },
-        # "0x37e134573AE74C212Aa47941C95b58265D437998": {
-        #     "checksum_address": "0x37e134573AE74C212Aa47941C95b58265D437998",
-        #     "uri": "https://8.222.146.98:9161",
-        #     "encrypting_key": "031addb934b01b8a373a8db2947156e664fe8ee2f6d723231cf972fa7cf6bb2059"
-        # }
-    }
+
 
 
 class Porter(Learner):
@@ -138,7 +122,11 @@ the Pipe for PRE Application network operations
         self.log.info(self.BANNER)
 
     @classmethod
-    def get_nulink_workers(cls) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
+    def get_nulink_workers(cls, domain: str) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
+
+        worker_list = nulink_workers.get(domain, None) or None
+        if not worker_list:
+            return {}
 
         # Porter.UrsulaInfo(checksum_address=ursula_address,
         #                   uri=f"{ursula.rest_interface.formal_uri}",
@@ -148,16 +136,18 @@ the Pipe for PRE Application network operations
                                                                                                                                       uri=ursula_info["uri"],
                                                                                                                                       encrypting_key=PublicKey.from_bytes(
                                                                                                                                           bytes.fromhex(ursula_info["encrypting_key"])))
-                                                                               for ursula_address, ursula_info in nulink_workers.items()}
+                                                                               for ursula_address, ursula_info in worker_list.items()}
 
         porter_ursula_worker_dict = random_dic(porter_ursula_worker_dict)
 
         return porter_ursula_worker_dict
 
     @classmethod
-    def get_nulink_worker_addresses(cls) -> Set[ChecksumAddress]:
-
-        return set([to_checksum_address(ursula_address) for ursula_address in nulink_workers.keys()])
+    def get_nulink_worker_addresses(cls, domain: str) -> Set[ChecksumAddress]:
+        worker_list = nulink_workers.get(domain, None) or None
+        if not worker_list:
+            return set([])
+        return set([to_checksum_address(ursula_address) for ursula_address in worker_list.keys()])
 
     def get_enough_ursulas(self, worker_pool: WorkerPool) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
 
@@ -166,7 +156,7 @@ the Pipe for PRE Application network operations
 
         enough_success_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = success_workers
 
-        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers()
+        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers(self.domain)
 
         enough_success_workers.update(_nulink_workers)
 
@@ -180,7 +170,7 @@ the Pipe for PRE Application network operations
 
     def get_enough_ursulas_from_nulink_worker(self, quantity: int) -> Dict[ChecksumAddress, 'Porter.UrsulaInfo']:
 
-        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers()
+        _nulink_workers: Dict[ChecksumAddress, 'Porter.UrsulaInfo'] = Porter.get_nulink_workers(self.domain)
 
         len_enough_success_workers = len(_nulink_workers)
 

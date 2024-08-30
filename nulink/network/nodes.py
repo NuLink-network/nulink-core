@@ -81,6 +81,7 @@ TEACHER_NODES = {
     NetworksInventory.HORUS: ("https://47.237.117.37:21107", "https://47.237.107.82:21107",),
     # NetworksInventory.BSC_DEV_TESTNET: ("https://192.168.3.32:9151",),
     NetworksInventory.BSC_DEV_TESTNET: ("https://8.219.11.39:9161",),  # test the invalid node ("https://8.219.11.39:9168",),
+    #     NetworksInventory.BSC_DEV_TESTNET: ("https://192.168.137.1:9161",),  # test the invalid node ("https://8.219.11.39:9168",),
 
     NetworksInventory.HECO_TESTNET: ("https://8.219.11.39:9151",),
     NetworksInventory.HECO: ("https://8.219.11.39:9151",),
@@ -405,7 +406,11 @@ class Learner:
                     self.log.warn(f"Failed to instantiate a node at {uri}: {e}")
                 else:
                     new_node = self.remember_node(maybe_sage_node, record_fleet_state=False)
-                    discovered.append(new_node)
+                    if new_node.checksum_address not in [_node.checksum_address for _node in discovered]:
+                        discovered.append(new_node)
+                    # else:
+                    #     _index = [_node.checksum_address for _node in discovered].index(new_node.checksum_address)
+                    #     discovered[_index] = new_node
 
         self.log.info(f"=============> self._seed_nodes <================ {len(self._seed_nodes)}")
         for seednode_metadata in self._seed_nodes:
@@ -435,7 +440,12 @@ class Learner:
 
         nodes_restored_from_storage = self.read_nodes_from_storage() if read_storage else []
         self.log.info(f"discoverd node by read_nodes_from_storage() {len(nodes_restored_from_storage)}")
-        discovered.extend(nodes_restored_from_storage)
+        for node_restored_from_storage in nodes_restored_from_storage:
+            if node_restored_from_storage.checksum_address not in [_node.checksum_address for _node in discovered]:
+                discovered.extend(nodes_restored_from_storage)
+            # else:
+            #     _index = [_node.checksum_address for _node in discovered].index(node_restored_from_storage.checksum_address)
+            #     discovered[_index] = node_restored_from_storage
 
         if discovered and record_fleet_state:
             self.known_nodes.record_fleet_state()
@@ -443,6 +453,7 @@ class Learner:
         return discovered
 
     def read_nodes_from_storage(self) -> List:
+        # self.node_storage: ForgetfulNodeStorage
         stored_nodes = self.node_storage.all(federated_only=self.federated_only)  # TODO: #466
 
         restored_from_disk = []
@@ -453,7 +464,11 @@ class Learner:
                 invalid_nodes[node.domain].append(node)
                 continue
             restored_node = self.remember_node(node, record_fleet_state=False)  # TODO: Validity status 1866
-            restored_from_disk.append(restored_node)
+            if restored_node.checksum_address not in [_node.checksum_address for _node in restored_from_disk]:
+                restored_from_disk.append(restored_node)
+            # else:
+            #     _index = [_node.checksum_address for _node in restored_from_disk].index(restored_node.checksum_address)
+            #     restored_from_disk[_index] = restored_node
 
         if invalid_nodes:
             self.log.warn(f"We're learning about domain '{self.domain}', but found nodes from other domains; "
@@ -903,7 +918,7 @@ class Learner:
         # TODO: we really should be checking this *before* we ask it for a node list,
         # but currently we may not know this before the REST request (which may mature the node)
         if self.domain != current_teacher.domain and \
-                not (current_teacher.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS] and self.domain in [NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS]):
+                not (current_teacher.domain in [NetworksInventory.BSC_DEV_TESTNET, NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS] and self.domain in [NetworksInventory.BSC_DEV_TESTNET, NetworksInventory.BSC_TESTNET, NetworksInventory.HORUS]):
             self.log.debug(f"{current_teacher} is serving '{current_teacher.domain}', "
                            f"ignore since we are learning about '{self.domain}'")
             return  # This node is not serving our domain.
@@ -918,12 +933,13 @@ class Learner:
             return
 
         try:
-            # metadata_payload: MetadataResponsePayload
+            # metadata_payload: MetadataResponsePayload, metadata: MetadataResponse
             metadata_payload = metadata.verify(current_teacher.stamp.as_umbral_pubkey())
         except Exception as e:
             # TODO (#567): bucket the node as suspicious
             self.log.warn(
-                f"Failed to verify MetadataResponse from Teacher {current_teacher} ({e}): {response.content}")
+                # f"Failed to verify MetadataResponse from Teacher {current_teacher} ({e}): {response.content}")
+                f"Failed to verify MetadataResponse from Teacher {current_teacher} ({e})")
             return
 
         # End edge case handling.
@@ -951,7 +967,11 @@ class Learner:
                                                    # Do we want both of these to be decided by `eager`?
                                                    eager=eager)
                 if node_or_false is not False:
-                    remembered.append(node_or_false)
+                    if node_or_false.checksum_address not in [_node.checksum_address for _node in remembered]:
+                        remembered.append(node_or_false)
+                    # else:
+                    #     _index = [_node.checksum_address for _node in remembered].index(node_or_false.checksum_address)
+                    #     remembered[_index] = node_or_false
 
                 #
                 # Report Failure
@@ -1262,6 +1282,12 @@ class Teacher:
         # note: self.checksum_address is staking provider address
         addresses_match = sprout.checksum_address == self.checksum_address
         evidence_matches = sprout.operator_signature_from_metadata == self.operator_signature_from_metadata
+
+        # andi add it for contract of V13 begin
+        if not addresses_match:
+            # self.verified_node = True
+            return
+        # andi add it for contract of V13 end
 
         if not all((encrypting_keys_match, verifying_keys_match, addresses_match, evidence_matches)):
             # Failure

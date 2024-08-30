@@ -23,9 +23,9 @@ DISPATCHER_CONTRACT_NAME = 'Dispatcher'  # for Adjudicator contract , current us
 NULINK_TOKEN_CONTRACT_NAME = 'NuLinkToken'
 STAKING_ESCROW_CONTRACT_NAME = 'StakingEscrow'  # current useless
 ADJUDICATOR_CONTRACT_NAME = 'Adjudicator'  # current useless
-# SimplePREApplication 对应新合约 NodePoolStakingManager
+# SimplePREApplication  =>  NodePoolStakingManager
 PRE_APPLICATION_CONTRACT_NAME = 'SimplePREApplication'  # TODO: Use the real PREApplication
-# SubscriptionManager 对应新合约 PolicyManager
+# SubscriptionManager  =>  PolicyManager
 SUBSCRIPTION_MANAGER_CONTRACT_NAME = 'SubscriptionManager'
 STAKING_POOL_CONTRACT_NAME = 'NuLinkStakingPool'
 NODE_POOL_ROUTER_CONTRACT_NAME = 'NodePoolRouter'

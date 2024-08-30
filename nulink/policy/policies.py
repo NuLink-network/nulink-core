@@ -128,7 +128,7 @@ class Policy(ABC):
 
         success_workers: Dict[ChecksumAddress, 'Ursula'] = worker_pool.get_successes()
 
-        _nulink_workers: Set[ChecksumAddress] = Porter.get_nulink_worker_addresses()
+        _nulink_workers: Set[ChecksumAddress] = Porter.get_nulink_worker_addresses(self.domain)
 
         need_to_successes = worker_pool.get_target_successes() - len(success_workers)
 

@@ -34,7 +34,7 @@ from nulink.utilities.task import SimpleTask
 import time
 
 
-# OperatorBondedTracker 判断质押者的地址是否为NULL
+# OperatorBondedTracker: checks whether the staker's address is NULL
 class OperatorBondedTracker(SimpleTask):
     INTERVAL = 30  # 60 seconds
 
