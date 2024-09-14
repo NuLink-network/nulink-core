@@ -2,7 +2,7 @@
   [
     "NuLinkToken",
     "v0.0.0",
-    "0xc65643C56a9c46f903849b204316b5A795712CD7",
+    "0x8A95eF66ef0b5bCD10cb8aB433c768f50B5822a8",
     [
       {
         "inputs": [],
@@ -487,7 +487,7 @@
   [
     "SubscriptionManager",
     "v0.0.0",
-    "0x60c8135d4C10505b3511e0Ad40d05Ee9CeF5592b",
+    "0xc337EE62Fd5A6bF36A52A5f6a1C83DFc81945EB3",
     [
       {
         "anonymous": false,
@@ -1170,7 +1170,7 @@
   [
     "SimplePREApplication",
     "v0.0.0",
-    "0xF944D0665E07FA0a3596c556EF2ef118c3cc2fF7",
+    "0x33fe3307b269885579F967684f98a02E7DAF5154",
     [
       {
         "inputs": [
@@ -1528,7 +1528,7 @@
   [
     "NodePoolRouter",
     "v0.0.0",
-    "0xcd23Bf9d407C736ADDaA9391645e19719cbC9bCb",
+    "0x38FADE47A04786db7d41750cf66a6954899334ea",
     [
 	{
 		"inputs": [
@@ -1821,7 +1821,7 @@
   [
     "NodePoolFactory",
     "v0.0.0",
-    "0x123B94adc44b10151936ae4c55188EcB80b64a4E",
+    "0x85263d080D721Df108Ff4ac591B58073e4C55019",
     [
 	{
 		"inputs": [
@@ -1988,7 +1988,7 @@
   [
     "NodePoolNFT",
     "v0.0.0",
-    "0xD5DbEf22A0fA5E075AfBaEf56a5b970E2cFf7219",
+    "0xB8320B34336d402B33053218e78174D900f55691",
     [
       {
         "inputs": [
