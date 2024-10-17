@@ -34,7 +34,7 @@ docker pull nulink/nulink:latest
 
 docker run  -p 127.0.0.1:19123:19123/tcp -v /path/host/Machine/directory:/code --rm -it nulink/nulink /bin/bash
 
-# 注意： docker 的 porter启动必须在 /nulink 目录下 才能正常启动
+# 注意： docker 的 porter启动必须在 /root/nulink 目录下 才能正常启动
 docker run --restart on-failure -d \
                 --name card-slot-porter \
                        -p 21106:21106 \
