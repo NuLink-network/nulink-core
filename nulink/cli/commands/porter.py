@@ -175,12 +175,21 @@ if __name__ == '__main__':
     # os.environ["http_proxy"] = "http://127.0.0.1:7890"
     # os.environ["https_proxy"] = "http://127.0.0.1:7890"
 
+   # 注意： docker 的 porter启动必须在 /nulink 目录下 才能正常启动
+
+    # docker run --restart on-failure -d \
+    #                  --name card-slot-porter \
+    #                         -p 21106:21106 \
+    # nulink/nulink:latest \
+    # nulink porter run --network bsc_testnet --eth-provider https://bsc-testnet.blockpi.network/v1/rpc/8bb18ae7efff29171cfcfde05fed7f8a76d847a3 --teacher https://47.237.117.37:21107 --http-port 21106 --allow-origins * --console-logs
+
+
     run([
         '--http-port', '9165',
         # '--teacher', '54.241.67.36:9151',
         # '--teacher', '192.168.3.20:9151',
         # '--teacher', '8.222.155.168:9161',  # '127.0.0.1:9151',  # '192.168.3.25:9151',  # '127.0.0.1:9151',
-        '--network', 'bsc_dev_testnet',  # 'horus',
+        '--network', 'bsc_testnet', # 'bsc_dev_testnet',  # 'horus',
         '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
         '--allow-origins', "*",
         '--debug',
