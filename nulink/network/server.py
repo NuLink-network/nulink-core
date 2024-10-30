@@ -204,7 +204,9 @@ def _make_rest_app(datastore: Datastore, this_node, log: Logger) -> Flask:
                     # inconsistent metadata
                     pass
                 else:
-                    this_node.remember_node(NodeSprout(metadata))
+                    node = NodeSprout(metadata)
+                    if node.checksum_address != NULL_ADDRESS:
+                        this_node.remember_node(node)
 
         # TODO: generate a new fleet state here?
 

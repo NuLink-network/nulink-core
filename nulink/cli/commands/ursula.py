@@ -548,15 +548,19 @@ if __name__ == '__main__':
     #     #'--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore_worker',
     #     '--signer', 'keystore://D:\\wangyi\\code\\code\\nulink\\dev_docs\\keystore-4f09ea918210dc8422299bd0e94eefe78c30ec18',
     #     # 'keystore:///Users/t/data/nulink/keystore' ,
-    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
     #     '--eth-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--eth-provider', 'https://evmtestnet.confluxrpc.com',
-    #     '--network', 'bsc_dev_testnet',
+    #     '--network', 'bsc_testnet',
+    #     # '--network', 'bsc_dev_testnet',
     #     # '--network', 'conflux_espace_testnet',
     #     '--payment-provider', 'https://data-seed-prebsc-1-s1.bnbchain.org:8545',
     #     # '--payment-provider', 'https://evmtestnet.confluxrpc.com',
-    #     '--payment-network', 'bsc_dev_testnet',
+    #     '--payment-network', 'bsc_testnet',
+    #     # '--payment-network', 'bsc_dev_testnet',
     #     # '--payment-network', 'conflux_espace_testnet',
     #     # '--operator-address', '0x7DEff413E415bd2507da4988393d8540a28bf3c6',
     #     '--operator-address', '0x4F09EA918210dC8422299BD0E94eEfE78C30eC18',
@@ -568,21 +572,24 @@ if __name__ == '__main__':
     # os.environ['NULINK_OPERATOR_ETH_PASSWORD'] = "qazwsxedc"  # "c2d3f8bdf4"
     # os.environ['NULINK_KEYSTORE_PASSWORD'] = "qazwsxedc"  # "12345678"  # "NuLink@tH9iym"
 
-    # run([
-    #     '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-    #     '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
-    #     # '--rest-host', '192.168.137.1',
-    #     '--rest-port', '9163',
-    #     # '--teacher', 'https://8.219.188.70:9151',
-    #     '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
-    #     '--db-filepath', 'D:\\nulink_data',
-    #     # '--debug',
-    #     # # '--force',
-    #     '--no-ip-checkup',
-    #     '--no-block-until-ready',
-    #     '--console-logs',
-    #     '--file-logs',
-    # ])
+    run([
+        # '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        # '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_dev_testnet\\contract_registry.json',
+        '--registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+        '--policy-registry-filepath', 'D:\\wangyi\\code\\code\\nulink\\nulink-core\\nulink\\blockchain\\eth\\contract_registry\\bsc_testnet\\contract_registry.json',
+        # '--rest-host', '192.168.137.1',
+        '--rest-port', '9163',
+        # '--teacher', 'https://8.219.188.70:9151',
+        # '--config-file', 'D:\\nulink_data\\ursula-024d5d23.json',
+        '--config-file', 'D:\\nulink_data\\ursula.json',
+        '--db-filepath', 'D:\\nulink_data',
+        # '--debug',
+        # # '--force',
+        '--no-ip-checkup',
+        '--no-block-until-ready',
+        '--console-logs',
+        '--file-logs',
+    ])
 
 
     run([

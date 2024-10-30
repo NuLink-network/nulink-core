@@ -33,6 +33,7 @@ from constant_sorrow.constants import (
 )
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509 import Certificate, load_der_x509_certificate
+from eth.constants import ZERO_ADDRESS
 from eth_utils import to_checksum_address
 from nucypher_core import MetadataResponse, MetadataResponsePayload, NodeMetadata
 from nucypher_core.umbral import Signature
@@ -963,13 +964,19 @@ class Learner:
         sprouts = [NodeSprout(node) for node in metadata_payload.announce_nodes]
 
         for sprout in sprouts:
+            # andi add this 2024 10 30 begin:
+            if sprout.checksum_address == NULL_ADDRESS:
+                continue
+            # andi add this 2024 10 30 end
+
             try:
                 node_or_false = self.remember_node(sprout,
                                                    record_fleet_state=False,
                                                    # Do we want both of these to be decided by `eager`?
                                                    eager=eager)
                 if node_or_false is not False:
-                    if node_or_false.checksum_address not in [_node.checksum_address for _node in remembered]:
+                    if node_or_false.checksum_address not in [_node.checksum_address for _node in remembered] \
+                            and node_or_false.checksum_address != NULL_ADDRESS:  # andi add this line 2024 10 30
                         remembered.append(node_or_false)
                     # else:
                     #     _index = [_node.checksum_address for _node in remembered].index(node_or_false.checksum_address)
@@ -1114,7 +1121,7 @@ class Teacher:
         # TODO (#1537): FleetSensor does metadata-to-byte conversion as well,
         # we may be able to cache the results there.
         self.log.info(f"bytestring_of_known_nodes known_nodes {len(self.known_nodes)}")
-        announce_nodes = [self.metadata()] + [node.metadata() for node in self.known_nodes]
+        announce_nodes = [self.metadata()] + [node.metadata() for node in self.known_nodes if node.checksum_address != NULL_ADDRESS ]
         response_payload = MetadataResponsePayload(timestamp_epoch=self.known_nodes.timestamp.epoch,
                                                    announce_nodes=announce_nodes)
         response = MetadataResponse(self.stamp.as_umbral_signer(), response_payload)
@@ -1287,7 +1294,8 @@ class Teacher:
 
         # andi add it for contract of V13 begin
         if not addresses_match:
-            # self.verified_node = True
+            self.verified_node = True # Fix bug: After re-bonding the worker to another staking address, the porter cannot find the node without restarting.
+            self.log.info("verify_node return.  checksum_address {} ".format(self.checksum_address))
             return
         # andi add it for contract of V13 end
 
